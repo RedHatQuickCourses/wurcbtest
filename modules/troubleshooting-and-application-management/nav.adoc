@@ -1,0 +1,3 @@
+* xref:troubleshooting-and-application-management.adoc[]
+** xref:troubleshooting-containers-and-pods.adoc[]
+** xref:managing-applications-using-the-kubernetes-workload-api.adoc[]

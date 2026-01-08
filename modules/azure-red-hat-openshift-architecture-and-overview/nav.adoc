@@ -1,0 +1,4 @@
+* xref:azure-red-hat-openshift-architecture-and-overview.adoc[]
+** xref:aro-platform-capabilities.adoc[]
+** xref:joint-engineering-operation-and-support-model.adoc[]
+** xref:managed-control-plane-and-infrastructure.adoc[]

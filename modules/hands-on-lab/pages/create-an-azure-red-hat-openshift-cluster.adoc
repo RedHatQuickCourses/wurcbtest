@@ -1,0 +1,141 @@
+#  Create an Azure Red Hat OpenShift Cluster
+
+= Creating an Azure Red Hat OpenShift Cluster
+
+This document guides you through the process of provisioning an Azure Red Hat OpenShift (ARO) cluster, a jointly engineered, operated, and supported OpenShift service on Azure. We will cover the prerequisites, detailed technical explanations, and a hands-on lab to get your ARO cluster up and running using the Azure CLI.
+
+The ability to create an ARO cluster is a fundamental step in advanced administration, providing the foundation for deploying and managing containerized applications on a highly available, scalable, and fully managed OpenShift platform.
+
+[[aro-cluster-provisioning-overview]]
+== ARO Cluster Provisioning Overview
+
+Azure Red Hat OpenShift simplifies the deployment and management of OpenShift clusters on Azure. It provides a fully managed control plane and infrastructure, allowing you to focus on your applications rather than cluster operations.
+
+When you create an ARO cluster, Azure provisions all the necessary resources, including virtual machines for control plane and worker nodes, networking components, and integrates with Azure services.
+
+=== Prerequisites for ARO Cluster Creation
+
+Before you begin the cluster creation process, ensure you meet the following prerequisites:
+
+*   **Azure Subscription:** An active Azure subscription.
+*   **Azure CLI:**
+    *   You must have the Azure CLI installed.
+    *   Ensure your Azure CLI version is `2.67.0` or higher. You can verify your version by running `az --version`. If needed, install or upgrade it as per official Azure documentation.
+*   **Sufficient Azure Quota:**
+    *   Azure Red Hat OpenShift clusters require a minimum of 44 cores in your subscription.
+    *   For a cluster with three worker nodes, each being a `D8sv5` SKU (8 cores per node), a minimum of 52 cores is required.
+    *   Ensure you have sufficient quota for at least one `D8sv5` SKU (or higher) in the region where you plan to deploy your cluster.
+*   **Resource Group:** A dedicated Azure resource group to host your ARO cluster resources.
+*   **Network (Optional but Recommended):** A pre-existing virtual network (VNet) with two empty subnets (one for master nodes, one for worker nodes) if you plan to deploy a private cluster or customize network settings. For a quickstart, ARO can create a VNet for you.
+
+[[service-principal-vs-managed-identity]]
+=== Service Principal vs. Managed Identity
+
+Historically, ARO clusters were created using a *service principal* to grant permissions to Azure resources. While this is still an option, *managed identities* are now the recommended and more secure approach for new clusters.
+
+*   **Service Principal:** A cluster created with a service principal cannot be migrated to use a managed identity. If you need to use managed identities, you must create a new cluster.
+*   **Managed Identity:** Offers enhanced security and simplified credential management by allowing Azure services to authenticate to other services without storing credentials in code. *The provided context refers to a preview feature for creating clusters with managed identities.* For this lab, we will use the common `az aro create` command which by default might leverage service principals or requires specific flags for managed identity which are outside the immediate scope of the provided `az aro create` example, but it's important to be aware of this distinction for future deployments.
+
+[[hands-on-create-aro-cluster]]
+== Hands-on Lab: Create an Azure Red Hat OpenShift Cluster
+
+In this lab, you will use the Azure CLI to create a basic Azure Red Hat OpenShift cluster. We will explore various configuration options during the creation process.
+
+=== Step 1: Prepare your Environment
+
+First, log in to Azure and set up environment variables.
+
+.Log in to Azure
+Perform a standard Azure CLI login.
+
+[source,bash]
+----
+az login
+----
+
+.Set Environment Variables
+Define variables for your resource group, cluster name, and location.
+
+[source,bash]
+----
+# Define your resource group name
+RESOURCEGROUP="aro-rg"
+
+# Define your ARO cluster name
+AROCLUSTER="myarocluster"
+
+# Define the Azure region (e.g., eastus, westeurope)
+LOCATION="eastus"
+
+# Create the resource group if it doesn't exist
+az group create --name $RESOURCEGROUP --location $LOCATION
+
+# (Optional) If you plan to use a custom pull secret, create a dummy file for demonstration
+echo "{ \"auths\": { \"quay.io\": { \"auth\": \"c3VwZXIgc2VjcmV0\" } } }" > pull-secret.txt
+
+# (Optional) If you plan to use platform workload identities, create a dummy identity for demonstration
+# In a real scenario, you'd create and use an identity for a specific operator, e.g., 'aro-operator'
+# For this lab, we will use a placeholder or create a simple user-assigned identity
+# to demonstrate the flag structure.
+# NOTE: The provided context refers to an existing 'aro-operator' identity.
+# We will simulate this by creating a user-assigned managed identity.
+az identity create --resource-group $RESOURCEGROUP --name aro-operator
+----
+
+=== Step 2: Create the ARO Cluster
+
+Now, you will run the `az aro create` command to provision your cluster. We'll include various optional arguments to illustrate their usage as per the provided context.
+
+.Run the `az aro create` command
+Execute the following command, modifying it as per your requirements.
+
+[source,bash]
+----
+az aro create \
+  --resource-group $RESOURCEGROUP \
+  --name $AROCLUSTER \
+  --vnet aro-vnet \
+  --master-subnet master-subnet \
+  --worker-subnet worker-subnet \
+  --pull-secret @pull-secret.txt \
+  --domain mycustomdomain.example.com \
+  --assign-platform-workload-identity key-openshift-operator="$(az identity show --resource-group $RESOURCEGROUP --name aro-operator --query principalId -o tsv)" \
+  --location $LOCATION
+----
+
+[NOTE]
+The `--vnet`, `--master-subnet`, and `--worker-subnet` arguments will instruct ARO to create a new virtual network and subnets for your cluster if they don't already exist. If you wish to use pre-existing networks, replace these with the names of your existing resources.
+
+The command includes the following optional arguments, as described in the context:
+
+*   `--pull-secret @pull-secret.txt`: This argument enables your cluster to access Red Hat container registries along with other content. In a production environment, `pull-secret.txt` would contain your actual Red Hat pull secret.
+*   `--domain mycustomdomain.example.com`: This allows you to use a custom domain for your cluster. Replace `mycustomdomain.example.com` with your desired custom domain.
+*   `--assign-platform-workload-identity key-openshift-operator="$(az identity show --resource-group $RESOURCEGROUP --name aro-operator --query principalId -o tsv)"`: This flag assigns a platform workload identity. The first argument (`key-openshift-operator`) represents the key, which tells the Azure Red Hat OpenShift resource provider which OpenShift operator to use for a given identity. The second argument refers to the identity itself, in this case, the `principalId` of the `aro-operator` managed identity we created. *For a real-world scenario, you would need to identify the specific operator and its corresponding key.*
+
+.Wait for Cluster Creation
+The cluster creation process can take **30-45 minutes** to complete. The CLI will output status updates. Do not close your terminal.
+
+=== Step 3: Verify Cluster Creation
+
+Once the command completes successfully, you can verify your cluster.
+
+.Get Cluster Credentials
+Retrieve the cluster credentials.
+
+[source,bash]
+----
+az aro list-credentials --name $AROCLUSTER --resource-group $RESOURCEGROUP
+----
+
+This command will output the `kubeadmin` username and password, as well as the console URL for your cluster.
+
+.Access the OpenShift Web Console
+Navigate to the `consoleUrl` provided in the output of the previous command. Log in using the `kubeadmin` credentials.
+
+.Verify Cluster Status
+Within the OpenShift Web Console, you can navigate to `Administration` > `Cluster Settings` > `Overview` to see the cluster's health and status. You should see all nodes (master and worker) in a ready state.
+
+[NOTE]
+As mentioned in the context, ARO requires worker nodes of D8sv5 or higher. You can verify the machine types under `Compute` > `Nodes` in the OpenShift Web Console. For more details on machine management, you can refer to OpenShift's documentation.
+
+Congratulations! You have successfully created an Azure Red Hat OpenShift cluster. You are now ready to explore its capabilities further and deploy your applications.

@@ -1,0 +1,511 @@
+#  Backup and restore of cluster applications using Velero
+
+= Backup and restore of cluster applications using Velero
+
+[abstract]
+This module provides a comprehensive guide to backing up and restoring applications in an Azure Red Hat OpenShift (ARO) cluster using Velero. You will learn how to set up Velero, perform application backups, including persistent volumes, and restore applications to their previous state, ensuring business continuity and data resilience.
+
+== Understanding Velero for ARO Cluster Application Management
+
+In the dynamic environment of Azure Red Hat OpenShift, ensuring the resilience and recoverability of your applications is critical. Velero is an open-source tool specifically designed for disaster recovery and migration of Kubernetes cluster resources and persistent volumes. It provides a robust and flexible solution for creating snapshots of your application's state and data, enabling swift restoration in various scenarios.
+
+Velero operates by interacting with the Kubernetes API to collect resource definitions (such as Deployments, Services, ConfigMaps, and Secrets) and, optionally, leveraging cloud provider APIs to create snapshots of underlying Persistent Volumes. These backups are then securely stored in an object storage solution, such as Azure Blob Storage, allowing for granular or complete application recovery to the same or a different ARO cluster.
+
+=== Key Capabilities:
+
+*   **Application-centric Backup and Restore:** Velero allows you to back up and restore all Kubernetes resources associated with specific applications or namespaces.
+*   **Persistent Volume Snapshots:** It integrates with Azure's native snapshot capabilities to capture consistent snapshots of Persistent Volumes (PVs), critical for stateful applications.
+*   **Cluster Migration:** Facilitates the migration of applications and their data between ARO clusters, across regions, or even to different environments.
+*   **Disaster Recovery:** Offers a crucial mechanism for recovering applications and their data in the event of accidental deletion, data corruption, or broader cluster failures.
+*   **Backup Scheduling:** Supports automated, scheduled backups to maintain regular recovery points.
+
+=== How Velero Integrates with ARO and Azure:
+
+Velero leverages a dedicated plugin for Microsoft Azure, `velero-plugin-for-microsoft-azure`, to seamlessly interact with Azure services. This plugin enables Velero to:
+
+*   **Store Backup Archives:** Store compressed `.tar.gz` archives of Kubernetes resource definitions in designated Azure Blob Storage containers.
+*   **Manage Volume Snapshots:** Orchestrate the creation and restoration of snapshots for Azure Managed Disks, which serve as the backing storage for Persistent Volumes in ARO.
+
+This integration ensures that your application's configuration and persistent data are securely backed up within your Azure subscription, adhering to your cloud infrastructure's security and compliance standards.
+
+== Prerequisites
+
+Before proceeding with Velero installation and operations, ensure the following prerequisites are met:
+
+*   **Azure Red Hat OpenShift v4 Cluster:** You must have an active ARO v4 cluster and be successfully authenticated as an administrator via the `oc` CLI.
+*   **Azure CLI:** Install Azure CLI version `2.6.0` or later. Verify your version by running `az --version`. If needed, refer to the Azure documentation for installation or upgrade instructions.
+*   **`oc` CLI:** The OpenShift command-line interface installed and configured to connect to your ARO cluster.
+*   **Permissions:** Your Azure account (or the Service Principal/Managed Identity you use) must have sufficient permissions to create:
+    *   Azure Resource Groups
+    *   Azure Storage Accounts and Blob Containers
+    *   Azure Disk Snapshots
+    *   Your ARO user account must have permissions to deploy applications and manage cluster resources.
+
+== Setting Up Velero for ARO
+
+To implement Velero for backup and restore operations, you'll first need to configure the necessary Azure storage infrastructure and then install Velero into your ARO cluster.
+
+=== Step 1: Create an Azure Storage Account and Blob Container
+
+Velero requires an Azure storage account and a blob container to store its backup data. For optimal disaster recovery planning, it's recommended to create a dedicated Azure resource group for these backup resources, separate from your ARO cluster's resource group. This strategy ensures that your backups persist independently, even if the primary ARO cluster's resource group is deleted.
+
+.Activity: Create Azure Storage for Velero Backups
+====
+This activity guides you through the process of creating a dedicated Azure resource group, storage account, and blob container specifically for Velero backups.
+
+. Log in to your Azure account using the Azure CLI:
++
+[source,bash]
+----
+az login
+----
+
+. Set environment variables. These variables will define the names and location for your backup resources. Ensure `AZURE_LOCATION` matches a region where your ARO cluster or desired restore target resides.
++
+[source,bash]
+----
+export AZURE_BACKUP_RESOURCE_GROUP="Velero_Backups" # Dedicated resource group for Velero backups
+export AZURE_STORAGE_ACCOUNT_NAME="arovelero$(head /dev/urandom | tr -dc a-z0-9 | head -c 10 | tr '[:upper:]' '[:lower:]')" # Must be globally unique, lowercase
+export AZURE_BLOB_CONTAINER="velerobackups" # Name of the blob container for backups
+export AZURE_LOCATION="eastus" # Choose an appropriate Azure region
+----
+
+. Create the dedicated Azure resource group for your Velero backups:
++
+[source,bash]
+----
+az group create --name $AZURE_BACKUP_RESOURCE_GROUP --location $AZURE_LOCATION
+----
+
+. Create the storage account within the new resource group. `Standard_GRS` (Geo-Redundant Storage) is often chosen for backups due to its high durability and availability across regions.
++
+[source,bash]
+----
+az storage account create \
+  --name $AZURE_STORAGE_ACCOUNT_NAME \
+  --resource-group $AZURE_BACKUP_RESOURCE_GROUP \
+  --sku Standard_GRS \
+  --encryption-services blob \
+  --location $AZURE_LOCATION \
+  --kind StorageV2 # Recommended for general purpose storage features
+----
++
+[NOTE]
+The `--sku Standard_GRS` provides geographic redundancy, meaning your data is replicated to a secondary region hundreds of miles away, offering robust protection against regional outages.
+
+. Create the blob container where Velero will store the backup archives:
++
+[source,bash]
+----
+az storage container create \
+  --name $AZURE_BLOB_CONTAINER \
+  --account-name $AZURE_STORAGE_ACCOUNT_NAME
+----
+
+. Retrieve the access key for the storage account. Velero requires this key to authenticate and interact with your Azure Blob Storage.
++
+[source,bash]
+----
+export AZURE_STORAGE_ACCOUNT_KEY=$(az storage account keys list \
+  --resource-group $AZURE_BACKUP_RESOURCE_GROUP \
+  --account-name $AZURE_STORAGE_ACCOUNT_NAME \
+  --query '[0].value' --output tsv)
+----
+
+. Create a Velero credentials file named `credentials-velero`. This file will temporarily store the storage account key for Velero installation.
++
+[source,bash]
+----
+cat << EOF > credentials-velero
+AZURE_STORAGE_ACCOUNT_ACCESS_KEY=$AZURE_STORAGE_ACCOUNT_KEY
+EOF
+----
++
+[WARNING]
+The `credentials-velero` file contains sensitive information. Ensure it is handled securely and deleted immediately after Velero installation is complete to prevent unauthorized access.
+====
+
+=== Step 2: Install Velero into your ARO Cluster
+
+Velero needs to be deployed into its own dedicated project (namespace) within your ARO cluster. This installation includes deploying the Velero server components and the necessary Custom Resource Definitions (CRDs) that Velero uses for managing backups and restores.
+
+.Activity: Install Velero
+====
+This activity guides you through installing the Velero CLI locally and then deploying the Velero server into your ARO cluster using the `velero install` command.
+
+. Download and install the Velero CLI locally on your workstation. Ensure you download the version compatible with your operating system from the official Velero GitHub releases page.
++
+[source,bash]
+----
+# Example for Linux (adjust VELERO_VERSION to the latest stable release)
+export VELERO_VERSION="1.13.0" # Check Velero releases for the latest stable version
+wget https://github.com/vmware-tanzu/velero/releases/download/v${VELERO_VERSION}/velero-v${VELERO_VERSION}-linux-amd64.tar.gz
+tar -xvf velero-v${VELERO_VERSION}-linux-amd64.tar.gz
+sudo mv velero-v${VELERO_VERSION}-linux-amd64/velero /usr/local/bin
+velero --version # Verify the Velero CLI installation and version
+----
+
+. Install Velero into your ARO cluster. This command creates a `velero` namespace, deploys the Velero server pod, and configures it to use your Azure storage account.
++
+[source,bash]
+----
+velero install \
+  --provider azure \
+  --plugins velero/velero-plugin-for-microsoft-azure:v1.1.0 \
+  --bucket $AZURE_BLOB_CONTAINER \
+  --secret-file ./credentials-velero \
+  --backup-location-config resourceGroup=$AZURE_BACKUP_RESOURCE_GROUP,storageAccount=$AZURE_STORAGE_ACCOUNT_NAME \
+  --snapshot-location-config apiTimeout=5m,resourceGroup=$AZURE_BACKUP_RESOURCE_GROUP \
+  --kubeconfig ~/.kube/config # Ensure this path correctly points to your ARO cluster's KubeConfig
+----
++
+[NOTE]
+The `--plugins` argument specifies the Azure plugin and its version (`v1.1.0` as per context). Always verify the compatibility matrix between your Velero CLI version and the plugin version in Velero's official documentation. The `resourceGroup` for `snapshot-location-config` specifies where Azure Disk Snapshots will be stored.
+
+. Verify the Velero installation by checking the status of the Velero pod in the `velero` namespace:
++
+[source,bash]
+----
+oc get pods -n velero
+----
++
+You should see output similar to the following, indicating the `velero-...` pod is in a `Running` state:
++
+[source,text]
+----
+NAME                      READY   STATUS    RESTARTS   AGE
+velero-xxxxxxx-xxxx       1/1     Running   0          2m
+----
+
+. Once Velero is successfully installed and running, you can safely remove the temporary `credentials-velero` file:
++
+[source,bash]
+----
+rm credentials-velero
+----
+====
+
+== Performing an Application Backup
+
+With Velero successfully installed, you can now begin creating backups of your applications running on the ARO cluster. Velero allows for flexible backup options, including backing up entire namespaces or specific resources within them.
+
+=== Technical Explanation: How Velero Backups Work
+
+When you initiate a backup, Velero orchestrates a series of actions to capture your application's state:
+
+1.  **Resource Collection:** Velero queries the Kubernetes API server to identify and collect the YAML definitions of all specified Kubernetes resources (e.g., Deployments, Services, ConfigMaps, Secrets, PVCs) within the target namespaces.
+2.  **Archive Creation:** These collected resource definitions are then bundled and compressed into a `.tar.gz` archive.
+3.  **Object Storage Upload:** The `.tar.gz` archive containing the application's Kubernetes resource definitions is uploaded to the configured Azure Blob Storage container.
+4.  **Persistent Volume Snapshots (Optional):** If configured (e.g., using `--snapshot-volumes`), Velero interacts with the Azure API to create point-in-time snapshots of the underlying Azure Managed Disks that are backing your Persistent Volumes (PVs). This ensures data consistency for stateful applications.
+5.  **Metadata Recording:** Velero creates a `Backup` custom resource in the ARO cluster, which serves as a record of the backup operation, including its status, included resources, and associated volume snapshots.
+
+.Activity: Create an Application Backup
+====
+This activity demonstrates how to create a backup of a stateless application running in your ARO cluster. For this example, we'll use a simple Nginx deployment.
+
+. Deploy a sample stateless application (if you don't have one readily available). We will create a `nginx-example` namespace and deploy an Nginx application into it.
++
+[source,bash]
+----
+oc new-project nginx-example || true # Create the project if it doesn't exist
+oc create deployment nginx-example --image=nginx:latest -n nginx-example
+oc expose service nginx-example -n nginx-example --port=80
+oc scale deployment nginx-example --replicas=3 -n nginx-example
+oc rollout status deployment/nginx-example -n nginx-example
+----
++
+Verify that the application pods are running:
++
+[source,bash]
+----
+oc get pods -n nginx-example
+----
+
+. Create a Velero backup that includes all resources within the `nginx-example` namespace. It's good practice to include a unique identifier like a timestamp in the backup name.
++
+[source,bash]
+----
+velero backup create nginx-backup-$(date +%Y%m%d%H%M%S) --include-namespaces nginx-example
+----
++
+[TIP]
+Using a timestamp in the backup name makes it easy to identify when a backup was created, which is crucial for managing multiple recovery points.
+
+. Check the status of your newly created backup:
++
+[source,bash]
+----
+velero backup get
+----
++
+A successful backup will show `Phase: Completed` and `Status: Completed`. For example:
++
+[source,text]
+----
+NAME                           STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+nginx-backup-20231027103000      Completed   0        0          2023-10-27 10:30:00 +0000 UTC   29d       default            <none>
+----
+
+. To get detailed information about a specific backup, including its included resources and any warnings or errors:
++
+[source,bash]
+----
+velero backup describe <your-nginx-backup-name> --details
+----
+====
+
+=== Including Persistent Volumes in Backups
+
+For stateful applications, merely backing up Kubernetes resource definitions is insufficient; the data stored in Persistent Volumes (PVs) must also be protected. Velero's `--snapshot-volumes` flag ensures that snapshots of your Azure Managed Disks are taken alongside your Kubernetes resource backups.
+
+.Activity: Create a Backup with Persistent Volume Snapshots
+====
+This activity demonstrates how to create a backup that includes persistent volume snapshots. You'll need an application that utilizes a Persistent Volume Claim (PVC) and a Persistent Volume (PV). We'll use a simple PostgreSQL database as an example.
+
+. Deploy a sample stateful application, such as a PostgreSQL database, into a new namespace called `postgres-example`.
++
+[source,bash]
+----
+oc new-project postgres-example || true
+
+# Create a Persistent Volume Claim (PVC)
+cat << EOF | oc apply -f - -n postgres-example
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+
+# Deploy PostgreSQL using the PVC
+cat << EOF | oc apply -f - -n postgres-example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          env:
+            - name: POSTGRES_DB
+              value: mydatabase
+            - name: POSTGRES_USER
+              value: myuser
+            - name: POSTGRES_PASSWORD
+              value: mypassword
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+EOF
+----
+
+. Wait for the PostgreSQL pod to be running and the PVC to be in a `Bound` state.
++
+[source,bash]
+----
+oc get pods -n postgres-example
+oc get pvc -n postgres-example
+----
+
+. Create a backup for the `postgres-example` namespace, explicitly enabling volume snapshots using the `--snapshot-volumes` flag:
++
+[source,bash]
+----
+velero backup create postgres-backup-$(date +%Y%m%d%H%M%S) \
+  --include-namespaces postgres-example \
+  --snapshot-volumes
+----
++
+[NOTE]
+The `--snapshot-volumes` flag instructs Velero to coordinate with the Azure plugin to create snapshots of any Azure Managed Disks associated with the Persistent Volumes (PVs) used by resources in the `postgres-example` namespace.
+
+. Check the backup status and details. Pay close attention to the `VolumeSnapshots` section in the detailed output to confirm that the PV snapshot was created successfully.
++
+[source,bash]
+----
+velero backup get
+velero backup describe <your-postgres-backup-name> --details
+----
++
+The detailed output should show `VolumeSnapshots: 1 of 1 completed` (or similar, depending on the number of PVs), confirming the successful snapshot of the persistent data.
+====
+
+== Performing an Application Restore
+
+Restoring an application from a Velero backup is a critical capability for disaster recovery, data recovery, or even migrating applications. You can restore to the same cluster (e.g., to revert an accidental deletion) or to a completely new ARO cluster.
+
+=== Technical Explanation: How Velero Restores Work
+
+When you initiate a restore operation, Velero executes the following steps:
+
+1.  **Backup Retrieval:** Velero fetches the specified backup archive from your Azure Blob Storage container.
+2.  **Resource Extraction:** The `.tar.gz` archive is uncompressed, and the Kubernetes resource definitions are extracted.
+3.  **Kubernetes Object Creation:** Velero then uses these definitions to recreate the Kubernetes objects (deployments, services, config maps, etc.) in the target ARO cluster.
+4.  **Persistent Volume Restoration (Optional):** If the backup included volume snapshots, Velero interacts with the Azure API to:
+    *   Create new Azure Managed Disks from the stored snapshots.
+    *   Provision new Persistent Volumes (PVs) and Persistent Volume Claims (PVCs) in the cluster.
+    *   These new PVs and PVCs are configured to reference the newly created Azure Disks, effectively restoring the persistent data.
+
+.Activity: Restore an Application
+====
+This activity demonstrates how to restore a stateless application from a previously created Velero backup. For demonstration purposes, we will delete the `nginx-example` namespace and then restore it.
+
+. First, list all available backups to identify the specific backup you wish to restore:
++
+[source,bash]
+----
+oc get backups -n velero
+----
++
+This command provides a concise list of all backups managed by Velero.
+
+. Identify the name of the Nginx backup you want to restore (e.g., `nginx-backup-20231027103000`).
+
+. (Optional, but recommended for demonstration) Delete the `nginx-example` namespace to simulate an accidental deletion or a migration scenario to a clean cluster:
++
+[source,bash]
+----
+oc delete project nginx-example
+----
++
+Wait for the namespace and its associated resources to be fully terminated before proceeding.
+
+. Execute the restore operation using the `velero restore create` command, referencing your chosen backup:
++
+[source,bash]
+----
+velero restore create nginx-restore-$(date +%Y%m%d%H%M%S) \
+  --from-backup <your-nginx-backup-name>
+----
++
+Replace `<your-nginx-backup-name>` with the actual name of your Nginx backup.
++
+[TIP]
+For testing or specific scenarios, you can use flags like `--dry-run` to preview the restore actions or `--namespace-mappings` to restore to a different namespace (e.g., `--namespace-mappings nginx-example:nginx-restored`).
+
+. Check the status of the restore operation:
++
+[source,bash]
+----
+velero restore get
+----
++
+A successful restore will display `Phase: Completed`:
++
+[source,text]
+----
+NAME                           BACKUP                           STATUS      STARTED                         COMPLETED                       ERRORS   WARNINGS   
+nginx-restore-20231027110000     nginx-backup-20231027103000      Completed   2023-10-27 11:00:00 +0000 UTC   2023-10-27 11:00:15 +0000 UTC   0        0          
+----
+
+. Verify that the `nginx-example` namespace and its resources have been successfully restored:
++
+[source,bash]
+----
+oc get project nginx-example
+oc get all -n nginx-example
+----
++
+You should observe the `nginx-example` project and its deployments, services, and pods running again.
+====
+
+=== Restoring Applications with Persistent Volumes
+
+When restoring stateful applications that had their persistent volumes backed up with snapshots, Velero will automatically handle the re-provisioning of the PVs and PVCs. It links them to newly created Azure Disks that are hydrated from the original snapshots, ensuring data integrity.
+
+.Activity: Restore a Stateful Application
+====
+This activity demonstrates restoring the `postgres-example` application, including its Persistent Volume data.
+
+. (Optional) Delete the `postgres-example` namespace to simulate a complete loss scenario:
++
+[source,bash]
+----
+oc delete project postgres-example
+----
++
+Wait for the namespace to be fully terminated.
+
+. List available backups to identify your PostgreSQL backup.
++
+[source,bash]
+----
+oc get backups -n velero
+----
+
+. Perform the restore operation for your PostgreSQL backup:
++
+[source,bash]
+----
+velero restore create postgres-restore-$(date +%Y%m%d%H%M%S) \
+  --from-backup <your-postgres-backup-name>
+----
++
+Replace `<your-postgres-backup-name>` with the actual name of your PostgreSQL backup.
+
+. Check the status of the restore operation:
++
+[source,bash]
+----
+velero restore get
+----
+
+. Verify the successful restoration of the `postgres-example` namespace, deployment, and, crucially, the Persistent Volume Claim and its data:
++
+[source,bash]
+----
+oc get project postgres-example
+oc get all -n postgres-example
+oc get pvc -n postgres-example
+----
++
+You should see the `postgres-example` project recreated, the `postgres-deployment` coming up, and the `postgres-pv-claim` in a `Bound` state, confirming the successful restoration of both application resources and persistent data.
+====
+
+== Troubleshooting and Best Practices
+
+Maintaining a robust backup and restore strategy is crucial for any production environment. Here are some common troubleshooting tips and best practices when working with Velero on ARO.
+
+=== Common Troubleshooting Scenarios:
+
+*   **Backup/Restore Failure:**
+    *   **Check Velero Pod Logs:** The first step for any failure is to inspect the logs of the Velero server pod: `oc logs -n velero <velero-pod-name>`.
+    *   **Examine Backup/Restore Details:** Use `velero backup describe <name> --details` or `velero restore describe <name> --details` to find specific error messages, warnings, or detailed progress information.
+    *   **Resource Quotas:** Ensure the target namespace for restore operations has sufficient resource quotas for the application's components.
+*   **Azure Permissions Issues:** Velero requires specific Azure permissions to create/delete resource groups, storage accounts, blob containers, and disk snapshots. Verify that the Azure identity Velero uses (e.g., Service Principal or Managed Identity) has the necessary roles (e.g., `Contributor` on the backup resource group, or a more granular custom role).
+*   **Network Connectivity:** Confirm that your ARO cluster has outbound network access to Azure Blob Storage endpoints (`*.blob.core.windows.net`) and Azure API endpoints (`management.azure.com`).
+*   **Volume Snapshot Delays:** Creating and restoring volume snapshots, especially for large Persistent Volumes, can take a significant amount of time. Monitor the Velero backup/restore status and the Azure portal for snapshot progress.
+*   **Restore Conflicts:** If restoring to a cluster where some resources already exist, Velero might encounter conflicts. Consider restoring to a different namespace using `--namespace-mappings` or carefully selecting specific resources to restore using `--include-resources` or `--exclude-resources`.
+
+=== Velero Best Practices:
+
+*   **Dedicated Azure Resource Group:** Always use a dedicated Azure resource group for your Velero backup storage. This isolation ensures that your backups are not accidentally deleted if the ARO cluster's resource group is removed and provides a clear separation of concerns.
+*   **Automated Backup Schedules:** Implement `velero schedule create` for automated, regular backups. Define your Recovery Point Objective (RPO) and Recovery Time Objective (RTO) to guide your backup frequency and retention.
+*   **Retention Policies (TTL):** Configure Time-To-Live (TTL) for your backups using `--ttl` with `velero backup create` or schedules. This automatically cleans up old backups, managing storage costs and adhering to data retention policies.
+*   **Periodic Test Restores:** Regularly perform test restores to a non-production ARO cluster. This is the most crucial step to validate your backup strategy, ensure data integrity, and verify that your team can successfully execute a restore operation under pressure.
+*   **Granular Backups and Exclusions:** Use Velero filters (`--include-namespaces`, `--exclude-namespaces`, `--include-resources`, `--exclude-resources`, `--selector`) to create targeted backups. This helps avoid backing up unnecessary or ephemeral data, reducing backup size and restore times.
+*   **Monitor Velero Resources:** Keep an eye on the Velero server pod's resource consumption (CPU/Memory), especially in large clusters with numerous backups or frequent operations. Adjust its resource limits if necessary.
+*   **Keep Velero CLI and Server Aligned:** Ensure your local Velero CLI version is compatible with the Velero server version deployed in your cluster to prevent unexpected behavior.
+*   **Documentation:** Maintain clear documentation of your backup and restore procedures, including backup schedules, retention policies, and test restore results.
+
+By following these guidelines, you can establish a robust and reliable backup and restore solution for your critical applications on Azure Red Hat OpenShift, safeguarding your data and ensuring operational continuity.

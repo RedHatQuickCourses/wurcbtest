@@ -1,0 +1,139 @@
+#  Integrating with Azure Container Registry (ACR)
+
+= Integrating with Azure Container Registry (ACR)
+
+[id="integrating-with-azure-container-registry"]
+Azure Container Registry (ACR) is a fully managed, private Docker container registry service in Azure, offering enterprise-grade capabilities like geo-replication for global distribution of container images. When working with Azure Red Hat OpenShift (ARO), integrating ACR allows you to securely store and manage your private container images, ensuring they are readily available for your OpenShift applications.
+
+This module details how to establish secure communication between your ARO cluster and an Azure Container Registry, enabling your pods to pull images from your private registry.
+
+== ARO Platform Capabilities with ACR
+
+Integrating ACR with ARO leverages the platform's capabilities for secure image management:
+
+*   **Private Image Storage**: ACR provides a secure, private repository for your Docker images, isolated from public access.
+*   **Authentication Mechanisms**: ARO uses Kubernetes secrets to securely store ACR credentials, allowing pods to authenticate and pull private images.
+*   **ImagePullSecrets**: Kubernetes' `imagePullSecrets` mechanism ensures that pods can automatically authenticate against the registry when their deployment requires a private image.
+*   **Enterprise Features**: You can benefit from ACR's advanced features such as geo-replication for faster image pulls in distributed environments, vulnerability scanning, and integration with Azure security services.
+
+== Technical Overview of ACR Integration
+
+To allow an ARO cluster to pull private images from an Azure Container Registry, you need to establish a secure connection using Kubernetes secrets. The general workflow involves:
+
+1.  **Obtaining ACR Credentials**: Retrieving the username and password (pull secret) required to access your ACR instance.
+2.  **Creating a Kubernetes Secret**: Storing these ACR credentials as a `docker-registry` type secret within your OpenShift project (namespace). This secret will hold the authentication details necessary for image pulls.
+3.  **Linking the Secret to a Service Account**: Associating the created secret with a Kubernetes Service Account. Pods that use this Service Account will then automatically inherit the ability to use the linked secret for image pulls.
+4.  **Referencing the Secret in Pod Specifications**: When defining your application's pods, you specify the `imagePullSecrets` in the pod's manifest, pointing to the Kubernetes secret containing your ACR credentials.
+
+This process ensures that your container images remain private and that only authorized applications within your ARO cluster can access them.
+
+== Prerequisites
+
+Before proceeding with the integration, ensure you have the following:
+
+*   An existing Azure Red Hat OpenShift cluster. If not, refer to the "Create an Azure Red Hat OpenShift Cluster" lab activity.
+*   An existing Azure Container Registry (ACR) instance. If you don't have one, you can create it via the Azure portal or Azure CLI.
+*   The `oc` command-line interface (CLI) installed and configured to connect to your ARO cluster.
+
+== Hands-on Activity: Integrating with Azure Container Registry
+
+This hands-on activity guides you through the process of integrating your ARO cluster with an Azure Container Registry to pull private images.
+
+=== Step 1: Get Your ACR Pull Secret
+
+You need a pull secret (username and password) from your ACR instance to access the registry from your ARO cluster.
+
+==== Option A: Using the Azure Portal
+
+1.  Navigate to your Azure Container Registry instance in the Azure portal.
+2.  In the left-hand menu, select *Access keys*.
+3.  Your `docker-username` is the name of your container registry.
+4.  Use either `password` or `password2` for your `docker-password`.
+
+==== Option B: Using the Azure CLI
+
+Execute the following Azure CLI command to retrieve your ACR credentials. Replace `<your-registry-name>` with the actual name of your Azure Container Registry.
+
+[source,bash]
+----
+az acr credential show -n <your-registry-name>
+----
+
+The output will provide the `username` and `passwords` (password and password2) for your registry. Make a note of these.
+
+=== Step 2: Create a Kubernetes Secret
+
+Now, use the credentials obtained in the previous step to create a Kubernetes secret of type `docker-registry` in your OpenShift project. This secret will store the authentication details for your ACR.
+
+[source,bash]
+----
+oc create secret docker-registry acr-secret \
+    --docker-server=<your-registry-name>.azurecr.io \
+    --docker-username=<your-registry-name> \
+    --docker-password=<your-acr-password> \
+    --docker-email=unused
+----
+
+. Replace `<your-registry-name>` with the actual name of your Azure Container Registry.
+. Replace `<your-acr-password>` with one of the passwords obtained from Step 1 (e.g., `password` or `password2`).
+. `acr-secret` is the name given to this Kubernetes secret. You can choose a different name if preferred.
+. `unused` is a common placeholder for `--docker-email` as it's often not strictly required for Docker registry authentication secrets in Kubernetes.
+
+[NOTE]
+This secret is stored in the current OpenShift Project (Kubernetes Namespace) and will only be referenceable by pods created within that specific Project. If you need a cluster-wide pull secret or one available in multiple projects, you would need to create it in each respective project or explore other OpenShift features like `ImageStream` or a dedicated secret management solution.
+
+=== Step 3: Link the Secret to a Service Account
+
+To simplify the process of pulling images, you can link the newly created secret to a Service Account. By default, OpenShift projects use the `default` Service Account for pods that don't specify one. Linking the secret to `default` means any pod using the `default` Service Account (or implicitly using it) can pull images using `acr-secret`.
+
+[source,bash]
+----
+oc secrets link default acr-secret --for=pull
+----
+
+. `default` refers to the Service Account. If your pods use a different Service Account, replace `default` with its name.
+. `acr-secret` is the name of the Kubernetes secret you created in the previous step.
+
+=== Step 4: Create a Pod Using a Private Registry Image
+
+Now that your cluster is connected to your ACR, let's create a pod that pulls an image from your private registry. This example assumes you have an image named `hello-world:v1` in your ACR.
+
+1.  Create a file named `hello-world-pod.yaml` with the following content:
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: hello-world-acr
+    spec:
+      containers:
+      - name: hello-world
+        image: <your-registry-name>.azurecr.io/hello-world:v1
+      imagePullSecrets:
+      - name: acr-secret
+    ----
+
+    . Replace `<your-registry-name>` with the name of your Azure Container Registry.
+    . Ensure the `image` path correctly points to an image residing in your ACR.
+    . `imagePullSecrets` specifies that the `acr-secret` should be used for authenticating when pulling the image.
+
+2.  Apply the YAML to create the pod:
+
+    [source,bash]
+    ----
+    oc apply -f hello-world-pod.yaml
+    ----
+
+=== Step 5: Verify the Pod Status
+
+To confirm that your pod is up and running and successfully pulled the image from your private ACR, execute the following command:
+
+[source,bash]
+----
+oc get pods --watch
+----
+
+Wait until the `STATUS` of the `hello-world-acr` pod changes to `Running`. This indicates that the image was successfully pulled from your Azure Container Registry, and the container started without issues. If you encounter `ImagePullBackOff` errors, double-check your ACR credentials, the secret name, and the image path.
+
+This completes the integration of Azure Container Registry with your Azure Red Hat OpenShift cluster, enabling secure access to your private container images.

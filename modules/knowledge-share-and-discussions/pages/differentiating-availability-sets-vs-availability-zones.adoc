@@ -1,0 +1,122 @@
+#  Differentiating Availability Sets vs. Availability Zones
+
+= Differentiating Availability Sets vs. Availability Zones in Azure Red Hat OpenShift
+
+High availability is a critical aspect of any production-grade application, and cloud providers like Azure offer various mechanisms to ensure your services remain operational even during infrastructure failures. For Azure Red Hat OpenShift (ARO) clusters, understanding how these mechanisms are leveraged is paramount for designing resilient and fault-tolerant applications.
+
+While the primary focus of this section will be on how Azure Red Hat OpenShift utilizes Availability Zones, we will also conceptually differentiate them from Availability Sets to provide a comprehensive understanding.
+
+== Understanding Azure Availability Zones in ARO
+
+Azure Availability Zones represent distinct, physically isolated locations within an Azure region. Each zone comprises one or more datacenters equipped with independent power, cooling, and networking infrastructure. This isolation ensures that if one zone experiences a localized failure (e.g., a major power outage or network disruption), the other zones in the same region remain operational, thus preventing a single point of failure at the datacenter level.
+
+Azure Red Hat OpenShift clusters are architected to inherently leverage Availability Zones for enhanced resilience and fault tolerance for both their control plane and worker nodes when deployed in a region that supports them.
+
+When an Azure region *consists of multiple availability zones*:
+
+*   **Control Plane Nodes:** The ARO cluster automatically creates a machine set in *each* available availability zone. A control plane node is then provisioned from each of these machine sets, distributing the critical OpenShift control plane components across physically distinct zones. This design ensures that the OpenShift control plane remains highly available and operational even if an entire zone becomes unavailable.
+*   **Worker Nodes:** Similarly, the ARO service creates a worker node machine set in *each* availability zone. A worker node is provisioned from each machine set, distributing your application workloads across these zones. This zonal distribution helps maintain application availability and performance by mitigating the impact of zone-wide failures.
+
+[NOTE]
+====
+As stated in the provided context, "In regions that consist of multiple availability zones, a control plane node machine set is created in each zone. A control plane node is provisioned from each machine set." And for worker nodes, "In regions consisting of multiple availability zones, a worker node machine set is created in each zone. Also, a worker node is provisioned from each machine set."
+====
+
+Conversely, in Azure regions that *do not support availability zones*:
+
+*   The Azure Red Hat OpenShift cluster provisions both control plane and worker nodes from a single machine set. In this scenario, while high availability mechanisms within that single logical datacenter (such as redundant hardware, networking, and power) are still in place, the cluster does not benefit from the geographically separated and isolated infrastructure that Availability Zones provide.
+
+[NOTE]
+====
+The context clarifies this: "Where an Azure region doesn't support availability zones, the Azure Red Hat OpenShift cluster provisions the control plane nodes from a single machine set." And for worker nodes, "When an Azure region doesn't support availability zones, the Azure Red Hat OpenShift cluster provisions the worker nodes from a single machine set."
+====
+
+Customers have the ability to increase the worker node count and manage permissions in each region, adapting the cluster size to workload demands while still benefiting from the underlying zonal or non-zonal deployment strategy.
+
+=== How ARO Benefits from Availability Zones
+
+By distributing critical components across multiple Availability Zones, ARO clusters achieve:
+
+*   **Increased Uptime and Resilience:** Protection against datacenter-level failures, ensuring the cluster remains operational even during significant localized outages.
+*   **Enhanced Fault Tolerance:** A more robust infrastructure that can withstand failures of entire zones without impacting the entire cluster or its running applications.
+*   **Business Continuity:** Critical workloads can continue to run and be accessed even if one part of the region experiences a major incident.
+
+== Availability Sets vs. Availability Zones: A Conceptual Differentiation
+
+While the primary operational context for Azure Red Hat OpenShift directly involves and leverages *Availability Zones*, it's important to understand the conceptual difference from *Availability Sets*, even though explicit details about Availability Sets are not provided in the current context.
+
+*   **Azure Availability Zones:**
+    *   **Scope:** Offer protection against datacenter-level failures by distributing resources across physically distinct, independent locations *within an Azure region*.
+    *   **Failure Domains:** Each zone represents a distinct failure domain, providing isolation for power, cooling, and networking.
+    *   **Resilience:** Designed for the highest level of resilience against regional outages affecting one or more datacenters.
+    *   **ARO Integration:** Azure Red Hat OpenShift clusters explicitly leverage Availability Zones to distribute control plane and worker nodes for maximum high availability, as detailed above.
+
+*   **Azure Availability Sets:**
+    *   **Scope:** (Information not explicitly detailed in the provided context) Traditionally, Availability Sets have been used to ensure that Virtual Machines (VMs) within a single Azure datacenter are spread across different *fault domains* and *update domains*.
+    *   **Fault Domains:** Group VMs across different physical server racks, power units, and network switches within the same datacenter to protect against single hardware failures.
+    *   **Update Domains:** Group VMs that can be rebooted together during planned maintenance events, ensuring that not all VMs are offline simultaneously.
+    *   **Resilience:** Designed to protect against hardware failures or planned maintenance within a *single datacenter*.
+
+In summary, Availability Zones provide a broader level of fault isolation, protecting against datacenter-wide failures, which is why they are the preferred and integrated mechanism for highly available services like Azure Red Hat OpenShift's control plane and managed infrastructure. Availability Sets, on the other hand, provide a more granular level of high availability within a single datacenter.
+
+[NOTE]
+====
+A key takeaway from the provided context is ARO's inherent design to use Availability Zones for high availability of its control plane and worker nodes when the region supports them. This shows a direct integration with zonal deployment for maximum resilience.
+====
+
+== Hands-on Activity: Verifying Availability Zone Deployment for ARO Worker Nodes
+
+While the ARO control plane and underlying infrastructure deployment across zones are handled by the managed service, you can observe the zonal distribution of your worker nodes. This activity helps you confirm that your ARO cluster is benefiting from Availability Zones.
+
+[IMPORTANT]
+====
+This hands-on activity focuses on *observing* the results of ARO's zonal deployment, rather than performing explicit configuration *of* zones, as the management of zones for ARO's core components is handled by the Azure Red Hat OpenShift service.
+====
+
+=== Objective
+Learn to identify if your ARO cluster's worker nodes are distributed across Azure Availability Zones.
+
+=== Prerequisites
+*   An active Azure Red Hat OpenShift cluster deployed in an Azure region that supports Availability Zones (e.g., `eastus`, `centralus`, `westeurope`).
+*   The `oc` CLI configured and authenticated to your ARO cluster. Refer to xref:openshift-and-kubernetes-interfaces.adoc[Utilizing the OpenShift Command-line Interface (CLI)] for setup instructions.
+
+=== Steps
+
+.  **List Worker Nodes in Your Cluster:**
+    Open your terminal and use the `oc get nodes` command to list all nodes in your ARO cluster. This command provides a quick overview of your cluster's nodes.
+
+    [source,bash]
+    ----
+    oc get nodes
+    ----
+
+.  **Examine Node Labels for Zone Information:**
+    Azure nodes are typically labeled with information indicating their Availability Zone. The most common label for this is `topology.kubernetes.io/zone`. You can get detailed information for a specific node and filter for this label.
+
+    Execute the following command, replacing `<node-name>` with the actual name of one of your worker nodes (e.g., you might see names like `aro-cluster-xxxx-worker-eastus1`, `aro-cluster-xxxx-worker-eastus2`, etc., from the previous `oc get nodes` output).
+
+    [source,bash]
+    ----
+    oc describe node <node-name> | grep "topology.kubernetes.io/zone"
+    ----
+
+    Repeat this command for several of your worker nodes to observe their zonal assignments.
+
+.  **Observe Zonal Distribution and Interpret Results:**
+    If your ARO cluster is deployed in a multi-zone region and is leveraging Availability Zones, you should observe that your worker nodes are distributed across different zones (e.g., `eastus1`, `eastus2`, `eastus3`).
+
+    [source,text]
+    ----
+    # Example Output for Node 1 (in zone 1)
+    topology.kubernetes.io/zone=eastus1
+
+    # Example Output for Node 2 (in zone 2)
+    topology.kubernetes.io/zone=eastus2
+
+    # Example Output for Node 3 (in zone 3)
+    topology.kubernetes.io/zone=eastus3
+    ----
+
+    If you see different zone labels for different worker nodes, it confirms that your ARO cluster is designed for and actively utilizing Azure Availability Zones for high availability. If your cluster is in a region without Availability Zone support, or if for some reason the nodes are all in one zone, you will see a consistent zone label across all nodes or potentially a more generic region-level label.
+
+This hands-on activity provides practical insight into how Azure Red Hat OpenShift's architecture incorporates zonal resilience at the worker node level, directly reflecting the concepts of Availability Zones in action.

@@ -1,0 +1,257 @@
+#  Utilizing the Kubernetes Command-line Interface (CLI)
+
+[[_utilizing_the_kubernetes_command_line_interface_cli]]
+= Utilizing the Kubernetes Command-line Interface (CLI)
+
+[role="summary"]
+The Kubernetes Command-line Interface, `kubectl`, is your primary tool for interacting with a Kubernetes cluster. In an Azure Red Hat OpenShift (ARO) environment, `kubectl` allows you to deploy applications, inspect and manage cluster resources, and troubleshoot issues directly from your terminal. This section will guide you through the essential `kubectl` commands and provide hands-on experience in managing your ARO cluster.
+
+== Introduction to kubectl
+
+Kubernetes is designed to be declarative, meaning you describe the desired state of your applications and infrastructure, and Kubernetes works to achieve and maintain that state. `kubectl` is the client-side tool that enables you to communicate these desired states to the Kubernetes control plane. It translates your commands into API requests that are sent to the Kubernetes API server, which then orchestrates the necessary actions across your cluster's worker nodes.
+
+When working with Azure Red Hat OpenShift, the underlying Kubernetes control plane is jointly managed by Microsoft and Red Hat. `kubectl` seamlessly integrates with this managed control plane, allowing you to manage your applications and standard Kubernetes resources just as you would on any other Kubernetes cluster.
+
+image::kubernetes-cli-interaction.png[Kubernetes CLI Interaction, 600, 400]
+
+The `kubectl` command structure typically follows this pattern:
+
+[source,bash]
+----
+kubectl <command> <TYPE> <NAME> <flags>
+----
+
+* *`command`*: Specifies the operation you want to perform (e.g., `create`, `get`, `describe`, `delete`).
+* *`TYPE`*: The type of Kubernetes resource (e.g., `pod`, `deployment`, `service`, `namespace`). You can use singular, plural, or abbreviated forms (e.g., `po` for `pod`, `deploy` for `deployment`).
+* *`NAME`*: The specific name of the resource you are targeting (optional for some commands, like `get all`).
+* *`flags`*: Optional parameters to modify the command's behavior (e.g., `--namespace`, `--watch`, `-o yaml`).
+
+Before you can use `kubectl`, it needs to know how to connect and authenticate to your Kubernetes cluster. This information is stored in a `kubeconfig` file (typically located at `~/.kube/config`). For ARO clusters, when you log in using the `oc login` command (as demonstrated in the "Utilizing the OpenShift Command-line Interface (CLI)" section), this command automatically configures your `kubeconfig` file, making both `oc` and `kubectl` ready to use.
+
+== Basic Kubernetes Resource Management with kubectl
+
+This section will walk you through the most common `kubectl` operations: deploying an application, inspecting its status, viewing logs, and cleaning up resources.
+
+=== Verifying Cluster Connectivity
+
+It's always a good practice to verify that your `kubectl` client can successfully communicate with your ARO cluster before attempting any resource management tasks.
+
+==== Activity: Verify kubectl Connectivity
+
+. *Prerequisite*: Ensure you have successfully logged into your ARO cluster using the `oc login` command. This command, referencing the output from `az aro show` and `az aro list-credentials` from the context, automatically populates your `kubeconfig` file, allowing `kubectl` to interact with your cluster. For example, a successful `oc login` command might look like this:
++
+[source,bash,subs="attributes+"]
+----
+oc login \
+    $(az aro show \
+        --resource-group ${RG_NAME} \
+        --name aro-cluster \
+        --query apiserverProfile.url \
+        --output tsv) \
+    -u $(az aro list-credentials \
+        --resource-group ${RG_NAME} \
+        --name aro-cluster \
+        --query kubeadminUsername \
+        --output tsv) \
+    -p $(az aro list-credentials \
+        --resource-group ${RG_NAME} \
+        --name aro-cluster \
+        --query kubeadminPassword \
+        --output tsv)
+----
++
+Upon successful execution, you should see `Login successful.`
+. From your terminal, verify `kubectl` is configured to communicate with your ARO cluster by checking its cluster information:
++
+[source,bash,subs="attributes+"]
+----
+kubectl cluster-info
+----
+. You should see output similar to this, indicating the Kubernetes control plane is running and accessible:
++
+[source,text]
+----
+Kubernetes control plane is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443
+CoreDNS is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+KubeScheduler is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443/api/v1/namespaces/kube-system/services/kube-scheduler:http/proxy
+KubeControllerManager is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443/api/v1/namespaces/kube-system/services/kube-controller-manager:http/proxy
+...
+----
+
+=== Deploying Applications with kubectl
+
+One of the most frequent tasks with `kubectl` is deploying applications. Kubernetes uses `Deployment` resources to manage stateless applications, ensuring a specified number of replicas are running and providing capabilities for rolling updates and rollbacks.
+
+==== Activity: Deploying a Simple Application with kubectl
+
+In this activity, you will deploy a simple `hello-node` application, similar to the example mentioned in the provided context for deploying a simple Kubernetes application: `kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node`.
+
+. Deploy a sample `hello-node` application using `kubectl create deployment`. This command creates a Deployment resource that ensures a single replica of a pod running the specified `gcr.io/hello-minikube-zero-install/hello-node` container image.
++
+[source,bash,subs="attributes+"]
+----
+kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node
+----
+. Verify the deployment was created successfully:
++
+[source,text]
+----
+deployment.apps/hello-node created
+----
+. Monitor the status of the created pods. The `hello-node` deployment will create pods with labels `app=hello-node`. The `--watch` flag will continuously update the output, allowing you to see when the pod transitions to a `Running` status.
++
+[source,bash,subs="attributes+"]
+----
+kubectl get pods -l app=hello-node --watch
+----
+. You should see output similar to this once the pod is running. The `1/1` in the `READY` column indicates the container inside the pod is ready. Press `Ctrl+C` to exit the watch once you see a `Running` status:
++
+[source,text]
+----
+NAME                          READY   STATUS    RESTARTS   AGE
+hello-node-765f4d854c-abcde   1/1     Running   0          29s
+----
+
+=== Inspecting Kubernetes Resources
+
+Once an application is deployed, you'll often need to inspect its status, view details, or check logs for debugging.
+
+==== Activity: Inspecting the Deployed Application
+
+. Get more detailed information about the `hello-node` deployment. The `describe` command provides a wealth of information, including events, replica set status, and pod templates.
++
+[source,bash,subs="attributes+"]
+----
+kubectl describe deployment hello-node
+----
+. View the logs from the `hello-node` pod. First, you need to get the exact name of the running pod. Since deployments manage pods dynamically, their names include a unique hash.
++
+[source,bash,subs="attributes+"]
+----
+POD_NAME=$(kubectl get pods -l app=hello-node -o jsonpath='{.items[0].metadata.name}')
+echo "Pod name: $POD_NAME"
+----
+. Now, view the logs for that pod. The `logs` command fetches the output from the container's standard output and standard error streams.
++
+[source,bash,subs="attributes+"]
+----
+kubectl logs $POD_NAME
+----
+. You should see output from the `hello-node` application, likely indicating it's serving requests, for example:
++
+[source,text]
+----
+Hello from Kubernetes!
+----
+
+=== Cleaning Up Resources
+
+It's important to clean up resources you no longer need to avoid consuming unnecessary resources and incurring costs.
+
+==== Activity: Deleting the Sample Application
+
+. Delete the `hello-node` deployment. When you delete a Deployment, Kubernetes automatically terminates and removes all associated ReplicaSets and Pods.
++
+[source,bash,subs="attributes+"]
+----
+kubectl delete deployment hello-node
+----
+. Verify that the deployment and its associated pods are scheduled for termination:
++
+[source,text]
+----
+deployment.apps "hello-node" deleted
+----
+. You can optionally check for pods. Initially, you might see them in a `Terminating` state, and after a short while, the output should indicate no resources found:
++
+[source,bash,subs="attributes+"]
+----
+kubectl get pods -l app=hello-node
+----
+. Eventually, the output will be:
++
+[source,text]
+----
+No resources found in default namespace.
+----
+
+== Advanced kubectl Operations (Brief Overview)
+
+Beyond basic create, get, describe, and delete operations, `kubectl` offers a wide range of powerful commands for more complex scenarios.
+
+=== Declarative Management with `kubectl apply`
+
+While `kubectl create` is useful for ad-hoc deployments, `kubectl apply` is the preferred command for managing applications and infrastructure in a declarative manner using configuration files (YAML or JSON). It intelligently calculates differences between the current cluster state and the desired state defined in your files, applying only the necessary changes. This makes it ideal for GitOps workflows and managing infrastructure as code.
+
+==== Activity: Deploying with `kubectl apply`
+
+. Create a simple NGINX deployment YAML file. This file describes a deployment named `nginx-deployment` with two replicas, running the `nginx:1.14.2` image.
++
+[source,yaml,subs="attributes+"]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+----
+. Save the content to a file named `nginx-deployment.yaml`.
+. Apply the configuration to your cluster. The first time, it will create the resources. Subsequent `apply` commands on the same file will update them.
++
+[source,bash,subs="attributes+"]
+----
+kubectl apply -f nginx-deployment.yaml
+----
+. Verify that the deployment and two pods have been created:
++
+[source,bash,subs="attributes+"]
+----
+kubectl get deployments -l app=nginx
+kubectl get pods -l app=nginx
+----
+. To clean up, you can delete the resources by referencing the same configuration file. This is particularly useful as it ensures all resources defined in the file are removed.
++
+[source,bash,subs="attributes+"]
+----
+kubectl delete -f nginx-deployment.yaml
+----
+. Verify deletion:
++
+[source,bash,subs="attributes+"]
+----
+kubectl get deployments -l app=nginx
+----
++
+[source,text]
+----
+No resources found in default namespace.
+----
+
+=== Other Useful `kubectl` Commands:
+
+*   *`kubectl exec`*: Execute a command in a container. Useful for debugging within a running pod (e.g., `kubectl exec -it <pod-name> -- bash`).
+*   *`kubectl port-forward`*: Forward one or more local ports to a pod. Allows you to access a pod's services locally (e.g., `kubectl port-forward <pod-name> 8080:80`).
+*   *`kubectl scale`*: Scale a Deployment or ReplicaSet up or down (e.g., `kubectl scale deployment nginx-deployment --replicas=3`).
+*   *`kubectl rollout`*: Manage rollouts of Deployments, including viewing history, undoing, and pausing (e.g., `kubectl rollout status deployment/nginx-deployment`).
+*   *`kubectl edit`*: Edit the live configuration of a resource in your default editor. Exercise caution with this command as it directly modifies the cluster state.
+*   *`kubectl top`*: View resource (CPU/memory) usage for nodes or pods (requires Kubernetes Metrics Server to be installed, which is standard in ARO).
+
+== Conclusion
+
+The `kubectl` command-line interface is an indispensable tool for anyone working with Kubernetes, including Azure Red Hat OpenShift. By mastering commands like `create`, `get`, `describe`, `logs`, `delete`, and `apply`, you gain the power to manage your applications and cluster resources efficiently. Understanding how `kubectl` interacts with the Kubernetes API server and leveraging the `kubeconfig` setup provided by `oc login` ensures a smooth and effective administration experience in your ARO environment.

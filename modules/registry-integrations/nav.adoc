@@ -1,0 +1,4 @@
+* xref:registry-integrations.adoc[]
+** xref:integrating-with-azure-container-registry-acr.adoc[]
+** xref:integrating-with-quay.adoc[]
+** xref:using-the-internal-openshift-registry.adoc[]

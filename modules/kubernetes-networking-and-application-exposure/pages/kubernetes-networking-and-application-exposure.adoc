@@ -1,0 +1,12 @@
+#  Kubernetes Networking and Application Exposure
+
+Kubernetes Networking and Application Exposure involves configuring internal communication within the cluster and making applications accessible externally.
+
+*   xref:./overview.adoc#_kubernetes_pod_and_service_networks[Kubernetes Pod and Service Networks] manage communication between pods and provide stable network identities for services.
+*   Internal pod traffic typically uses network plugins like OVN-Kubernetes.
+*   xref:./overview.adoc#_scaling_and_exposing_applications_to_external_access[Scaling and exposing applications to external access] is achieved through:
+    ** Public cloud load balancers.
+    ** The OpenShift Ingress cluster operator and xref:./overview.adoc#_the_openshift_web_console[IngressControllers] for HTTP/S traffic.
+*   xref:./overview.adoc#_externalizing_application_configurations[Externalizing application configurations] ensures portability and flexibility.
+*    xref:./overview.adoc#_configuring_network_policies_and_limiting_ingress_traffic[NetworkPolicy objects] can configure non-default pod network permissions and limit ingress/egress traffic.
+*   xref:./overview.adoc#_api_visibility[Ingress Visibility] can be configured as public or private during cluster creation.

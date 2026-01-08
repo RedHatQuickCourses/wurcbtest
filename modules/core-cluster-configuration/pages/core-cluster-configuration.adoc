@@ -1,0 +1,11 @@
+#  Core Cluster Configuration
+
+=== Core Cluster Configuration
+
+Core cluster configuration involves customizing the fundamental settings of an Azure Red Hat OpenShift (ARO) cluster. This includes:
+
+*   *Configuring additional storage classes*: Defining various storage options for applications.
+*   *Creating dedicated machine sets*: Establishing groups of worker nodes with specific compute resources for particular workloads.
+*   *Configuring node autoscaling*: Automatically adjusting the number of worker nodes based on demand.
+*   *Configuring log forwarding*: Setting up the transfer of cluster logs to an external logging solution.
+*   *Configuring custom DNS and DNS forwarding*: Integrating custom domain name resolution and forwarding DNS queries.

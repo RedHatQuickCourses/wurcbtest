@@ -1,0 +1,380 @@
+#  Configuring network policies
+
+= Configuring Network Policies in Azure Red Hat OpenShift
+
+This module delves into the critical aspect of network security within your Azure Red Hat OpenShift (ARO) clusters: configuring network policies. We will explore how to secure your applications by controlling both inbound (ingress) and outbound (egress) network traffic at a granular level, leveraging OpenShift's robust networking capabilities.
+
+== Understanding Network Policies in ARO
+
+In a Kubernetes and OpenShift environment, pods are often ephemeral and communicate dynamically. Without proper controls, any pod can potentially communicate with any other pod, or even external services, leading to potential security vulnerabilities. Network policies provide a mechanism to define how groups of pods are allowed to communicate with each other and with other network endpoints.
+
+Azure Red Hat OpenShift utilizes the powerful OpenShift Software Defined Networking (SDN) to implement and enforce these policies. For ARO 4.x clusters, this typically means the OVN-Kubernetes network plugin is active, providing advanced networking features including comprehensive network policy enforcement. The `NetworkPolicy` objects you create are interpreted and enforced by the SDN plugin, ensuring that traffic flows adhere to your defined security posture.
+
+The context states that "OpenShift Software Defined Networking (SDN) is used to configure an overlay network using Open vSwitch (OVS), an OpenFlow implementation based on Container Network Interface". This underlying infrastructure, combined with the `ovs-networkpolicy` plugin, ensures that granular network policies are effectively applied and enforced across your cluster.
+
+=== Capabilities of Network Policies
+
+Network policies in ARO enable you to:
+
+*   **Isolate Pods:** Restrict communication between pods, even within the same namespace.
+*   **Control Ingress Traffic:** Define which external sources or other pods are allowed to connect to your applications.
+*   **Control Egress Traffic:** Manage which external destinations your application pods can connect to.
+*   **Segment Networks:** Create logical network segments within your cluster for different applications or teams.
+*   **Granular Control:** "Using `NetworkPolicy` objects allows for full control over ingress network policy down to the pod level, including between pods on the same cluster and even in the same namespace."
+
+== Ingress Network Policies
+
+Ingress network policies control incoming traffic to your pods. By default, if no network policies are applied in a namespace, all ingress traffic is allowed to pods within that namespace. Creating an ingress network policy in a namespace changes this default, effectively isolating the pods until specific rules are defined to allow traffic.
+
+OpenShift supports the Kubernetes v1 `NetworkPolicy` API for defining ingress rules. These policies allow project administrators to define allow lists based on pod selectors, namespace selectors, or even IP blocks. This provides fine-grained control over which traffic is permitted to reach your application pods. The context notes that "Ingress policies can be changed by using `NetworkPolicy` objects, which use the `ovs-networkpolicy` plugin."
+
+All cluster ingress traffic traverses the defined load balancer before reaching your application pods, and your ingress policies act as a further layer of defense at the pod level.
+
+[NOTE]
+====
+The context mentions: "While the ingress network policy is V1 NetworkPolicy compliant, the Egress and IPBlock Types aren't supported." This refers to specific limitations within an *ingress* network policy definition, particularly concerning attempts to define egress rules using the `egress` field or certain advanced `ipBlock` configurations within a `NetworkPolicy` object when it's primarily intended for ingress control by OpenShift SDN. For dedicated egress control, OpenShift provides a more robust and specific mechanism, as we will explore next.
+====
+
+=== Hands-on Activity: Configuring an Ingress Network Policy
+
+In this activity, you will deploy a simple web application and then create a network policy to restrict ingress access to it, demonstrating how to achieve pod isolation.
+
+[discrete]
+==== Prerequisites
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI configured and logged in to your cluster.
+
+[discrete]
+==== 1. Create a Project for the Application
+First, create a new OpenShift project (namespace) for your application.
+
+.Log in to your ARO cluster and create a new project:
+[source,bash]
+----
+oc new-project network-policy-test
+----
+This command creates a project named `network-policy-test`.
+
+[discrete]
+==== 2. Deploy a Test Web Application
+Deploy a simple NGINX web server to serve as our target for ingress control.
+
+.Deploy the NGINX application:
+[source,bash]
+----
+oc create deployment nginx-app --image=nginx
+oc expose deployment nginx-app --port=80
+----
+This creates an NGINX deployment and a service to expose it within the cluster.
+
+.Verify the application is running and accessible internally:
+[source,bash]
+----
+oc get pods -l app=nginx-app
+oc get svc nginx-app
+----
+You should see a running NGINX pod and its associated service.
+
+[discrete]
+==== 3. Test Initial Access
+Before applying any policies, let's confirm that another pod can access the NGINX service.
+
+.Create a temporary debug pod in the same namespace:
+[source,bash]
+----
+oc run --generator=run-pod/v1 curl-test --image=curlimages/curl --restart=Never --command -- sleep infinity
+oc exec -it curl-test -- curl nginx-app.network-policy-test.svc.cluster.local
+----
+You should see the default NGINX welcome page HTML output, confirming access.
+
+.Exit the `curl-test` pod's shell (if still in it), but keep the pod running for later tests.
+
+[discrete]
+==== 4. Apply an Ingress Network Policy to Deny All Traffic
+Now, create a `NetworkPolicy` that denies all ingress traffic to pods with the label `app=nginx-app`.
+
+.Create a file named `deny-all-ingress.yaml` with the following content:
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-nginx-ingress
+  namespace: network-policy-test
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-app
+  policyTypes:
+    - Ingress
+----
+
+.Apply the network policy:
+[source,bash]
+----
+oc apply -f deny-all-ingress.yaml
+----
+
+[discrete]
+==== 5. Test Restricted Access
+After applying the policy, the `curl-test` pod should no longer be able to reach the NGINX application, even though it's in the same namespace.
+
+.From the `curl-test` pod, try to access NGINX again:
+[source,bash]
+----
+oc exec -it curl-test -- curl --connect-timeout 5 nginx-app.network-policy-test.svc.cluster.local
+----
+This command should now time out or fail, indicating that the `deny-all-nginx-ingress` policy is working and blocking the connection.
+
+[discrete]
+==== 6. Allow Ingress from Specific Pods
+Let's modify the policy to allow ingress only from pods that have a specific label, for example, `access=allowed`.
+
+.Delete the previous policy:
+[source,bash]
+----
+oc delete -f deny-all-ingress.yaml
+----
+
+.Create a file named `allow-specific-ingress.yaml` with the following content:
+[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-from-specific-pods
+  namespace: network-policy-test
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-app
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              access: allowed
+  policyTypes:
+    - Ingress
+----
+This policy states that pods with `app: nginx-app` can only receive ingress traffic from pods within the same namespace that have the label `access: allowed`.
+
+.Apply the new network policy:
+[source,bash]
+----
+oc apply -f allow-specific-ingress.yaml
+----
+
+[discrete]
+==== 7. Test Specific Access
+Now, try accessing NGINX again from the `curl-test` pod (which doesn't have the `access=allowed` label). It should still fail. Then, add the label to the `curl-test` pod and try again.
+
+.Test from the unlabeled `curl-test` pod (should fail):
+[source,bash]
+----
+oc exec -it curl-test -- curl --connect-timeout 5 nginx-app.network-policy-test.svc.cluster.local
+----
+It should time out.
+
+.Add the `access=allowed` label to the `curl-test` pod:
+[source,bash]
+----
+oc label pod curl-test access=allowed
+----
+
+.Test again from the *labeled* `curl-test` pod (should succeed):
+[source,bash]
+----
+oc exec -it curl-test -- curl nginx-app.network-policy-test.svc.cluster.local
+----
+You should now see the NGINX welcome page HTML output. This demonstrates how to allow ingress traffic based on pod labels.
+
+[discrete]
+==== Cleanup
+.Delete the test resources:
+[source,bash]
+----
+oc delete deployment nginx-app
+oc delete svc nginx-app
+oc delete pod curl-test
+oc delete networkpolicy allow-nginx-from-specific-pods
+oc delete project network-policy-test
+----
+
+== Egress Network Policies
+
+Egress network policies control outbound traffic originating from your pods. While standard Kubernetes `NetworkPolicy` objects primarily focus on ingress, OpenShift provides a powerful `EgressNetworkPolicy` custom resource definition (CRD) to manage egress traffic. "Pod egress traffic control via `EgressNetworkPolicy` objects can be used to prevent or limit outbound traffic in Azure Red Hat OpenShift."
+
+[NOTE]
+====
+The context states that "Currently all virtual machines must have outbound internet access." This is an important consideration when designing your egress policies for ARO, especially if you intend to block all external traffic, as the underlying VM infrastructure still requires outbound connectivity.
+====
+
+=== Key Characteristics of OpenShift Egress Policies:
+
+*   **Egress Firewall Feature:** "Egress network policies are supported by using the egress firewall feature in OpenShift." This feature provides granular control over outbound connections.
+*   **One Policy Per Namespace:** "There's only one egress policy per namespace/project." This simplifies management and ensures a single source of truth for egress rules within a project.
+*   **No Support on `default` Namespace:** "Egress policies aren't supported on the 'default' namespace." You must create and manage egress policies in custom namespaces.
+*   **Ordered Evaluation:** "Egress policies are evaluated in order (first to last)." The first rule that matches the traffic flow is applied. Therefore, the order of your rules is critical.
+
+=== Hands-on Activity: Configuring an Egress Network Policy
+
+In this activity, you will deploy a test pod and then create an `EgressNetworkPolicy` to restrict its outbound internet access.
+
+[discrete]
+==== Prerequisites
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI configured and logged in to your cluster.
+
+[discrete]
+==== 1. Create a Project for the Egress Test
+Create a new OpenShift project (namespace) for your egress testing. Remember that egress policies are not supported in the `default` namespace.
+
+.Log in to your ARO cluster and create a new project:
+[source,bash]
+----
+oc new-project egress-policy-test
+----
+
+[discrete]
+==== 2. Deploy a Test Pod
+Deploy a pod with `curl` to test outbound connectivity.
+
+.Deploy the `curl-egress-test` pod:
+[source,bash]
+----
+oc run --generator=run-pod/v1 curl-egress-test --image=curlimages/curl --restart=Never --command -- sleep infinity
+----
+
+.Verify the pod is running:
+[source,bash]
+----
+oc get pods -l run=curl-egress-test
+----
+
+[discrete]
+==== 3. Test Initial Egress Access
+Confirm that the pod can access external resources before applying any egress policies.
+
+.From the `curl-egress-test` pod, try to access `google.com`:
+[source,bash]
+----
+oc exec -it curl-egress-test -- curl https://google.com
+----
+You should see HTML output from `google.com`, confirming successful outbound access.
+
+[discrete]
+==== 4. Apply an Egress Network Policy to Deny All External Traffic
+Now, create an `EgressNetworkPolicy` to block all external traffic from the `egress-policy-test` namespace.
+
+.Create a file named `deny-all-egress.yaml` with the following content:
+[source,yaml]
+----
+apiVersion: network.openshift.io/v1
+kind: EgressNetworkPolicy
+metadata:
+  name: deny-external-egress
+  namespace: egress-policy-test
+spec:
+  egress:
+  - type: Deny
+    to:
+      cidrSelector: 0.0.0.0/0 # Deny all IPv4 traffic
+----
+This policy defines a single rule of type `Deny` for all IPv4 addresses (`0.0.0.0/0`), effectively blocking all external outbound traffic from this namespace.
+
+.Apply the egress network policy:
+[source,bash]
+----
+oc apply -f deny-all-egress.yaml
+----
+
+[discrete]
+==== 5. Test Restricted Egress Access
+After applying the policy, the `curl-egress-test` pod should no longer be able to reach `google.com`.
+
+.From the `curl-egress-test` pod, try to access `google.com` again:
+[source,bash]
+----
+oc exec -it curl-egress-test -- curl --connect-timeout 5 https://google.com
+----
+This command should now time out or fail, indicating that the `deny-external-egress` policy is working and blocking external connections.
+
+[discrete]
+==== 6. Allow Specific External Egress
+Let's modify the policy to allow egress only to a specific domain or IP address, for instance, `example.com`.
+
+.Delete the previous policy:
+[source,bash]
+----
+oc delete -f deny-all-egress.yaml
+----
+
+[IMPORTANT]
+====
+Remember that `EgressNetworkPolicy` rules are evaluated in order. If you want to allow *only* specific traffic, you typically list `Allow` rules first, followed by a general `Deny` rule at the end.
+====
+
+.Create a file named `allow-example-egress.yaml` with the following content:
+[source,yaml]
+----
+apiVersion: network.openshift.io/v1
+kind: EgressNetworkPolicy
+metadata:
+  name: allow-example-egress
+  namespace: egress-policy-test
+spec:
+  egress:
+  - type: Allow
+    to:
+      dnsName: www.example.com
+  - type: Deny
+    to:
+      cidrSelector: 0.0.0.0/0
+----
+This policy first *allows* traffic to `www.example.com` and then *denies* all other IPv4 outbound traffic.
+
+.Apply the new egress network policy:
+[source,bash]
+----
+oc apply -f allow-example-egress.yaml
+----
+
+[discrete]
+==== 7. Test Specific Egress Access
+Now, test access to `www.example.com` (should succeed) and then `google.com` (should fail).
+
+.Test access to `www.example.com` (should succeed):
+[source,bash]
+----
+oc exec -it curl-egress-test -- curl https://www.example.com
+----
+You should see HTML output from `example.com`.
+
+.Test access to `google.com` (should fail):
+[source,bash]
+----
+oc exec -it curl-egress-test -- curl --connect-timeout 5 https://google.com
+----
+This command should now time out or fail, as it's not `www.example.com`.
+
+[discrete]
+==== Cleanup
+.Delete the test resources:
+[source,bash]
+----
+oc delete pod curl-egress-test
+oc delete egressnetworkpolicy allow-example-egress
+oc delete project egress-policy-test
+----
+
+== Advanced Considerations and Best Practices
+
+*   **Least Privilege Principle:** Always apply network policies using the principle of least privilege. Only allow the traffic that is absolutely necessary for your applications to function.
+*   **Default Deny:** It's a common security practice to implement a "default deny" approach by first denying all traffic and then explicitly allowing required communication paths. This reduces the attack surface.
+*   **Impact Assessment:** Carefully plan and test your network policies, as misconfigured policies can inadvertently disrupt application functionality. Start with a smaller scope and progressively expand.
+*   **Monitoring and Logging:** Utilize OpenShift's logging and monitoring capabilities to observe traffic patterns and troubleshoot any connectivity issues that arise from network policy enforcement.
+*   **Namespace Strategy:** Design your namespaces with network segmentation in mind. Policies are typically scoped to a namespace, making it easier to manage security boundaries between different applications or teams.
+*   **Inter-Namespace Communication:** When pods in different namespaces need to communicate, you'll need to define `NetworkPolicy` objects that allow this cross-namespace traffic (e.g., using `namespaceSelector`).
+*   **External Access (Routes/Services):** Remember that `NetworkPolicy` objects control traffic *to and from pods*. External access to your applications is typically managed via OpenShift Routes (for HTTP/HTTPS) or Kubernetes Services of `type: LoadBalancer` (for other protocols). Network policies complement these by adding a layer of granular control at the pod level.
+
+By mastering the configuration of both ingress and egress network policies, you can significantly enhance the security posture of your applications running on Azure Red Hat OpenShift, ensuring that only authorized traffic flows within and out of your clusters.

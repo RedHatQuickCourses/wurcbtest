@@ -1,10 +1,34 @@
-name: REPLACEREPONAME
-title: FIXME Course Title
-version: 1
+name: wurcbtest
+title:  Advanced Administration of Azure Red Hat OpenShift
+version: 1.0.0
 nav:
 - modules/ROOT/nav.adoc
 - modules/LABENV/nav.adoc
-- modules/chapter1/nav.adoc
-- modules/chapter2/nav.adoc
-- modules/chapter3/nav.adoc
+
+- modules/azure-red-hat-openshift-architecture-and-overview/nav.adoc
+
+- modules/aro-cluster-provisioning/nav.adoc
+
+- modules/core-cluster-configuration/nav.adoc
+
+- modules/registry-integrations/nav.adoc
+
+- modules/cluster-application-data-management/nav.adoc
+
+- modules/openshift-and-kubernetes-interfaces/nav.adoc
+
+- modules/troubleshooting-and-application-management/nav.adoc
+
+- modules/kubernetes-networking-and-application-exposure/nav.adoc
+
+- modules/network-security-policies/nav.adoc
+
+- modules/gitops-for-cluster-administration/nav.adoc
+
+- modules/multi-cluster-management/nav.adoc
+
+- modules/knowledge-share-and-discussions/nav.adoc
+
+- modules/hands-on-lab/nav.adoc
+
 - modules/appendix/nav.adoc

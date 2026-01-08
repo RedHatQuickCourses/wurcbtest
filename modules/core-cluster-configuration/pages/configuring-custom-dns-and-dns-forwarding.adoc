@@ -1,0 +1,117 @@
+#  Configuring custom DNS and DNS forwarding
+
+= Configuring Custom DNS and DNS Forwarding in Azure Red Hat OpenShift
+
+This module delves into configuring custom DNS servers for your Azure Red Hat OpenShift (ARO) cluster and understanding the implications of such a configuration. By the end of this module, you will understand how ARO nodes obtain DNS configurations, the process of switching to a custom DNS, and how to apply these changes to your cluster.
+
+== Understanding ARO DNS Configuration
+
+By default, when an Azure Red Hat OpenShift cluster node powers on and joins the network, it utilizes DHCP to receive network configurations, including the IP address and the DNS server to use. This default setup ensures seamless resolution of internal Azure resources and OpenShift components.
+
+The process flow for obtaining this configuration is as follows:
+
+1.  **Node Boot-up**: An ARO worker or master node starts.
+2.  **DHCP Request**: The node sends a DHCP request to the virtual network.
+3.  **Configuration Assignment**: DHCP assigns an IP address and the default DNS server (typically Azure-provided DNS) to the virtual machine.
+4.  **DNS Resolution**: The node uses this DNS server for all its DNS queries, including resolving other virtual machines within the same virtual network and external services.
+
+[NOTE]
+====
+An important consideration when configuring your own custom DNS server is that you will lose the default configuration provided by Azure's DNS server in the virtual network. This means that *virtual machine names will no longer resolve through DNS on the network* xref:references/context.adoc[]. Nodes will only be reachable via their IP address. This trade-off is crucial to understand before implementing a custom DNS setup.
+====
+
+== Configuring a Custom DNS Server
+
+Configuring a custom DNS server for your ARO cluster involves two primary steps:
+
+1.  Modifying the Virtual Network DNS Servers configuration setting.
+2.  Restarting the nodes in the cluster to apply the changes.
+
+While these steps can be performed via the command line, this documentation focuses on using the Azure portal web interface for clarity and ease of use.
+
+=== Step 1: Update DNS Configuration in the Virtual Network
+
+The first step is to instruct your virtual network to use your custom DNS servers instead of the default Azure-provided DNS.
+
+.Log into the Azure portal.
+.Navigate to the desired virtual network where your ARO cluster is deployed.
+.In the virtual network's settings list, select *DNS servers*.
+.On the DNS configuration screen, select the *Custom* radial button.
+.Enter the IP addresses for your DNS servers. You can add multiple servers for redundancy.
++
+[TIP]
+====
+Ensure your custom DNS servers are accessible from within the Azure virtual network and are capable of resolving both internal and external DNS requests as required by your OpenShift cluster.
+====
+.Click *Save* to apply the changes to the virtual network.
+
+This action updates the DHCP settings for your virtual network, but existing nodes will not immediately pick up these changes. For the ARO nodes to start using the new DNS configuration, they must renew their DHCP leases, which typically happens upon a reboot.
+
+=== Step 2: Reboot ARO Cluster Nodes to Apply Changes
+
+After updating the virtual network's DNS configuration, you must reboot the ARO cluster nodes (both worker and master) to ensure they pick up the new custom DNS server settings. This process involves deleting specific `MachineConfig` objects, which triggers a controlled reboot of the nodes managed by the Machine Config Operator.
+
+[TIP]
+====
+The procedure for modifying a custom DNS on a cluster that already has custom DNS in place follows the same process. You would first update the virtual network DNS configuration and then proceed to reboot the nodes.
+====
+
+==== Hands-on Activity: Apply Custom DNS Configuration
+
+In this hands-on activity, you will apply the custom DNS settings by rebooting the worker and master nodes of your ARO cluster.
+
+.Prerequisites:
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI configured and logged in to your cluster with `cluster-admin` privileges.
+*   You have already updated the virtual network's DNS servers in the Azure portal as described in Step 1.
+
+.Reboot Worker Nodes:
+.. Open a terminal and log in to your ARO cluster using the `oc` CLI.
+.. To trigger a reboot of the worker nodes, you will delete the `MachineConfig` object associated with their reboot. This will cause the Machine Config Operator to regenerate the configuration and reboot the nodes.
++
+[source,bash]
+----
+oc delete machineconfig 25-machineconfig-worker-reboot
+----
++
+.Output:
+[source,console]
+----
+machineconfig.machineconfiguration.openshift.io "25-machineconfig-worker-reboot" deleted
+----
++
+.. *Wait for all worker nodes to reboot.* You can monitor the status of the nodes using `oc get nodes` and observe their readiness state. This process can take some time as each node reboots and rejoins the cluster. Ensure all worker nodes return to a `Ready` state before proceeding.
+
+.Reboot Master Nodes:
+.. Once all worker nodes are back online and healthy, proceed to reboot the master nodes. This is a critical step, and it's essential to ensure the cluster remains stable throughout the process.
++
+[source,bash]
+----
+oc delete machineconfig 25-machineconfig-master-reboot
+----
++
+.Output:
+[source,console]
+----
+machineconfig.machineconfiguration.openshift.io "25-machineconfig-master-reboot" deleted
+----
++
+.. *Wait for all master nodes to reboot.* Similar to the worker nodes, monitor the master nodes using `oc get nodes`. Confirm that all master nodes have rebooted and are in a `Ready` state.
+
+.Verification:
+After both worker and master nodes have rebooted, they will now be using the custom DNS servers you configured in the virtual network. You can verify this by logging into a node (e.g., via `oc debug node/<node-name>`) and inspecting its `/etc/resolv.conf` file, which should now reflect your custom DNS server IP addresses.
+
+[source,console]
+----
+search reddog.microsoft.com <your-vnet-domain>
+nameserver 192.168.0.1 <your-custom-dns-ip>
+----
++
+The `nameserver` entry should now point to your custom DNS server(s). This indicates that the ARO nodes are forwarding their DNS queries to your specified custom DNS infrastructure.
+
+[IMPORTANT]
+====
+As noted previously, once you configure custom DNS, virtual machine names within the Azure virtual network might no longer resolve through DNS unless your custom DNS server is configured to handle these internal resolutions. Nodes will primarily be reachable via their IP addresses for direct VNet communication.
+====
+
+By following these steps, you have successfully configured custom DNS for your Azure Red Hat OpenShift cluster, ensuring that all cluster nodes utilize your specified DNS infrastructure for name resolution and effectively implementing DNS forwarding from the cluster's perspective to your custom servers.

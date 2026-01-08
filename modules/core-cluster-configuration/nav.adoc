@@ -1,0 +1,6 @@
+* xref:core-cluster-configuration.adoc[]
+** xref:configuring-additional-storage-classes.adoc[]
+** xref:creating-dedicated-machine-sets.adoc[]
+** xref:configuring-node-autoscaling.adoc[]
+** xref:configuring-log-forwarding.adoc[]
+** xref:configuring-custom-dns-and-dns-forwarding.adoc[]

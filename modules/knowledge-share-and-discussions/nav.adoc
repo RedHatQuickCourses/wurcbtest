@@ -1,0 +1,6 @@
+* xref:knowledge-share-and-discussions.adoc[]
+** xref:integrating-azure-ad-with-openshift-oauth.adoc[]
+** xref:integrating-azure-key-vault-with-aro.adoc[]
+** xref:differentiating-availability-sets-vs-availability-zones.adoc[]
+** xref:understanding-azure-spot-instances.adoc[]
+** xref:exploring-hosted-control-planes.adoc[]

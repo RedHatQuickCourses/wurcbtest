@@ -1,0 +1,195 @@
+#  Scale and expose applications to external access
+
+= Scale and expose applications to external access
+:navtitle: Scale and expose applications
+
+The ability to dynamically scale applications and expose them securely to external consumers is fundamental in a cloud-native environment like Azure Red Hat OpenShift (ARO). This section delves into how OpenShift handles both application scaling – ensuring your applications meet demand efficiently – and external access – making your services available outside the cluster.
+
+== Understanding Application Scaling in OpenShift
+
+Application scaling in OpenShift refers to the process of adjusting the number of running instances (Pods) of an application based on demand. This ensures your application can handle varying workloads, preventing performance bottlenecks during peak times and reducing resource consumption during idle periods. OpenShift offers several mechanisms for scaling, with Horizontal Pod Autoscaling (HPA) being a common approach for traditional Kubernetes workloads and OpenShift Serverless (Knative) providing an event-driven, "scale-to-zero" capability.
+
+=== Event-driven Scaling with OpenShift Serverless (Knative)
+
+OpenShift Serverless, powered by Knative, introduces powerful serverless capabilities to OpenShift, enabling applications to scale dynamically based on request traffic, even down to zero instances when idle. This approach is highly efficient for workloads that experience unpredictable or infrequent traffic.
+
+A *Knative Service* is a resource that manages the entire lifecycle of your serverless application, from build to deployment and scaling. When you create a Knative Service, it automatically handles:
+
+*   **Revision Management**: Each configuration change to your service creates a new immutable *revision*. This allows for easy rollback and precise traffic management.
+*   **Intelligent Routing and Traffic Management**: Knative services allow sophisticated traffic mapping. Revisions of a service can be mapped to allocated portions of traffic. By default, the service route points all traffic to the latest ready revision, but you can define specific traffic splits between different revisions, which is invaluable for canary deployments or A/B testing. Knative also provides the option to create unique URLs for individual revisions, useful for testing new versions.
+*   **Automatic Scaling**: Knative observes incoming requests and automatically scales your application up or down. A key feature is its ability to scale down to zero Pods when the application is idle, consuming no resources. When a new request arrives, Knative rapidly scales up to one or more Pods to serve the request.
+
+This "scale-to-zero" capability makes Knative an excellent choice for microservices, event-driven functions, and other workloads that benefit from cost savings during periods of inactivity.
+
+==== Hands-on Activity: Deploying and Scaling an Application with Knative
+
+In this lab, you will deploy a simple web application using OpenShift Serverless (Knative) and observe its automatic scaling behavior.
+
+.Objective
+Deploy a Python application using OpenShift Serverless, monitor its build and scaling, and observe its "scale-to-zero" capability.
+
+.Prerequisites
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI configured and logged in to your cluster.
+*   Developer perspective in the OpenShift Web Console.
+
+.Steps
+
+. **Log in to the OpenShift Web Console**
+    *   Open your web browser and navigate to the OpenShift Web Console URL.
+    *   Log in using your credentials.
+
+. **Create a New Project (if you don't have one)**
+    *   In the Developer perspective, click *Projects* -> *Create Project*.
+    *   Enter `serverless-app-project` as the name and click *Create*.
+    *   Ensure you are in the `serverless-app-project`.
+
+. **Deploy a Sample Application using Knative Service**
+    *   In the Developer perspective, click *+Add* in the left navigation panel.
+    *   Select *From Git*.
+    *   Enter the following Git repository URL: `https://github.com/sclorg/s2i-python-container`
+    *   For *Builder Image*, OpenShift should automatically detect Python.
+    *   Scroll down to *Resources*. Ensure that `Knative Service` is selected as the resource type to generate. This action creates a Knative Service, enabling OpenShift Serverless scaling to zero when idle.
+    *   At the bottom of the page, click *Create*. This creates resources to manage the build and deployment of the application. You will then be redirected to the topology overview for the project.
+
+. **Monitor the Build Process**
+    *   From the *Topology* view, click on the application icon.
+    *   In the sidebar, navigate to the *Resources* tab.
+    *   Click on the *Build* associated with your application (e.g., `s2i-python-container-build-1`).
+    *   Monitor the build logs. The builder image, Python in this case, will inject the application source code into the final image before it pushes it to the OpenShift internal image registry. The build will have completed successfully when you see a final message of `"Push successful"`.
+    *   Once the build of the application image has completed, it will be deployed.
+
+. **Observe Scaling to Zero**
+    *   Return to the *Topology* view.
+    *   Wait for the deployment to complete. A green checkmark appears in the lower-left corner of the service when ready.
+    *   At the top of the *Topology* view, in the *Display Options* list, select *Pod Count*.
+    *   Wait for the Pod count to scale down to zero Pods. Scaling down might take a few minutes as Knative observes inactivity.
+
+. **Access the Application and Observe Scaling Up**
+    *   In the upper-right corner of the Knative Service panel (the ring representing your application in the Topology view), select the *Open URL* icon.
+    *   The application opens in a new browser tab, displaying "Hello S2I!" or similar content.
+    *   Close the tab and return to the *Topology* view in the OpenShift console.
+    *   There you can see that your application scaled up to one Pod to accommodate your request.
+    *   After a few minutes of inactivity, your application scales back down to zero Pods.
+
+. **(Optional) Force a New Revision and Set Traffic Distribution**
+    *   Knative services allow traffic mapping. With each service configuration update, a new revision is created.
+    *   To demonstrate, go to the *Topology* view, click on your Knative Service, and then go to the *Resources* tab.
+    *   Click on the `KnativeService` resource, then select the *YAML* tab.
+    *   Modify the `env` section or add a new environment variable to force a new revision. For example, add:
+        ```yaml
+        spec:
+          template:
+            spec:
+              containers:
+                - image: image-registry.openshift-image-registry.svc:5000/serverless-app-project/s2i-python-container
+                  env:
+                    - name: MESSAGE
+                      value: "Hello from Revised S2I!" # Add or modify this line
+        ```
+    *   Click *Save*. A new revision will be deployed.
+    *   Once the new revision is ready, go back to the *Topology* view, click on your Knative Service, and select the *Traffic* tab in the sidebar.
+    *   You will see both revisions listed. You can now adjust the traffic percentage for each revision. For instance, you could split traffic 50/50 or route 100% to the new revision. This provides excellent control for staged rollouts.
+
+== Exposing Applications to External Access with OpenShift Routes
+
+While your applications run securely within the ARO cluster, they often need to be accessible from outside – by users, other services, or external systems. In OpenShift, the primary mechanism for exposing services externally is through *Routes*.
+
+*   **Routes**: An OpenShift Route exposes a service at a host name, making it reachable from outside the cluster. When you define a Route, you specify the hostname and the service that the Route should forward traffic to. OpenShift's built-in HAProxy-based router then handles the external ingress traffic and directs it to the appropriate Pods backing your service.
+
+Key features of OpenShift Routes include:
+
+*   **Load Balancing**: Routes inherently provide load balancing across the Pods exposed by the target service.
+*   **TLS Termination**: Routes can terminate TLS (SSL) encryption, ensuring secure communication between external clients and your application, while offloading the encryption burden from your application Pods.
+*   **Custom Hostnames**: You can specify custom hostnames for your applications, making them user-friendly and domain-aligned.
+*   **Path-based Routing**: Routes support routing traffic based on URL paths, allowing a single hostname to serve multiple applications.
+
+When an application is created via the OpenShift Web Console, especially from Git or a developer catalog item, a Route is often automatically created for the application, making it instantly accessible outside the cluster. The URL for this Route is typically visible in the application's details or the Topology view.
+
+==== Hands-on Activity: Exposing an Application with an OpenShift Route
+
+In this lab, you will deploy a simple web application and manually create an OpenShift Route to expose it to external access.
+
+.Objective
+Deploy a basic NGINX web server and expose it externally using an OpenShift Route.
+
+.Prerequisites
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI configured and logged in to your cluster.
+*   Developer perspective in the OpenShift Web Console.
+
+.Steps
+
+. **Log in to the OpenShift Web Console**
+    *   Open your web browser and navigate to the OpenShift Web Console URL.
+    *   Log in using your credentials.
+
+. **Create a New Project (if you don't have one)**
+    *   In the Developer perspective, click *Projects* -> *Create Project*.
+    *   Enter `exposed-app-project` as the name and click *Create*.
+    *   Ensure you are in the `exposed-app-project`.
+
+. **Deploy a Simple NGINX Application**
+    *   In the Developer perspective, click *+Add* -> *YAML* in the left navigation panel.
+    *   Paste the following YAML to create a Deployment and a Service for NGINX:
+        ```yaml
+        apiVersion: apps.openshift.io/v1
+        kind: DeploymentConfig
+        metadata:
+          name: nginx-app
+          labels:
+            app: nginx-app
+        spec:
+          replicas: 1
+          selector:
+            app: nginx-app
+          template:
+            metadata:
+              labels:
+                app: nginx-app
+            spec:
+              containers:
+                - name: nginx
+                  image: registry.access.redhat.com/ubi8/nginx-118:1-35
+                  ports:
+                    - containerPort: 8080
+                      protocol: TCP
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: nginx-service
+          labels:
+            app: nginx-app
+        spec:
+          selector:
+            app: nginx-app
+          ports:
+            - protocol: TCP
+              port: 80
+              targetPort: 8080
+          type: ClusterIP
+        ```
+    *   Click *Create*.
+
+. **Verify Application Deployment**
+    *   Go to the *Topology* view. You should see `nginx-app` deploying.
+    *   Wait for the deployment to complete (green checkmark).
+
+. **Create an OpenShift Route to Expose the Service**
+    *   In the Developer perspective, click *Networking* -> *Routes* in the left navigation panel.
+    *   Click *Create Route*.
+    *   Fill in the following details:
+        *   **Name**: `nginx-route`
+        *   **Hostname**: (Leave blank to auto-generate, or provide a unique hostname if you have a custom DNS setup, e.g., `nginx.apps.<your-cluster-domain>`)
+        *   **Path**: `/`
+        *   **Service**: Select `nginx-service` from the dropdown.
+        *   **Target Port**: Select `80 (8080 -> 8080)` from the dropdown.
+        *   **Security**: You can enable TLS termination here if desired. For this lab, leave *Secure route* unchecked.
+    *   Click *Create*.
+
+. **Access the Application Externally**
+    *   Once the Route is created, navigate back to the *Routes* list (`Networking` -> `Routes`).
+    *   Find your `nginx-route` and copy the *Location* URL.
+    *   Paste the URL into your web browser. You should see the NGINX welcome page, confirming that your application is now accessible from outside the OpenShift cluster.
+    *   Alternatively, from the *Topology* view, click on your `nginx-app` and then click the *Open URL* icon (top-right of the ring) to access the application via the created Route.

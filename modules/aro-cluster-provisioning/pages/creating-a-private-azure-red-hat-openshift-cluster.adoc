@@ -1,0 +1,196 @@
+#  Creating a private Azure Red Hat OpenShift cluster
+
+= Creating a Private Azure Red Hat OpenShift Cluster
+
+This document guides you through the process of provisioning an Azure Red Hat OpenShift (ARO) cluster with a private network configuration. By creating a private cluster, you enhance security by ensuring that your cluster's API server endpoint and application ingress traffic remain within your private Azure Virtual Network.
+
+== Understanding Private Azure Red Hat OpenShift Clusters
+
+A private Azure Red Hat OpenShift cluster is designed for enhanced security and compliance requirements. Unlike public clusters, where the OpenShift API server and application ingress are exposed to the public internet by default, a private cluster keeps these endpoints confined to your Azure Virtual Network (VNet).
+
+=== Key Characteristics of a Private ARO Cluster
+
+*   **Private API Server Endpoint:** The OpenShift API server, which is the control plane for your cluster, is only accessible from within your Azure VNet or from networks peered with it. This significantly reduces the attack surface by eliminating public internet exposure for critical cluster management functions.
+*   **Private Ingress Controller:** Applications deployed within a private ARO cluster expose their services via an internal load balancer. This means application traffic also stays within your private VNet, preventing direct external access unless you explicitly configure other mechanisms (e.g., an Application Gateway or VPN connection). This aligns with the context statement: "Deploy a cluster with a private API server endpoint and a private ingress controller."
+
+=== Benefits of a Private ARO Cluster
+
+*   **Enhanced Security:** By limiting exposure to internal networks, you reduce the risk of unauthorized access and attacks from the public internet.
+*   **Compliance:** Many regulatory and industry compliance standards require that sensitive environments and data remain within private networks. Private ARO clusters help meet these requirements.
+*   **Network Control:** You have finer control over network traffic flow to and from your cluster, integrating seamlessly with your existing Azure network topology.
+
+== Prerequisites for Creating a Private ARO Cluster
+
+Before you can provision a private ARO cluster, you need to ensure your Azure environment is correctly configured. This involves setting up the Azure CLI, registering necessary resource providers, and preparing your virtual network infrastructure.
+
+=== 1. Azure CLI Version Check
+
+Ensure you are running a supported version of the Azure CLI. For creating ARO 4 private clusters, the Azure CLI version must be `2.30.0` or later. The context states: "If you choose to install and use the CLI locally, this tutorial requires that you're running the Azure CLI version 2.30.0 or later."
+
+. Verify Azure CLI Version
+[source,bash]
+----
+az --version
+----
+If your version is older, follow the official Azure documentation to xref:ref-azure-cli-install[install or upgrade Azure CLI^].
+
+=== 2. Set Your Azure Subscription (if applicable)
+
+If you manage multiple Azure subscriptions, specify the one you intend to use for your ARO cluster. The context states: "If you have multiple Azure subscriptions, specify the relevant subscription ID."
+
+. Set Azure Subscription
+[source,bash]
+----
+az account set --subscription <your-subscription-id>
+----
+Replace `<your-subscription-id>` with the actual ID of your Azure subscription.
+
+=== 3. Register Azure Resource Providers
+
+ARO requires specific resource providers to be registered in your Azure subscription. These providers enable Azure to manage OpenShift, compute resources, and networking components. The context lists these registrations as necessary steps.
+
+. Register Microsoft.RedHatOpenShift Resource Provider
+[source,bash]
+----
+az provider register -n Microsoft.RedHatOpenShift --wait
+----
+The `--wait` flag ensures the command waits until the registration is complete, which can take several minutes.
+
+. Register Microsoft.Compute Resource Provider
+[source,bash]
+----
+az provider register -n Microsoft.Compute --wait
+----
+
+. Register Microsoft.Network Resource Provider
+[source,bash]
+----
+az provider register -n Microsoft.Network --wait
+----
+
+=== 4. Prepare Your Virtual Network and Subnets
+
+A private ARO cluster requires a pre-existing Azure Virtual Network (VNet) with two empty subnets dedicated for the cluster: one for the control plane and one for the worker nodes. These subnets *must not* contain any other resources. The context indicates this as a prerequisite: "Setup the prerequisites and create the required virtual network and subnets."
+
+For this lab, we assume these resources are already created. If not, you would typically use `az network vnet create` and `az network vnet subnet create` commands to set them up.
+
+*   **Virtual Network:** `aro-vnet`
+*   **Control Plane Subnet:** `aro-control-subnet` (e.g., `10.0.0.0/23`)
+*   **Worker Node Subnet:** `aro-worker-subnet` (e.g., `10.0.2.0/23`)
+
+Ensure these subnets have a sufficient address space for your cluster's growth.
+
+== Hands-on Activity: Creating a Private Azure Red Hat OpenShift Cluster
+
+This lab activity walks you through the steps to provision a private ARO cluster using the Azure CLI, incorporating the best practices and options mentioned in the context.
+
+=== Scenario
+
+You need to deploy a new ARO cluster for a highly secure internal application. This cluster must not have its API server or application ingress publicly accessible.
+
+=== Lab Steps
+
+. **Define Environment Variables**
++
+Set up environment variables for your resource group, virtual network, and subnet names. This makes the subsequent commands cleaner and less error-prone.
++
+[source,bash]
+----
+# Define your desired Azure region
+LOCATION="eastus" # Example: eastus, westus2, centralus
+
+# Define names for your Azure resources
+RESOURCEGROUP="aro-private-rg"
+AROCLUSTER="my-private-aro"
+VNET="aro-vnet"
+CONTROLSUB="aro-control-subnet"
+WORKERSUB="aro-worker-subnet"
+
+# Define VNet and subnet prefixes (ensure these don't overlap with existing networks)
+VNET_CIDR="10.0.0.0/22"
+CONTROLSUB_CIDR="10.0.0.0/23"
+WORKERSUB_CIDR="10.0.2.0/23"
+
+# Create a resource group
+az group create --name $RESOURCEGROUP --location $LOCATION
+
+# Create a VNet and subnets (if not already created as per prerequisites)
+# For a production scenario, ensure these subnets are empty.
+az network vnet create \
+  --resource-group $RESOURCEGROUP \
+  --name $VNET \
+  --address-prefixes $VNET_CIDR \
+  --location $LOCATION
+
+az network vnet subnet create \
+  --resource-group $RESOURCEGROUP \
+  --vnet-name $VNET \
+  --name $CONTROLSUB \
+  --address-prefixes $CONTROLSUB_CIDR \
+  --service-endpoints Microsoft.ContainerRegistry
+
+az network vnet subnet create \
+  --resource-group $RESOURCEGROUP \
+  --vnet-name $VNET \
+  --name $WORKERSUB \
+  --address-prefixes $WORKERSUB_CIDR \
+  --service-endpoints Microsoft.ContainerRegistry
+----
+
+. **Create an ARO Pull Secret (Optional but Recommended)**
++
+To enable your cluster to access Red Hat container registries and other content, you should provide a Red Hat pull secret. The context mentions: "You can pass your Red Hat pull secret, which enables your cluster to access Red Hat container registries along with other content. Add the --pull-secret @pull-secret.txt argument to your command."
++
+*   Go to https://cloud.redhat.com/openshift/install/azure/aro-cco[cloud.redhat.com/openshift/install/azure/aro-cco^] and log in with your Red Hat account.
+*   Click *Download pull secret*.
+*   Save the downloaded file as `pull-secret.txt` in the directory where you are running your Azure CLI commands.
++
+[source,bash]
+----
+# Ensure you have downloaded the pull-secret.txt file to your current directory
+# Example: If you are on Linux/macOS, you might use 'ls pull-secret.txt' to verify.
+----
+
+. **Retrieve Object ID for Workload Identities**
++
+ARO clusters use workload identities for certain OpenShift operators to interact with Azure resources. You need to provide the object ID for the `aro-operator` identity. The context states: "For each --assign-platform-workload-identity flag, the first argument represents the key... The second argument represents the reference to the identity itself."
++
+[source,bash]
+----
+OPERATOR_ID="$(az identity show --resource-group $RESOURCEGROUP --name aro-operator --query principalId -o tsv)"
+----
+
+. **Create the Private ARO Cluster**
++
+Now, execute the `az aro create` command. The privacy of the cluster is ensured by deploying it into the private VNet and subnets without specifying public endpoints.
++
+[source,bash]
+----
+az aro create \
+  --resource-group $RESOURCEGROUP \
+  --name $AROCLUSTER \
+  --vnet $VNET \
+  --master-subnet $CONTROLSUB \
+  --worker-subnet $WORKERSUB \
+  --pull-secret @pull-secret.txt \
+  --assign-platform-workload-identity "kube-controller-manager" "$OPERATOR_ID" \
+  --assign-platform-workload-identity "kube-scheduler" "$OPERATOR_ID" \
+  --assign-platform-workload-identity "cloud-controller-manager" "$OPERATOR_ID" \
+  --assign-platform-workload-identity "aro-controller" "$OPERATOR_ID" \
+  --location $LOCATION
+----
+
+This command initiates the cluster creation process. It can take 30-45 minutes for the cluster to be fully provisioned. The command will provide output indicating the status.
+
+. **Verify Cluster Creation (Post-Provisioning)**
++
+Once the `az aro create` command completes, you can retrieve the cluster details to confirm its private nature.
++
+[source,bash]
+----
+az aro show --resource-group $RESOURCEGROUP --name $AROCLUSTER -o jsonc
+----
++
+In the output, observe the `apiserverProfile.url` and `ingressProfiles[0].ip`. For a private cluster, these will typically show internal IP addresses or DNS names resolvable only within your VNet, rather than public IP addresses.
+
+You have successfully provisioned a private Azure Red Hat OpenShift cluster. The cluster's API server and default ingress are now only accessible from within your `aro-vnet` or any peered networks, providing a secure foundation for your applications.

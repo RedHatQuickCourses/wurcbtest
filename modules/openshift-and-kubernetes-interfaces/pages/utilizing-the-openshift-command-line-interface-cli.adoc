@@ -1,0 +1,199 @@
+#  Utilizing the OpenShift Command-line Interface (CLI)
+
+= Utilizing the OpenShift Command-line Interface (CLI)
+
+:page-toclevels: 2
+
+The OpenShift Command-line Interface (CLI), known as `oc`, is a powerful tool for interacting with and managing your Azure Red Hat OpenShift (ARO) cluster. It provides a direct interface to Kubernetes APIs, extended with OpenShift-specific functionalities, allowing administrators and developers to perform a wide range of tasks, from deploying applications to managing cluster resources and troubleshooting issues.
+
+== Understanding the OpenShift CLI (`oc`)
+
+The `oc` CLI client is a critical component for anyone working with OpenShift. It acts as your primary interface for:
+
+*   **Cluster Management:** Managing nodes, projects (namespaces), users, and security contexts.
+*   **Application Deployment and Management:** Deploying applications from source code, container images, or templates; scaling applications; managing routes and services.
+*   **Resource Inspection:** Viewing logs, inspecting resource configurations, and monitoring cluster health.
+*   **Troubleshooting:** Diagnosing issues with pods, deployments, and other Kubernetes/OpenShift resources.
+
+While the OpenShift Web Console provides a rich graphical interface, the `oc` CLI offers unparalleled flexibility, scripting capabilities, and efficiency for experienced users and automated workflows.
+
+== Prerequisites for Using `oc` with ARO
+
+Before you can effectively utilize the `oc` CLI with your ARO cluster, ensure you have the following:
+
+*   **Azure CLI:** Version 2.6.0 or later is required to interact with Azure resources, including retrieving ARO cluster credentials. You can check your version by running `az --version`. If an upgrade or installation is needed, refer to the official Microsoft documentation on link:https://learn.microsoft.com/en-us/cli/azure/install-azure-cli[Install Azure CLI^].
+*   **OpenShift Pull Secret:** A pull secret is necessary for your cluster to access Red Hat images and content. If you haven't set one up, follow the Red Hat documentation to link:https://docs.openshift.com/container-platform/4.15/openshift_images/configuring-image-pull-secrets.html[Add or update your Red Hat pull secret^].
+*   **Access to your ARO Cluster:** You'll need the Azure resource group name and the ARO cluster name of your instance.
+
+== Hands-on Activity: Setting Up and Connecting to Your ARO Cluster with `oc`
+
+This section guides you through setting up the `oc` CLI and connecting to your ARO cluster using `kubeadmin` credentials.
+
+=== Step 1: Install the OpenShift CLI (`oc`)
+
+We recommend using link:https://learn.microsoft.com/en-us/azure/cloud-shell/overview[Azure Cloud Shell^] for all command-line operations related to ARO, as it comes pre-configured with Azure CLI and provides a consistent environment. However, you can also install `oc` locally on your workstation.
+
+==== Using Azure Cloud Shell (Recommended)
+
+1.  Open your Azure Cloud Shell by navigating to the Azure portal and clicking the Cloud Shell icon, or by visiting link:https://shell.azure.com/[shell.azure.com^].
+2.  The Cloud Shell environment often has `oc` pre-installed or can download it on demand. If `oc` is not immediately available, proceed with the "Manual Installation" steps below within your Cloud Shell session.
+
+==== Manual Installation (for GNU/Linux or within Cloud Shell if not present)
+
+These steps demonstrate how to download and configure the latest OpenShift 4 CLI for GNU/Linux. Adjust the download link for other operating systems (e.g., macOS, Windows) as needed by visiting the official OpenShift documentation.
+
+1.  Navigate to your home directory:
+    [source,bash]
+    ----
+    cd ~
+    ----
+
+2.  Download the latest OpenShift 4 CLI client for GNU/Linux:
+    [source,bash]
+    ----
+    wget https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+    ----
+
+3.  Create a dedicated directory for the client and extract the downloaded archive into it:
+    [source,bash]
+    ----
+    mkdir openshift
+    tar -zxvf openshift-client-linux.tar.gz -C openshift
+    ----
+
+4.  Add the `openshift` directory to your `PATH` environment variable to make the `oc` executable accessible from any directory. This command also sources your `.bashrc` to apply the change immediately for your current session:
+    [source,bash]
+    ----
+    echo 'export PATH=$PATH:~/openshift' >> ~/.bashrc && source ~/.bashrc
+    ----
+    _Note: If you are using a different shell (e.g., `zsh`), you might need to modify `.zshrc` instead of `.bashrc`._
+
+5.  Verify the installation by checking the `oc` version:
+    [source,bash]
+    ----
+    oc version
+    ----
+    _Expected Output (example):_
+    ```
+    Client Version: 4.15.2
+    Kubernetes Version: v1.28.0+5b74b65
+    ```
+
+=== Step 2: Connect to Your ARO Cluster using `kubeadmin`
+
+To connect to your ARO cluster, you will use the `kubeadmin` credentials. These credentials provide initial administrative access to the cluster, suitable for setting up other identity providers or performing initial configurations.
+
+1.  First, retrieve the `kubeadmin` username and password for your ARO cluster using the Azure CLI.
+    *Replace `${RG_NAME}` with your Azure resource group name and `aro-cluster` with your ARO cluster name.*
+
+    [source,bash]
+    ----
+    az aro list-credentials --resource-group ${RG_NAME} --name aro-cluster
+    ----
+
+    _Expected Output (example):_
+    [source,json]
+    ----
+    {
+      "kubeadminPassword": "xxxxx-xxxxx-xxxxx-xxxxx",
+      "kubeadminUsername": "kubeadmin"
+    }
+    ----
+    _Carefully note down the `kubeadminPassword`. This is a sensitive credential._
+
+2.  Now, log in to your OpenShift cluster using the `oc login` command. This command dynamically retrieves the API server URL and the `kubeadmin` credentials using nested Azure CLI queries, streamlining the login process.
+
+    [source,bash]
+    ----
+    oc login \
+        $(az aro show \
+            --resource-group ${RG_NAME} \
+            --name aro-cluster \
+            --query apiserverProfile.url \
+            --output tsv) \
+        -u $(az aro list-credentials \
+            --resource-group ${RG_NAME} \
+            --name aro-cluster \
+            --query kubeadminUsername \
+            --output tsv) \
+        -p $(az aro list-credentials \
+            --resource-group ${RG_NAME} \
+            --name aro-cluster \
+            --query kubeadminPassword \
+            --output tsv)
+    ----
+
+    _Expected Output (example):_
+    ```
+    Login successful.
+
+    You don't have any projects. You can try to create a new one, by using 'oc new-project <projectname>'
+    ```
+    This message confirms a successful connection to your ARO cluster.
+
+=== Step 3: Basic `oc` Commands for Cluster Interaction
+
+Once successfully logged in, you can begin interacting with your ARO cluster. Here are some fundamental `oc` commands to help you get started with basic exploration and management tasks.
+
+*   **Check the current logged-in user:**
+    [source,bash]
+    ----
+    oc whoami
+    ----
+    _Expected Output:_ `kubeadmin`
+
+*   **List all nodes in the cluster:**
+    [source,bash]
+    ----
+    oc get nodes
+    ----
+    _Expected Output:_ A table listing your master (control plane) and worker nodes, their status, roles, versions, and ages.
+
+*   **List projects (namespaces) you have access to:**
+    [source,bash]
+    ----
+    oc get projects
+    ----
+    _Expected Output:_ A list of existing projects within the cluster, including default OpenShift system projects.
+
+*   **Create a new project (namespace):**
+    [source,bash]
+    ----
+    oc new-project my-first-project
+    ----
+    _Expected Output:_ Confirmation that the project was created and that your current `oc` context is now set to this new project.
+
+*   **Switch to a different project:**
+    [source,bash]
+    ----
+    oc project openshift-operators
+    ----
+    _Expected Output:_ `Now using project "openshift-operators" on server "..."`
+
+*   **List pods in the current project:**
+    [source,bash]
+    ----
+    oc get pods
+    ----
+    _Expected Output:_ A list of pods running in the currently selected project, along with their status.
+
+*   **Get detailed information about a specific resource (e.g., a node or a pod):**
+    [source,bash]
+    ----
+    oc describe node <node-name>
+    ----
+    _Replace `<node-name>` with an actual node name obtained from `oc get nodes` output._
+    [source,bash]
+    ----
+    oc describe pod <pod-name> -n <project-name>
+    ----
+    _Replace `<pod-name>` and `<project-name>` with actual values._
+
+*   **View logs of a specific pod:**
+    [source,bash]
+    ----
+    oc logs <pod-name>
+    ----
+    _Replace `<pod-name>` with an actual pod name from `oc get pods` output. Use `-f` to follow logs in real-time._
+
+These commands provide a robust starting point for exploring and managing your ARO cluster using the `oc` CLI. As you gain familiarity, you'll discover a vast array of commands and options to suit more advanced administrative and development tasks.

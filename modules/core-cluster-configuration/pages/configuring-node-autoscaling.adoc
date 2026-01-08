@@ -1,0 +1,226 @@
+#  Configuring node autoscaling
+
+= Configuring Node Autoscaling
+
+The ability to automatically adjust the number of worker nodes in an Azure Red Hat OpenShift (ARO) cluster is a critical feature for managing application performance, optimizing resource utilization, and controlling operational costs. This section will delve into the technical aspects of configuring node autoscaling in ARO and provide a hands-on lab to implement it.
+
+== Understanding Node Autoscaling in ARO
+
+Node autoscaling in Azure Red Hat OpenShift is managed by the **Cluster Autoscaler** component. This component dynamically adjusts the size of your OpenShift cluster by increasing or decreasing the number of worker nodes based on the pending state of pods and the resource demands of your workloads.
+
+When a workload requires more resources than currently available, or when new pods are scheduled but cannot find a suitable node, the Cluster Autoscaler steps in. It works by monitoring pod events and communicating with the underlying Azure Virtual Machine Scale Sets (VMSS) that back the OpenShift MachineSets.
+
+The primary goals of node autoscaling are:
+
+*   **Cost Optimization**: Automatically scales down nodes during periods of low demand, reducing cloud infrastructure costs.
+*   **Performance and Availability**: Ensures applications have sufficient resources to run optimally by scaling up nodes during peak demand, preventing performance degradation and application outages.
+*   **Operational Efficiency**: Reduces the need for manual intervention to adjust cluster capacity, allowing administrators to focus on higher-value tasks.
+
+In ARO, you interact with the Cluster Autoscaler through OpenShift's `MachineSet` and `MachineAutoscaler` objects. Each `MachineSet` defines a group of machines (VMs) with specific characteristics (e.g., instance type, region, labels). A `MachineAutoscaler` then targets a specific `MachineSet` to control its replica count within defined minimum and maximum limits.
+
+.Key Concepts:
+*   **MachineSet**: A Kubernetes object that manages a set of machines (VMs) in a cluster. In ARO, worker nodes are provisioned as part of MachineSets. You typically have at least one default MachineSet for your worker nodes.
+*   **MachineAutoscaler**: A custom resource that links to a specific MachineSet and defines the minimum (`minReplicas`) and maximum (`maxReplicas`) number of nodes for that set. The Cluster Autoscaler uses these parameters to decide when to scale up or down.
+*   **Cluster Autoscaler**: The controller that watches for unschedulable pods, evaluates node utilization, and then instructs the MachineAutoscaler (and through it, the underlying Azure VMSS) to add or remove nodes.
+
+=== How ARO Manages Node Autoscaling
+
+1.  **Monitoring Pods**: The Cluster Autoscaler continuously monitors the OpenShift cluster for pods that are in a `Pending` state due to insufficient resources (CPU, memory, storage) or node selectors/taints.
+2.  **Resource Evaluation**: When `Pending` pods are detected, the Cluster Autoscaler performs a "dry run" to see if adding one or more new nodes from an existing `MachineSet` (that has a `MachineAutoscaler` defined) would allow the pods to be scheduled.
+3.  **Scaling Up**: If adding nodes would resolve the `Pending` state and the current number of nodes in the targeted `MachineSet` is below its `maxReplicas` limit, the Cluster Autoscaler instructs the `MachineAutoscaler` to increase the replica count. This triggers Azure to provision new VMs in the corresponding VMSS.
+4.  **Scaling Down**: Conversely, the Cluster Autoscaler also monitors node utilization. If a node is underutilized (i.e., its resource requests are below a configurable threshold) and all its pods can be safely evicted and rescheduled onto other existing nodes, the Cluster Autoscaler can instruct the `MachineAutoscaler` to decrease the replica count, leading to the deprovisioning of an idle node. Node readiness and existing workloads are carefully considered to prevent disruption.
+5.  **Grace Periods**: There are configurable cooldown periods to prevent rapid, unnecessary scaling changes, ensuring cluster stability.
+
+[NOTE]
+====
+In Azure Red Hat OpenShift, the control plane nodes are fully managed by Microsoft and Red Hat and are not subject to user-configurable autoscaling. Node autoscaling in ARO applies exclusively to the worker nodes.
+====
+
+== Hands-on Activity: Configuring Node Autoscaling
+
+In this lab, you will identify your existing worker MachineSet and then create a `MachineAutoscaler` object to enable and configure node autoscaling for it.
+
+=== Prerequisites
+
+*   An existing Azure Red Hat OpenShift cluster.
+*   The `oc` CLI tool configured and logged in to your ARO cluster.
+
+=== Procedure
+
+.Log in to your ARO cluster using the `oc` CLI:
++
+[source,bash]
+----
+oc login <your_api_server_url>
+----
++
+Provide your `kubeadmin` credentials or other valid OpenShift credentials.
+
+.Identify the default worker MachineSet:
++
+Your ARO cluster typically comes with one or more default MachineSets for worker nodes. You need to find the name of the MachineSet you want to autoscale.
++
+[source,bash]
+----
+oc get machinesets -n openshift-machine-api
+----
++
+You will see output similar to this:
++
+[source,console]
+----
+NAME                            DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-xxxx-worker-eastus1   3         3         3       3           3d
+----
++
+In this example, the MachineSet name is `aro-cluster-xxxx-worker-eastus1`. Make a note of your MachineSet name.
+
+.Create a `MachineAutoscaler` object:
++
+Now, you will create a `MachineAutoscaler` custom resource that targets the MachineSet you identified. This YAML configuration specifies the minimum and maximum number of worker nodes for that MachineSet.
++
+[IMPORTANT]
+====
+Replace `<YOUR_MACHINESET_NAME>` with the actual name of your MachineSet obtained in the previous step. Adjust `minReplicas` and `maxReplicas` according to your desired scaling range. For this lab, we'll set it to scale between 3 and 5 nodes.
+====
++
+Create a file named `machine-autoscaler.yaml` with the following content:
++
+[source,yaml]
+----
+apiVersion: autoscaling.openshift.io/v1beta1
+kind: MachineAutoscaler
+metadata:
+  name: <YOUR_MACHINESET_NAME>-autoscaler
+  namespace: openshift-machine-api
+spec:
+  minReplicas: 3
+  maxReplicas: 5
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-machine-set: <YOUR_MACHINESET_NAME>
+----
++
+Apply the `MachineAutoscaler` definition to your cluster:
++
+[source,bash]
+----
+oc apply -f machine-autoscaler.yaml
+----
++
+You should see confirmation that the `machineautoscaler` was created:
++
+[source,console]
+----
+machineautoscaler.autoscaling.openshift.io/aro-cluster-xxxx-worker-eastus1-autoscaler created
+----
+
+.Verify the `MachineAutoscaler` status:
++
+You can check if the `MachineAutoscaler` has been created and is active:
++
+[source,bash]
+----
+oc get machineautoscalers -n openshift-machine-api
+----
++
+You should see your newly created autoscaler listed:
++
+[source,console]
+----
+NAME                                     MIN   MAX   REPLICAS   AGE
+aro-cluster-xxxx-worker-eastus1-autoscaler   3     5     3          2m
+----
+
+. (Optional) Test node autoscaling:
++
+To observe autoscaling in action, you can deploy a large number of pods that demand more resources than your current nodes can provide. This will trigger the Cluster Autoscaler to add new nodes.
++
+First, check the current number of worker nodes:
++
+[source,bash]
+----
+oc get nodes -l node-role.kubernetes.io/worker
+----
++
+You should see 3 worker nodes initially.
++
+Now, deploy a dummy application with a high replica count, ensuring each pod requests a small amount of resources. This will exhaust the existing nodes and force new nodes to be provisioned.
++
+Create a file named `heavy-workload.yaml` with the following content:
++
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-intensive-app
+  labels:
+    app: cpu-intensive-app
+spec:
+  replicas: 20 # Adjust this number based on your node capacity to force scaling up
+  selector:
+    matchLabels:
+      app: cpu-intensive-app
+  template:
+    metadata:
+      labels:
+        app: cpu-intensive-app
+    spec:
+      containers:
+      - name: busybox
+        image: quay.io/openshift/busybox:latest
+        command: ["sh", "-c", "while true; do sleep 10; done"]
+        resources:
+          requests:
+            cpu: "100m" # Request a small amount of CPU
+            memory: "128Mi"
+----
++
+Apply the deployment:
++
+[source,bash]
+----
+oc apply -f heavy-workload.yaml
+----
++
+Monitor the pods:
++
+[source,bash]
+----
+oc get pods -w
+----
++
+You will likely see some pods in a `Pending` state as the cluster runs out of resources.
++
+Monitor the `MachineSet` and `MachineAutoscaler` to see the replica count change:
++
+[source,bash]
+----
+oc get machinesets -n openshift-machine-api -w
+oc get machineautoscalers -n openshift-machine-api -w
+----
++
+After a few minutes, you should observe the `DESIRED` and `CURRENT` counts for your MachineSet increase, and the `REPLICAS` for your MachineAutoscaler increase, eventually reaching up to 5 nodes. New nodes will appear in `oc get nodes`.
++
+Once new nodes are ready, the pending pods will be scheduled.
++
+To observe scaling down, delete the heavy workload:
++
+[source,bash]
+----
+oc delete -f heavy-workload.yaml
+----
++
+After a period of inactivity (typically around 10 minutes by default), the Cluster Autoscaler will identify the underutilized nodes and scale down the MachineSet, deprovisioning the excess worker nodes until the `minReplicas` (3 in our case) is reached.
+
+.Cleanup (if you performed the optional test):
++
+Delete the `MachineAutoscaler` if you no longer need it, to revert to a fixed number of nodes:
++
+[source,bash]
+----
+oc delete machineautoscaler <YOUR_MACHINESET_NAME>-autoscaler -n openshift-machine-api
+----
++
+This concludes the configuration of node autoscaling in your Azure Red Hat OpenShift cluster.

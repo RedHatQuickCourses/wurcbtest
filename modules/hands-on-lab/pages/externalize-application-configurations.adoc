@@ -1,0 +1,530 @@
+#  Externalize application configurations
+
+= Externalize Application Configurations
+
+Managing configurations is a crucial aspect of deploying and operating applications in a cloud-native environment like Azure Red Hat OpenShift (ARO). Externalizing configurations means separating configuration data from your application code. This practice enhances portability, maintainability, scalability, and security of your applications.
+
+When applications are deployed as immutable artifacts (e.g., container images), their configuration often changes across different environments (development, testing, production). Hardcoding configurations into the application makes it rigid and requires rebuilding and redeploying the application image for every configuration change. Externalizing configurations allows you to update settings without modifying the application code or rebuilding the image, aligning with the principles of Twelve-Factor App methodology.
+
+== Why Externalize Configurations?
+
+*   **Portability:** Applications can be deployed across various environments (dev, staging, prod) with different configurations without code changes.
+*   **Maintainability:** Configuration changes become simpler, reducing the risk of errors introduced during code modifications and rebuilds.
+*   **Scalability:** Easier to manage configurations for multiple instances of an application.
+*   **Security:** Sensitive information like API keys or database credentials can be managed securely using OpenShift Secrets, preventing them from being exposed in source code or container images.
+*   **Separation of Concerns:** Clearly separates application logic from deployment-specific settings.
+
+== Methods for Externalizing Configurations in OpenShift
+
+OpenShift (and Kubernetes) provides several built-in mechanisms to externalize application configurations:
+
+. xref:configmaps.adoc[ConfigMaps]
+. xref:secrets.adoc[Secrets]
+. Environment Variables
+. Volume Mounts
+
+=== ConfigMaps
+
+ConfigMaps are API objects used to store non-sensitive configuration data in key-value pairs. They can be used to store fine-grained properties, configuration files, or command-line arguments. Applications can consume ConfigMaps in three main ways:
+
+*   **As environment variables:** Keys from the ConfigMap are injected directly into a container's environment.
+*   **As files in a volume:** The ConfigMap data is mounted as files within a container's filesystem. This is particularly useful for configuration files that an application expects to find at a specific path.
+*   **As command-line arguments:** Although less common, ConfigMap values can be used to construct arguments for a container's entry point.
+
+==== Technical Explanation: How ConfigMaps Work
+
+A `ConfigMap` object consists of a `data` field, which contains the configuration data as key-value pairs. Each key is a string, and its value can be either a simple string or a multi-line string representing a file's content.
+
+When a `Pod` consumes a `ConfigMap` as environment variables, OpenShift injects the specified key-value pairs into the container's environment. If consumed as files, OpenShift creates a special volume type, populating it with files where each file name corresponds to a ConfigMap key and its content is the ConfigMap value.
+
+.Example `ConfigMap` definition:
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+data:
+  message: "Hello from ConfigMap!"
+  log_level: "INFO"
+  # You can also store entire file contents
+  server.properties: |
+    port=8080
+    debug=true
+----
+
+=== Secrets
+
+Secrets are similar to ConfigMaps but are specifically designed to hold sensitive information, such as passwords, OAuth tokens, and SSH keys. OpenShift (Kubernetes) takes additional measures to protect Secrets, though it's important to understand that they are *encoded* (base64) by default, not *encrypted* at rest unless specific encryption-at-rest features are enabled on the cluster. They are stored in `etcd`, which is secured.
+
+Like ConfigMaps, Secrets can be consumed as:
+
+*   **Environment variables:** Sensitive keys from the Secret are injected into a container's environment.
+*   **Files in a volume:** The Secret data is mounted as files within a container's filesystem. This is common for database credentials or API keys.
+
+==== Technical Explanation: How Secrets Work
+
+A `Secret` object also contains a `data` field, but its values must be base64 encoded. This encoding is a transport mechanism, not an encryption method. When a Pod consumes a Secret, OpenShift decodes the values before injecting them as environment variables or writing them to files in a mounted volume.
+
+.Example `Secret` definition (values are base64 encoded):
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-app-secret
+type: Opaque # Or kubernetes.io/dockerconfigjson, kubernetes.io/tls, etc.
+data:
+  db_user: <base64_encoded_username> # e.g., echo -n 'admin' | base64
+  db_password: <base64_encoded_password> # e.g., echo -n 's3cr3t' | base64
+----
+
+[NOTE]
+OpenShift ensures that Secrets are only exposed to the Pods that explicitly request them and are removed from the node's memory when the Pod is deleted. Always treat base64 encoding as an encoding scheme, not an encryption method. For true encryption at rest, ARO utilizes platform-level encryption for `etcd` or you can integrate with external key management systems like Azure Key Vault (covered in xref:knowledge-share.adoc#_integrating_azure_key_vault_with_aro[Integrating Azure Key Vault with ARO]).
+
+=== Environment Variables
+
+Both ConfigMaps and Secrets are commonly consumed as environment variables. This is a widely adopted method for externalizing configuration in containerized applications because it's straightforward and many applications are already designed to read configurations from the environment.
+
+.Example of injecting ConfigMap values as environment variables in a Deployment:
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: alpine/git # A simple image for demonstration
+        command: ["sh", "-c", "echo \"Message: $APP_MESSAGE\"; echo \"Log Level: $APP_LOG_LEVEL\"; sleep infinity"]
+        env:
+        - name: APP_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: my-app-config # Refers to the ConfigMap defined above
+              key: message
+        - name: APP_LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: my-app-config
+              key: log_level
+----
+
+=== Volume Mounts
+
+For applications that expect configuration files at specific paths (e.g., `/etc/app/config.properties`), ConfigMaps and Secrets can be mounted as volumes. Each key in the ConfigMap or Secret becomes a file in the mounted volume, with the key's value as the file's content.
+
+.Example of mounting a ConfigMap as a volume in a Deployment:
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-file-config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app-file-config
+  template:
+    metadata:
+      labels:
+        app: my-app-file-config
+    spec:
+      containers:
+      - name: my-container
+        image: nginx:latest # A simple web server
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d # Mount point for Nginx custom config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-custom-config # ConfigMap containing Nginx config
+          items:
+          - key: default.conf # Key in ConfigMap
+            path: default.conf # File name in mountPath
+----
+
+.Example `ConfigMap` for `nginx-custom-config`:
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-custom-config
+data:
+  default.conf: |
+    server {
+        listen 80;
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+        error_page 500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+        location /api {
+            return 200 "Hello from Nginx via ConfigMap!";
+        }
+    }
+----
+
+== Hands-on Activity: Externalizing Application Configuration
+
+In this lab, you will deploy a simple web application that displays a configurable message. You'll first hardcode the message, then externalize it using a ConfigMap, and finally externalize a sensitive API key using a Secret.
+
+=== Prerequisites
+
+*   An ARO cluster with `oc` CLI configured and logged in.
+*   A new OpenShift project (e.g., `my-external-configs`).
+    [source,bash]
+    ----
+    oc new-project my-external-configs
+    ----
+
+=== Activity 1: Deploy an Application with Hardcoded Configuration
+
+First, let's deploy a simple Nginx web server that serves a basic `index.html` with a hardcoded message.
+
+. Create a simple `index.html` file locally:
+    [source,bash]
+    ----
+    cat << EOF > index.html
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Hello ARO</title>
+    </head>
+    <body>
+    <h1>Welcome to ARO!</h1>
+    <p>This message is hardcoded in the image.</p>
+    </body>
+    </html>
+    EOF
+    ----
+
+. Create a custom Nginx image that includes this `index.html`:
+    [source,bash]
+    ----
+    cat << EOF > Dockerfile
+    FROM nginx:latest
+    COPY index.html /usr/share/nginx/html/index.html
+    EOF
+    ----
+
+. Build and push the image to your internal OpenShift registry. Replace `<OPENSHIFT_REGISTRY>/<PROJECT_NAME>` with your project's internal registry path (e.g., `image-registry.openshift-image-registry.svc:5000/my-external-configs`). You can get the registry URL by running `oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}'`.
+    [source,bash]
+    ----
+    oc new-build --binary=true --name=hello-nginx --from=nginx:latest -l app=hello-nginx
+    oc start-build hello-nginx --from-dir=. --follow
+    oc tag hello-nginx:latest hello-nginx:v1-hardcoded
+    ----
+
+. Deploy the application:
+    [source,yaml]
+    ----
+    # deployment-hardcoded.yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: hello-nginx-hardcoded
+      labels:
+        app: hello-nginx-hardcoded
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: hello-nginx-hardcoded
+      template:
+        metadata:
+          labels:
+            app: hello-nginx-hardcoded
+        spec:
+          containers:
+          - name: nginx
+            image: image-registry.openshift-image-registry.svc:5000/my-external-configs/hello-nginx:v1-hardcoded
+            ports:
+            - containerPort: 80
+    ----
+    [source,bash]
+    ----
+    oc apply -f deployment-hardcoded.yaml
+    ----
+
+. Expose the application with a Route:
+    [source,yaml]
+    ----
+    # route-hardcoded.yaml
+    apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: hello-nginx-hardcoded-route
+    spec:
+      to:
+        kind: Service
+        name: hello-nginx-hardcoded # OpenShift will auto-create a service for the Deployment
+      port:
+        targetPort: 80
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+    ----
+    [source,bash]
+    ----
+    oc expose deployment hello-nginx-hardcoded --port=80
+    oc apply -f route-hardcoded.yaml
+    ----
+
+. Verify the deployment:
+    [source,bash]
+    ----
+    oc get pods -l app=hello-nginx-hardcoded
+    oc get route hello-nginx-hardcoded-route -o jsonpath='{"http://"}{.spec.host}{"\n"}'
+    ----
+    Open the URL in your browser. You should see the hardcoded message.
+
+=== Activity 2: Externalize Configuration using a ConfigMap
+
+Now, let's modify the application to read the welcome message from a ConfigMap. We'll use a new `index.html` that reads an environment variable.
+
+. Create a new `index.html` that uses an environment variable. We'll simulate this by replacing a placeholder in `nginx.conf`.
+    [source,bash]
+    ----
+    cat << EOF > nginx-template.conf
+    server {
+        listen 80;
+        location / {
+            return 200 "<h1>Welcome to ARO!</h1><p>Message from ConfigMap: ${WELCOME_MESSAGE}</p>";
+            add_header Content-Type text/html;
+        }
+    }
+    EOF
+    ----
+    This Nginx configuration will serve a response directly, embedding the `WELCOME_MESSAGE` environment variable.
+
+. Create a ConfigMap for your welcome message:
+    [source,yaml]
+    ----
+    # configmap-message.yaml
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: welcome-message-config
+    data:
+      welcome_message: "Hello ARO Admin! This message is from a ConfigMap."
+      nginx_config_template: |
+        server {
+            listen 80;
+            location / {
+                return 200 "<h1>Welcome to ARO!</h1><p>Message from ConfigMap: ${WELCOME_MESSAGE}</p>";
+                add_header Content-Type text/html;
+            }
+        }
+    ----
+    [source,bash]
+    ----
+    oc apply -f configmap-message.yaml
+    ----
+
+. Create a new Deployment that uses this ConfigMap. This time, we'll mount the Nginx config directly from the ConfigMap and also inject `WELCOME_MESSAGE` as an environment variable (for clarity, though Nginx reads its config from file). For a real application, you might use an init container to process a template.
+    [source,yaml]
+    ----
+    # deployment-configmap.yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: hello-nginx-configmap
+      labels:
+        app: hello-nginx-configmap
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: hello-nginx-configmap
+      template:
+        metadata:
+          labels:
+            app: hello-nginx-configmap
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:latest # Using a standard Nginx image
+            ports:
+            - containerPort: 80
+            env:
+            - name: WELCOME_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: welcome-message-config
+                  key: welcome_message # Injecting ConfigMap value as env var
+            volumeMounts:
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/conf.d # Mount point for Nginx custom config
+          volumes:
+          - name: nginx-config-volume
+            configMap:
+              name: welcome-message-config
+              items:
+              - key: nginx_config_template # Key in ConfigMap
+                path: default.conf # File name in mountPath
+    ----
+    [source,bash]
+    ----
+    oc apply -f deployment-configmap.yaml
+    ----
+
+. Expose the ConfigMap-driven application:
+    [source,bash]
+    ----
+    oc expose deployment hello-nginx-configmap --port=80
+    oc expose service hello-nginx-configmap --name=hello-nginx-configmap-route --port=80
+    ----
+
+. Verify the deployment:
+    [source,bash]
+    ----
+    oc get pods -l app=hello-nginx-configmap
+    oc get route hello-nginx-configmap-route -o jsonpath='{"http://"}{.spec.host}{"\n"}'
+    ----
+    Open the URL. You should now see the message from the `welcome-message-config` ConfigMap.
+
+    To demonstrate changing the config without redeploying the app:
+    [source,bash]
+    ----
+    oc patch configmap welcome-message-config --patch '{"data":{"welcome_message":"Updated message from ConfigMap v2!"}}'
+    oc delete pod -l app=hello-nginx-configmap # Force recreation to pick up new config
+    ----
+    After the pod restarts, refresh your browser. You should see the updated message. (Note: ConfigMap changes don't automatically trigger Pod restarts; you need a controller like GitOps or manual restart for changes to apply if used as environment variables or volume mounts that aren't watched by the app).
+
+=== Activity 3: Externalize Sensitive Data using a Secret
+
+Now, let's imagine our application needs an API key. We'll store it in a Secret and inject it as an environment variable.
+
+. Create a Secret for an imaginary API key. Remember to base64 encode the value.
+    [source,bash]
+    ----
+    export API_KEY_VALUE="mySuperSecureAPIkey123"
+    oc create secret generic app-api-key --from-literal=api_key="${API_KEY_VALUE}"
+    ----
+    You can inspect the Secret (its data will be base64 encoded):
+    [source,bash]
+    ----
+    oc get secret app-api-key -o yaml
+    ----
+
+. Create a new Deployment that injects this Secret as an environment variable. We'll modify our Nginx config again to display this.
+    [source,yaml]
+    ----
+    # configmap-secret-integration.yaml
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: secret-integrated-config
+    data:
+      nginx_secret_config: |
+        server {
+            listen 80;
+            location / {
+                return 200 "<h1>Welcome to ARO!</h1><p>Message: ${WELCOME_MESSAGE}</p><p>API Key (from Secret): ${APP_API_KEY}</p>";
+                add_header Content-Type text/html;
+            }
+        }
+    ----
+    [source,bash]
+    ----
+    oc apply -f configmap-secret-integration.yaml
+    ----
+
+. Create a new Deployment leveraging both ConfigMap and Secret:
+    [source,yaml]
+    ----
+    # deployment-secret.yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: hello-nginx-secret
+      labels:
+        app: hello-nginx-secret
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: hello-nginx-secret
+      template:
+        metadata:
+          labels:
+            app: hello-nginx-secret
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:latest
+            ports:
+            - containerPort: 80
+            env:
+            - name: WELCOME_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: welcome-message-config
+                  key: welcome_message
+            - name: APP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-api-key # Reference the Secret created above
+                  key: api_key     # Reference the key within the Secret
+            volumeMounts:
+            - name: nginx-secret-config-volume
+              mountPath: /etc/nginx/conf.d
+          volumes:
+          - name: nginx-secret-config-volume
+            configMap:
+              name: secret-integrated-config
+              items:
+              - key: nginx_secret_config
+                path: default.conf
+    ----
+    [source,bash]
+    ----
+    oc apply -f deployment-secret.yaml
+    ----
+
+. Expose the Secret-integrated application:
+    [source,bash]
+    ----
+    oc expose deployment hello-nginx-secret --port=80
+    oc expose service hello-nginx-secret --name=hello-nginx-secret-route --port=80
+    ----
+
+. Verify the deployment:
+    [source,bash]
+    ----
+    oc get pods -l app=hello-nginx-secret
+    oc get route hello-nginx-secret-route -o jsonpath='{"http://"}{.spec.host}{"\n"}'
+    ----
+    Open the URL. You should now see both the message from the ConfigMap and the API key from the Secret displayed on the page.
+
+=== Cleanup (Optional)
+
+To remove the resources created in this lab:
+[source,bash]
+----
+oc delete all -l app=hello-nginx-hardcoded
+oc delete all -l app=hello-nginx-configmap
+oc delete all -l app=hello-nginx-secret
+oc delete configmap welcome-message-config secret-integrated-config
+oc delete secret app-api-key
+oc delete imagestream hello-nginx
+----

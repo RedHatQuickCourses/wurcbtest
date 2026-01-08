@@ -1,0 +1,93 @@
+#  Overview of Red Hat Advanced Cluster Management (RHACM)
+
+= Overview of Red Hat Advanced Cluster Management (RHACM)
+
+xref:ROOT:rhacm-overview.adoc[Red Hat Advanced Cluster Management (RHACM)] provides an enterprise-grade solution for managing Kubernetes clusters across hybrid and multi-cloud environments. As organizations scale their adoption of Kubernetes, managing multiple clusters, applications, and policies consistently becomes a significant challenge. RHACM addresses these complexities by offering a unified console and a robust set of tools for end-to-end visibility, control, and automation.
+
+== What is Red Hat Advanced Cluster Management?
+
+Red Hat Advanced Cluster Management for Kubernetes is a management platform designed to help organizations manage their Kubernetes and OpenShift clusters from a single, centralized control plane. Built on open source technologies like Open Cluster Management (OCM), it extends OpenShift's capabilities to provide a holistic view and management of diverse clusters, regardless of where they are deployed—be it on-premises, across various public cloud providers (like Azure), or at the edge.
+
+RHACM is particularly crucial in modern cloud-native strategies that involve:
+
+*   **Geographically Distributed Teams and Applications:** Managing clusters across different regions, data centers, or cloud providers for resilience and proximity.
+*   **Compliance and Governance Requirements:** Enforcing consistent security policies, configurations, and operational standards across all clusters to meet regulatory demands.
+*   **Hybrid and Multi-Cloud Architectures:** Operating a heterogeneous fleet of clusters residing on multiple cloud platforms alongside private infrastructure.
+*   **Developer Productivity:** Streamlining the deployment, management, and observability of applications across a diverse set of environments, reducing operational friction.
+
+== Core Capabilities of RHACM
+
+RHACM provides a comprehensive suite of features categorized into four main pillars, enabling a complete management lifecycle for your Kubernetes clusters:
+
+=== Multi-cluster Visibility and Management
+
+RHACM offers a centralized dashboard that provides a "single pane of glass" view into the health, status, and inventory of all registered Kubernetes clusters. This includes:
+
+*   **Cluster Inventory:** A comprehensive list of all managed clusters, displaying their current versions, provider details, and overall operational status.
+*   **Health Metrics:** Aggregated health indicators, alerts, and events across the entire cluster fleet, enabling quick identification of issues.
+*   **Resource Utilization:** Insights into critical resource consumption (CPU, memory, storage) across clusters, aiding in capacity planning.
+*   **Lifecycle Management:** The ability to provision new OpenShift clusters (including Azure Red Hat OpenShift clusters), upgrade existing ones, and decommission them directly from the RHACM console, simplifying cluster operations.
+
+=== Governance, Risk, and Compliance (GRC)
+
+One of RHACM's most powerful capabilities is its policy engine, which allows administrators to define, distribute, and enforce security, configuration, and operational policies across an entire fleet of clusters.
+
+*   **Policy-driven Automation:** Define policies using YAML, which can then be automatically applied to target clusters based on specific criteria. These policies can check for compliance, remediate non-compliant configurations, or generate alerts.
+*   **Security Policies:** Ensure consistent security configurations, such as enforcing image signing, specific network policies, or required security context constraints for pods.
+*   **Configuration Drift Detection:** Continuously monitor managed clusters for deviations from desired configurations. RHACM can automatically remediate identified drifts or report them for manual intervention.
+*   **Role-Based Access Control (RBAC):** Integrate with existing identity providers to manage and enforce access to cluster resources consistently across the multi-cluster environment.
+
+=== Application Lifecycle Management
+
+RHACM simplifies the deployment and ongoing management of applications across multiple clusters, promoting GitOps principles.
+
+*   **Multi-cluster Application Deployment:** Deploy applications to multiple clusters simultaneously from a single Git repository. This is achieved through channel and subscription resources, which define where applications reside and how they are distributed.
+*   **Placement Rules:** Define sophisticated rules to intelligently place applications on clusters based on criteria such as cluster labels, cloud provider, geographical region, or available resources.
+*   **Subscription Model:** Utilize subscriptions to continuously synchronize application manifests from Git repositories to target clusters, enabling automated updates and rollbacks.
+*   **Resource Aggregation:** View and manage application resources (e.g., Deployments, Services, Routes) across all clusters from a unified console, providing a holistic application view.
+
+=== Observability
+
+RHACM provides a unified observability framework that aggregates metrics, logs, and events from all managed clusters, offering a consolidated operational view.
+
+*   **Centralized Monitoring:** Collect and display Prometheus metrics from all managed clusters, offering a consolidated view of performance, health, and capacity across the entire fleet.
+*   **Logging Integration:** While not a standalone logging solution, RHACM can integrate with external logging platforms to provide a comprehensive picture of cluster operations and application behavior.
+*   **Alerting:** Configure and manage alerts based on aggregated metrics to notify administrators of potential issues across their entire Kubernetes environment proactively.
+
+== RHACM Architecture Highlights
+
+At a high level, RHACM operates using a hub-and-spoke architecture, which is crucial for scalable and distributed management:
+
+*   **Hub Cluster:** This is a dedicated OpenShift cluster where Red Hat Advanced Cluster Management is installed. It hosts the RHACM console, API services, the policy engine, and all the components responsible for managing the other clusters. It acts as the central command center.
+*   **Managed Clusters:** These are the Kubernetes or OpenShift clusters that are registered with and managed by the hub cluster. Lightweight agents, such as `Klusterlet`, are deployed on each managed cluster. These agents communicate securely with the hub cluster, relaying status, metrics, and events, and receiving commands and policies to enforce.
+
+This architecture ensures that management operations are centralized while workload execution remains distributed, preventing the management plane from becoming a bottleneck for application performance.
+
+== Benefits of Using Red Hat Advanced Cluster Management
+
+Implementing RHACM offers several significant advantages for organizations operating Kubernetes at scale:
+
+*   **Operational Consistency:** Enforce standardized configurations, security policies, and operational practices across all clusters, significantly reducing human error and improving overall reliability.
+*   **Enhanced Security Posture:** Centralized policy enforcement ensures continuous compliance with regulatory requirements and internal security standards across the entire Kubernetes estate.
+*   **Simplified Management:** A single pane of glass provides a unified interface for managing hundreds or even thousands of clusters, streamlining administrative tasks and reducing operational overhead.
+*   **Accelerated Application Delivery:** Automate application deployment and updates to multiple clusters, enabling faster time-to-market for new services and features.
+*   **Improved Visibility:** Gain comprehensive, aggregated insights into the health, performance, and compliance of your entire Kubernetes environment, enabling proactive issue resolution.
+
+== Integrating Azure Red Hat OpenShift with RHACM
+
+Azure Red Hat OpenShift (ARO) clusters are fully supported as managed clusters within Red Hat Advanced Cluster Management. This robust integration allows you to leverage RHACM's powerful features to:
+
+*   Provision new ARO clusters directly from the RHACM hub console, streamlining the cluster creation process.
+*   Apply consistent governance and security policies to your ARO clusters alongside other OpenShift clusters deployed on-premises or on other cloud providers.
+*   Deploy and manage applications across your ARO fleet from a central console, simplifying multi-cluster application strategies.
+*   Monitor the health, performance, and compliance of your ARO clusters collectively, alongside your broader Kubernetes footprint.
+
+This integration is pivotal for organizations adopting ARO as a core component of their broader hybrid or multi-cloud strategy, providing a unified and efficient approach to managing their entire OpenShift footprint.
+
+== Hands-on Learning
+
+To solidify your understanding of Red Hat Advanced Cluster Management and experience its capabilities firsthand, a dedicated guided exercise is available:
+
+*   xref:ROOT:manage-cluster-with-rhacm-lab.adoc[Manage a Cluster using Red Hat Advanced Cluster Management]
+
+This lab will walk you through the practical steps of registering an existing cluster with RHACM, exploring its console, deploying an application using placement rules, and observing its powerful management features.

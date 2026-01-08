@@ -1,22 +1,45 @@
-= An Example Quick Course
+=  Advanced Administration of Azure Red Hat OpenShift
 :navtitle: Home
 
 == Introduction
 
-Course Title: Course title FIXME
+Course Title:  Advanced Administration of Azure Red Hat OpenShift
 
 Description:
 Course description FIXME
 
 Duration: FIXME hours
 
-== Objectives
+== Topics covered in this course
 
-On completing this course, you should be able to:
 
-* Observable, measurable objective...
-* Observable, measurable objective...
-* Observable, measurable objective...
+*  Azure Red Hat OpenShift Architecture and Overview
+
+*  ARO Cluster Provisioning
+
+*  Core Cluster Configuration
+
+*  Registry Integrations
+
+*  Cluster Application Data Management
+
+*  OpenShift and Kubernetes Interfaces
+
+*  Troubleshooting and Application Management
+
+*  Kubernetes Networking and Application Exposure
+
+*  Network Security Policies
+
+*  GitOps for Cluster Administration
+
+*  Multi-Cluster Management
+
+*  Knowledge Share and Discussions
+
+*  Hands-on Lab
+
+
 
 == Prerequisites
 

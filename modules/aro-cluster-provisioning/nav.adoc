@@ -1,0 +1,3 @@
+* xref:aro-cluster-provisioning.adoc[]
+** xref:creating-an-azure-red-hat-openshift-cluster.adoc[]
+** xref:creating-a-private-azure-red-hat-openshift-cluster.adoc[]

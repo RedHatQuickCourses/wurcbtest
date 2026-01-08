@@ -1,0 +1,117 @@
+#  Scaling and exposing applications to external access
+
+= Scaling and Exposing Applications to External Access
+
+This module delves into the critical aspects of managing application availability and accessibility within Azure Red Hat OpenShift (ARO). We will explore how to efficiently scale applications to meet varying demands and securely expose them to external users.
+
+== Understanding Application Scaling
+
+In a cloud-native environment, applications need to be resilient and capable of handling fluctuating workloads. Scaling refers to the ability to increase or decrease the computational resources allocated to an application based on demand. OpenShift, built on Kubernetes, provides robust mechanisms for both horizontal and vertical scaling.
+
+=== Horizontal Pod Autoscaling (HPA)
+
+Horizontal Pod Autoscaling (HPA) automatically adjusts the number of pod replicas in a deployment or replica set based on observed CPU utilization or other select metrics. This ensures that your application maintains performance during peak loads and scales down during quieter periods to optimize resource consumption.
+
+When enabled, HPA continuously monitors the specified metrics. If a target threshold is exceeded, HPA instructs the Kubernetes controller to create more pods. Conversely, if resource usage drops below the threshold, HPA scales down the number of pods.
+
+[NOTE]
+Monitoring metrics for HPA often relies on the Kubernetes Metrics Server, which collects resource metrics from nodes and pods.
+
+=== OpenShift Serverless (Knative) for Event-Driven Scaling
+
+For applications that experience infrequent usage or need to respond to specific events, OpenShift Serverless, powered by Knative, offers an advanced scaling model, including the ability to scale to zero.
+
+Knative Services are a type of deployment that enables OpenShift Serverless to scale applications down to zero pods when they are idle. When a request or event arrives for a service scaled to zero, Knative quickly provisions a new pod to handle it. This "scale-to-zero" capability is highly efficient for cost optimization and resource management, especially for microservices or event-driven functions.
+
+As observed in the provided context: "Scroll to Resources and confirm that Knative Service is selected as the resource type to generate. This creates a Knative Service, a type of deployment that enables OpenShift Serverless scaling to zero when idle." This highlights Knative's role in ARO for specific scaling scenarios.
+
+== Exposing Applications to External Access
+
+Once an application is deployed and scaled, the next crucial step is to make it accessible to external users, often through a web browser or API clients. In OpenShift, this is primarily achieved using *Routes*.
+
+=== OpenShift Routes
+
+An OpenShift Route exposes a service at a host name, such as `www.example.com`, so that external clients can reach it. Routes provide a way to define how external traffic is routed to services running inside the cluster.
+
+Key features of OpenShift Routes:
+
+*   **DNS Resolution**: Routes typically leverage DNS to map a human-readable hostname to the underlying network address of the OpenShift router.
+*   **Load Balancing**: The OpenShift router acts as a reverse proxy and load balancer, distributing incoming traffic across the healthy pods associated with the service.
+*   **TLS Termination**: Routes can handle TLS/SSL termination, allowing secure HTTPS connections from external clients to the application within the cluster, without requiring the application pods themselves to manage certificates.
+*   **Automatic Creation**: As observed in the context, "When you created the application using the web console, a Route was automatically created for the application and it will be exposed outside of the cluster." This streamlines the process of making new applications accessible.
+
+While Kubernetes uses `Ingress` resources for exposing HTTP/HTTPS services externally, OpenShift extends this functionality with `Routes`, offering more integrated features and often simplifying the configuration.
+
+[NOTE]
+The OpenShift router, which processes routes, typically runs on infrastructure nodes or dedicated router pods and uses technologies like HAProxy to manage traffic.
+
+=== Accessing the Application URL
+
+The context explicitly guides on how to find the application's URL: "From the topology view, you can get to the URL for the deployed application by clicking on the icon top right of the ring." This visual indicator in the OpenShift Web Console makes it easy to quickly access and test deployed applications.
+
+== Hands-on Lab: Scaling and Exposing Applications
+
+In this lab, you will deploy a simple web application, observe its initial state, manually scale it, and then access it externally using an OpenShift Route. We will also touch upon how Knative services behave when deployed.
+
+=== Activity 1: Deploying a Sample Application
+
+First, we'll deploy a basic Python web application.
+
+. Log in to your Azure Red Hat OpenShift cluster's web console.
+. Ensure you are in the developer perspective. If not, switch using the selector in the top-left corner.
+. Navigate to *+Add* in the left-hand menu.
+. Select *From Git*.
+. In the *Git Repo URL* field, enter `https://github.com/openshift-guides/s2i-python-sample`.
+. OpenShift detects this is a Python project and selects the appropriate builder image, as mentioned in the context: "OpenShift detects that this is a Python project and selects the appropriate builder image."
+. Scroll down to the *Advanced Options* section.
+. For *Application Name*, enter `my-scaled-app`.
+. Ensure *Create a Route to the Application* is selected. This aligns with the context statement: "When you created the application using the web console, a Route was automatically created for the application and it will be exposed outside of the cluster."
+. At the bottom of the page, click *Create*.
+. You will be redirected to the topology overview. Wait for the build process to complete. You can monitor the build status by clicking on the application ring and then navigating to the *Resources* tab, or by going to *Builds* -> *Pipelines* or *Builds* -> *Builds*. The context mentions: "The build will have completed successfully when you see a final message of "Push successful"."
+. Once the build completes and the pod is deployed, you should see a green checkmark on the application's ring in the Topology view.
+
+=== Activity 2: Accessing the Application via Route
+
+Now, let's confirm the application is externally accessible.
+
+. In the *Topology* view, click on the `my-scaled-app` ring to open its details panel.
+. In the top-right corner of the application ring, you will see an icon resembling an external link (a square with an arrow pointing out). Click this icon.
++
+This action opens the deployed application in a new browser tab, using the automatically generated OpenShift Route. The context guides this: "From the topology view, you can get to the URL for the deployed application by clicking on the icon top right of the ring."
+. Verify that you see the "Hello S2I Python Sample!" message.
+
+=== Activity 3: Manually Scaling the Application
+
+Next, we'll manually scale the application to handle more requests.
+
+. Return to the OpenShift Web Console and ensure you are still in the *Topology* view.
+. Click on the `my-scaled-app` ring to open its details panel if it's not already open.
+. In the details panel, navigate to the *Resources* tab.
+. Locate the `Deployment` section. You will see controls to adjust the number of replicas.
+. Increase the number of replicas from `1` to `3` by clicking the up arrow next to the current replica count.
+. Observe the *Topology* view. You will see new pods being created and added to the `my-scaled-app` application ring. The `Pod Count` (if enabled in display options) will update to show `3` pods. The context mentions: "At the top of the Topology view, in the Display Options list, select Pod Count."
+. To verify scaling, you can click on the `my-scaled-app` ring, go to the *Pods* tab, and confirm that three pods are now running.
+
+[TIP]
+For production environments, consider configuring Horizontal Pod Autoscalers to automatically manage scaling based on CPU or memory usage, rather than manual scaling.
+
+=== Activity 4: Exploring Knative Service Scaling (Optional)
+
+This activity demonstrates the "scale-to-zero" capability using a Knative Service, if OpenShift Serverless is enabled in your cluster.
+
+. Navigate to *+Add* in the left-hand menu.
+. Select *From Git*.
+. In the *Git Repo URL* field, enter `https://github.com/sclorg/s2i-go-sample.git`.
+. For *Application Name*, enter `my-knative-app`.
+. Under *Resources*, select *Knative Service*. This aligns with the context: "Scroll to Resources and confirm that Knative Service is selected as the resource type to generate. This creates a Knative Service, a type of deployment that enables OpenShift Serverless scaling to zero when idle."
+. At the bottom of the page, click *Create*.
+. Wait for the build and deployment to complete in the *Topology* view.
+. Once deployed, click on the `my-knative-app` ring.
+. In the details panel, observe the pod count. It should initially be `1`.
+. Wait for a few minutes without sending any traffic to the `my-knative-app`. The context states: "Wait for the Pod count to scale down to zero Pods. Scaling down might take a few minutes."
+. You will observe that the pod count for `my-knative-app` scales down to `0`.
+. Now, click the external link icon for `my-knative-app` to access it. You might experience a slight delay as Knative scales up a pod to serve the request.
+. After accessing it, wait for another few minutes, and you will see it scale back down to `0` again when idle.
+
+[IMPORTANT]
+OpenShift Serverless (Knative) capabilities might require specific operator installation in your ARO cluster. This activity assumes it's available. If not, you can skip this part.

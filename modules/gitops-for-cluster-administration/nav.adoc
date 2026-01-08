@@ -1,0 +1,3 @@
+* xref:gitops-for-cluster-administration.adoc[]
+** xref:implementing-openshift-gitops.adoc[]
+** xref:using-argocd-for-declarative-cluster-management.adoc[]

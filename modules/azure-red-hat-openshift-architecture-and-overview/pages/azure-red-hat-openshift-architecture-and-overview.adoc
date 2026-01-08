@@ -1,0 +1,14 @@
+#  Azure Red Hat OpenShift Architecture and Overview
+
+Azure Red Hat OpenShift (ARO) is a fully managed OpenShift service on Azure, jointly engineered, operated, and supported by Red Hat and Microsoft.
+
+*ARO platform capabilities*
+** Integrates Kubernetes with essential tools for registries, storage, networking, CI/CD, and middleware, providing a unified platform for containerized applications.
+** Supports running virtual machines alongside containers using OpenShift Virtualization, leveraging Azure's elastic infrastructure for scalability.
+** Features integrated sign-on via Microsoft Entra ID and Kubernetes role-based access control (RBAC).
+
+*Joint engineering, operation, and support model*
+** Developed, operated, and supported collaboratively by Red Hat and Microsoft, ensuring a seamless and integrated user experience.
+
+*Managed control plane and infrastructure*
+** Red Hat and Microsoft manage and monitor the control plane, infrastructure, and application nodes, handling all patching and updates, eliminating the need for customer VM operations or manual patching.

@@ -1,6 +1,6 @@
 site:
-  title: FIXME Course Title
-  start_page: REPLACEREPONAME::index.adoc
+  title:  Advanced Administration of Azure Red Hat OpenShift
+  start_page: wurcbtest::index.adoc
 
 content:
   sources:

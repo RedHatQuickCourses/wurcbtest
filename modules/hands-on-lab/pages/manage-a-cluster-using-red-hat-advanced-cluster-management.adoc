@@ -1,0 +1,239 @@
+#  Manage a cluster using Red Hat Advanced Cluster Management
+
+= Managing Azure Red Hat OpenShift Clusters with Red Hat Advanced Cluster Management (RHACM)
+
+Red Hat Advanced Cluster Management for Kubernetes (RHACM) is a powerful platform designed to help organizations manage multiple Kubernetes clusters, whether they are on-premises, in the cloud, or at the edge. For Azure Red Hat OpenShift (ARO) users, RHACM provides a centralized control plane to oversee, govern, and deploy applications across all your ARO clusters, offering consistency and operational efficiency.
+
+== Overview of Red Hat Advanced Cluster Management (RHACM)
+
+In today's distributed and hybrid cloud environments, managing individual Kubernetes clusters quickly becomes complex and prone to errors. RHACM addresses these challenges by offering a unified console and a set of tools that simplify the management of large-scale OpenShift deployments.
+
+=== ARO Platform Capabilities Enhanced by RHACM
+
+While ARO itself provides a fully managed OpenShift experience on Azure, RHACM extends its capabilities, especially for organizations running multiple ARO clusters or a mix of ARO and other OpenShift distributions.
+
+Key benefits of using RHACM with ARO include:
+
+*   *Centralized Visibility:* Get a single pane of glass to view the health, status, and inventory of all your ARO clusters, regardless of their Azure region or subscription.
+*   *Policy-driven Governance and Compliance:* Define and enforce security, configuration, and operational policies across all managed ARO clusters. This ensures consistency and helps meet regulatory compliance requirements.
+*   *Multi-cluster Application Lifecycle Management:* Deploy and manage applications consistently across multiple ARO clusters, using GitOps principles and advanced placement rules.
+*   *Consistent Observability:* Gain consolidated insights into cluster performance, resource utilization, and events across your entire fleet of ARO clusters.
+*   *Automation and Day-2 Operations:* Automate common operational tasks, reducing manual effort and potential for human error.
+
+=== RHACM Architecture: Hub and Spoke
+
+RHACM operates on a hub-and-spoke architecture:
+
+*   *Hub Cluster:* This is the central RHACM instance where you install the RHACM operator and associated components. It acts as the control plane for managing all other clusters.
+*   *Managed Clusters:* These are the OpenShift clusters (including ARO clusters) that are registered with and managed by the hub cluster. Each managed cluster runs a lightweight agent called `klusterlet`, which communicates with the hub.
+
+The `klusterlet` agent is responsible for:
+
+*   Reporting cluster status, inventory, and events to the hub.
+*   Receiving and applying policies, application deployments, and other management commands from the hub.
+*   Ensuring secure communication between the managed cluster and the hub.
+
+This architecture allows for scalable and secure management, as the hub does not directly access your managed cluster's kube-apiserver, but rather communicates through the `klusterlet` agent's secure tunnel.
+
+== Hands-on Lab: Managing ARO Clusters with RHACM
+
+This lab will guide you through the process of connecting an existing Azure Red Hat OpenShift cluster to Red Hat Advanced Cluster Management, deploying an application, and applying a simple policy.
+
+[NOTE]
+This lab assumes you have access to an operational Red Hat Advanced Cluster Management hub cluster and an existing Azure Red Hat OpenShift cluster. The focus here is on integrating the ARO cluster with RHACM.
+
+=== Activity 1: Import an Azure Red Hat OpenShift Cluster into RHACM
+
+In this activity, you will import an existing ARO cluster into your RHACM hub, making it a "managed cluster."
+
+*Prerequisites:*
+
+*   Access to an RHACM hub cluster's web console.
+*   `oc` CLI configured to access your ARO cluster.
+*   The `KUBECONFIG` environment variable for your ARO cluster is set.
+
+.Steps:
+
+.  **Access the RHACM Web Console**
+   Open your web browser and navigate to the URL of your RHACM hub cluster's OpenShift console. Log in with appropriate credentials.
+
+.  **Navigate to the "Clusters" Section**
+   In the RHACM console, from the left-hand navigation pane, select *Infrastructure* -> *Clusters*.
+
+.  **Initiate Cluster Import**
+   On the *Clusters* page, click the *Add cluster* button.
+   You will be presented with options to *Create cluster* or *Import cluster*. Select *Import cluster*.
+
+.  **Define Cluster Name and Labels**
+   Provide a unique name for your ARO cluster (e.g., `my-aro-cluster`).
+   You can add optional labels to help organize your clusters (e.g., `cloud=azure`, `environment=development`). These labels are useful later for policy enforcement and application placement.
+   Click *Next*.
+
+.  **Generate and Copy the Import Command**
+   RHACM will generate a `curl` command that you need to run on your ARO cluster. This command downloads a YAML manifest containing the `klusterlet` agent definition and then applies it to your ARO cluster.
+
+   Example command (will vary):
+   ```bash
+   curl --insecure -fL https://<RHACM_HUB_API_SERVER>:8080/cluster/import/<cluster-name> | oc apply -f -
+   ```
+   Copy this `curl` command to your clipboard.
+
+.  **Execute the Import Command on your ARO Cluster**
+   Open a terminal where your `oc` CLI is configured to connect to your ARO cluster.
+   Paste and execute the copied `curl` command.
+
+   ```bash
+   # Ensure your KUBECONFIG points to your ARO cluster
+   # oc login ... (if not already logged in)
+   curl --insecure -fL https://<RHACM_HUB_API_SERVER>:8080/cluster/import/my-aro-cluster | oc apply -f -
+   ```
+
+   This command will create a namespace (e.g., `open-cluster-management`), service accounts, roles, and the `klusterlet` deployment on your ARO cluster.
+
+.  **Verify Cluster Import in RHACM**
+   Return to the RHACM web console. Within a few moments (it might take 1-2 minutes), you should see your ARO cluster listed on the *Clusters* page.
+   The cluster status will transition from *Pending* to *Ready* once the `klusterlet` agent successfully connects to the hub.
+   Click on your ARO cluster's name to view its details, including health, inventory, and network information.
+
+=== Activity 2: Deploy an Application to an ARO Cluster using RHACM
+
+Now that your ARO cluster is managed by RHACM, you can deploy applications to it using RHACM's multi-cluster application management capabilities. We will deploy a simple Nginx application.
+
+*Prerequisites:*
+
+*   ARO cluster imported into RHACM (from Activity 1).
+*   A Git repository containing application deployment manifests (for this lab, we'll use a public example).
+
+.Steps:
+
+.  **Navigate to the "Applications" Section**
+   In the RHACM console, from the left-hand navigation pane, select *Applications*.
+
+.  **Create a New Application**
+   On the *Applications* page, click *Create application*.
+   Select *Git* as the source for your application.
+
+.  **Configure Application Details**
+   *   *Name:* `nginx-app`
+   *   *Namespace:* `nginx-app-ns` (This namespace will be created on the target cluster if it doesn't exist).
+   *   *Repository URL:* `https://github.com/openshift/kubernetes-helm.git` (We'll use a subpath for a simple Nginx example).
+   *   *Branch:* `master`
+   *   *Path:* `stable/nginx-ingress` (This points to the Nginx Helm chart example within the repo).
+
+.  **Define Placement Rules**
+   This is where you specify *where* your application should be deployed.
+   Under *Placement*, select *Create placement rule*.
+   *   *Name:* `aro-nginx-placement`
+   *   Under *Cluster selectors*, add a selector that matches your imported ARO cluster. For example: `cloud=azure` and `name=my-aro-cluster` (or whatever labels you used during import).
+   *   Click *Done*.
+
+.  **Review and Create Application**
+   Review the application configuration. RHACM will show you the YAML that defines the `Application`, `PlacementRule`, and `Subscription` resources.
+   Click *Create*.
+
+.  **Monitor Application Deployment**
+   After creation, RHACM will start deploying the application.
+   Go back to the *Applications* page and click on `nginx-app`. You will see its status and the clusters it's targeting.
+   Click on the *Resources* tab within the application details. You should see the deployment, service, and other resources being created on your ARO cluster.
+   You can also verify directly on your ARO cluster:
+   ```bash
+   oc get pods -n nginx-app-ns
+   oc get svc -n nginx-app-ns
+   ```
+   You should see Nginx pods running and a service exposed.
+
+=== Activity 3: Apply a Policy to an ARO Cluster
+
+RHACM's policy engine allows you to define desired configurations and enforce them across your managed clusters. Let's create a simple policy to ensure a specific label exists on all namespaces in our ARO cluster.
+
+*Prerequisites:*
+
+*   ARO cluster imported into RHACM (from Activity 1).
+
+.Steps:
+
+.  **Navigate to the "Governance" Section**
+   In the RHACM console, from the left-hand navigation pane, select *Governance*.
+
+.  **Create a New Policy**
+   On the *Policies* page, click *Create policy*.
+
+.  **Define Policy Configuration**
+   You can either use the form or edit the YAML directly. Let's edit the YAML for precision.
+   Click *Edit YAML*.
+
+   Replace the default YAML with the following, which ensures all namespaces have the label `managed-by: rhacm`:
+
+   ```yaml
+   apiVersion: policy.open-cluster-management.io/v1
+   kind: Policy
+   metadata:
+     name: enforce-namespace-labels
+     namespace: default # Or another policy namespace
+   spec:
+     remediationAction: enforce # Can be 'inform' or 'enforce'
+     disabled: false
+     policy-templates:
+       - objectDefinition:
+           apiVersion: policy.open-cluster-management.io/v1
+           kind: ConfigurationPolicy
+           metadata:
+             name: namespace-label-policy
+           spec:
+             remediationAction: enforce
+             severity: low
+             object-templates:
+               - complianceType: musthave
+                 object:
+                   apiVersion: v1
+                   kind: Namespace
+                   metadata:
+                     labels:
+                       managed-by: rhacm
+   ---
+   apiVersion: policy.open-cluster-management.io/v1
+   kind: PlacementBinding
+   metadata:
+     name: binding-enforce-namespace-labels
+     namespace: default
+   placementRef:
+     name: placement-enforce-namespace-labels
+     kind: PlacementRule
+     apiGroup: apps.open-cluster-management.io
+   subjects:
+     - name: enforce-namespace-labels
+       kind: Policy
+       apiGroup: policy.open-cluster-management.io
+   ---
+   apiVersion: apps.open-cluster-management.io/v1
+   kind: PlacementRule
+   metadata:
+     name: placement-enforce-namespace-labels
+     namespace: default
+   spec:
+     clusterSelector:
+       matchLabels:
+         cloud: azure # Selects our ARO cluster
+         name: my-aro-cluster # Further refines selection
+   ```
+
+   [NOTE]
+   Replace `name: my-aro-cluster` with the actual name of your imported ARO cluster if it's different.
+
+.  **Create the Policy**
+   Click *Create*.
+
+.  **Monitor Policy Compliance**
+   Go back to the *Policies* page. You will see `enforce-namespace-labels` listed.
+   Click on the policy name.
+   Under the *Cluster status* tab, you should see your ARO cluster. Initially, it might show a violation for any namespace that does *not* have the `managed-by: rhacm` label.
+   Since `remediationAction` is set to `enforce`, RHACM will attempt to apply the `managed-by: rhacm` label to existing namespaces. New namespaces created on the ARO cluster will also automatically get this label.
+   Wait a few minutes and refresh. The status should eventually show `Compliant` for your ARO cluster as the policy takes effect.
+
+   You can verify this directly on your ARO cluster:
+   ```bash
+   oc get ns --show-labels
+   ```
+   You should see `managed-by=rhacm` on most namespaces.
+
+This lab provides a foundational understanding of how RHACM can be used to manage and govern your Azure Red Hat OpenShift clusters effectively, enabling greater control, consistency, and automation in your cloud-native operations.

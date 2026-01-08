@@ -1,0 +1,293 @@
+#  Integrating Azure Key Vault with ARO
+
+= Integrating Azure Key Vault with ARO
+
+This section delves into integrating Azure Key Vault with Azure Red Hat OpenShift (ARO) clusters. Azure Key Vault provides a robust and secure store for sensitive information such as cryptographic keys, secrets (like passwords and connection strings), and TLS/SSL certificates. Integrating it with ARO significantly enhances security posture and streamlines secret management for both the cluster itself and the applications running within it.
+
+There are two primary integration scenarios:
+
+*   **Customer-Managed Keys (CMK) for ARO Disk Encryption**: This allows you to use your own encryption keys from Azure Key Vault to encrypt the underlying Azure managed disks used by your ARO cluster nodes (OS and data disks).
+*   **Application Secret Management**: This enables applications deployed on ARO to securely retrieve and utilize secrets, keys, or certificates stored in Azure Key Vault at runtime.
+
+[[technical-explanation]]
+== Technical Explanation
+
+Integrating Azure Key Vault with ARO addresses critical security and operational requirements for modern cloud-native applications.
+
+=== Customer-Managed Keys (CMK) for ARO Disk Encryption
+
+By default, Azure automatically encrypts all data at rest for managed disks using platform-managed encryption keys. However, for organizations with stringent compliance requirements or specific security policies, Customer-Managed Keys (CMK) provide an additional layer of control. When you use CMK, your encryption keys are stored in your Azure Key Vault, and you retain control over the key lifecycle, including rotation, revocation, and deletion.
+
+The process for enabling CMK with ARO involves several Azure resources:
+
+.  **Azure Key Vault**: This is the secure repository where your encryption key resides. It's best practice to enable purge protection on the Key Vault to prevent accidental or malicious deletion of your critical encryption keys.
+.  **Azure Disk Encryption Set (DES)**: This resource acts as a proxy or a reference point between your Azure managed disks and your Azure Key Vault. It specifically points to the encryption key within your Key Vault. The DES requires specific permissions on the Key Vault to perform cryptographic operations: `wrapkey` (to encrypt data with your key), `unwrapkey` (to decrypt data with your key), and `get` (to retrieve key properties).
+.  **ARO Cluster Provisioning**: When creating an ARO cluster, you specify the Azure Disk Encryption Set. Azure then configures the managed disks for all new VMs (master and worker nodes) in the cluster to use the encryption key referenced by the DES. Consequently, all data written to these disks is encrypted using your customer-managed key.
+
+[NOTE]
+====
+Enabling Customer-Managed Keys (CMK) on *existing* ARO clusters is currently only possible for worker nodes, not master nodes. This can be achieved by updating `MachineSet` custom resources through the OpenShift Machine API to apply a Disk Encryption Set to new worker nodes or existing worker nodes when they are re-provisioned.
+====
+
+=== Integrating Key Vault for Application Secret Management
+
+Applications deployed on OpenShift often require access to sensitive information such as database credentials, API keys, certificates, or configuration values. Storing these directly within application images or Kubernetes `Secrets` (which are base64 encoded and not inherently encrypted at rest by default in all configurations) can pose security risks.
+
+Integrating Azure Key Vault for application secret management allows your applications to consume secrets securely from a centralized, highly available, and audited store. A common and recommended approach leverages the *Azure Key Vault Provider for Secrets Store CSI Driver* for Kubernetes.
+
+The high-level workflow is as follows:
+
+.  **Create Azure Key Vault and Secrets**: You provision an Azure Key Vault and store your application's sensitive data (e.g., `secret1` with a value of "HelloFromKeyVault") as secrets within it.
+.  **Create Azure AD Service Principal**: An Azure Active Directory (AD) Service Principal acts as an identity for the Secrets Store CSI driver to authenticate with Azure Key Vault. This Service Principal must be granted the necessary permissions (e.g., `Get`, `List`) on the Key Vault secrets it needs to access.
+.  **Configure OpenShift Permissions**: The Secrets Store CSI driver and its components require appropriate Security Context Constraints (SCCs) within OpenShift to function correctly. Specifically, the `csi-secrets-store-provider-azure` service account often requires the `privileged` SCC to perform its operations.
+.  **Deploy Secrets Store CSI Driver**: The driver needs to be installed in your ARO cluster. It allows Kubernetes pods to mount secrets, keys, and certificates from Azure Key Vault as a volume.
+.  **Define `SecretProviderClass`**: This Kubernetes custom resource specifies *which* Key Vault, *which* secret names, and *which* Azure AD identity (Service Principal) the CSI driver should use to fetch secrets.
+.  **Deploy Application Pod**: Your application pod then references the `SecretProviderClass` and mounts the secrets as files into its container, making them accessible to the application just like any other mounted file. This ensures secrets are never directly exposed in pod definitions or environment variables.
+
+[[hands-on-activities]]
+== Hands-on Activities
+
+This section provides hands-on exercises to guide you through integrating Azure Key Vault with your ARO cluster for both disk encryption and application secret management.
+
+=== Lab 1: Configure Customer-Managed Keys for ARO Cluster Disks
+
+In this lab, you will configure customer-managed encryption keys (CMK) for a new Azure Red Hat OpenShift cluster. This ensures that the underlying OS and data disks for your ARO nodes are encrypted using your own keys managed in Azure Key Vault.
+
+[IMPORTANT]
+====
+Ensure you have the necessary Azure CLI version and permissions to create Key Vaults, Disk Encryption Sets, and ARO clusters in your Azure subscription. This typically includes roles like `Contributor` or `Owner`.
+====
+
+.  Set Environment Variables
+    First, define environment variables for your resources. Replace `$USER` with your initials or a unique identifier, and adjust `$RESOURCEGROUP` and `$LOCATION` to your desired Azure values.
+
+    [source,bash]
+    ----
+    export USER="<your-initials>" # e.g., jsmith
+    export RESOURCEGROUP="aro-cmk-rg-$USER" # Or your existing resource group name
+    export LOCATION="eastus" # Or your preferred Azure region
+
+    # Ensure the resource group exists
+    az group create -n $RESOURCEGROUP -l $LOCATION
+
+    export KEYVAULT_NAME="$USER-enckv"
+    export KEYVAULT_KEY_NAME="$USER-key"
+    export DISK_ENCRYPTION_SET_NAME="$USER-des"
+    ----
+
+.  Create an Azure Key Vault and an Encryption Key
+    Create a new Azure Key Vault with purge protection enabled. Purge protection prevents immediate and irreversible deletion of the vault or its keys, offering a recovery window. Then, generate a new software-protected key within this Key Vault. This key will be used for disk encryption.
+
+    [source,bash]
+    ----
+    az keyvault create \
+       -n $KEYVAULT_NAME \
+       -g $RESOURCEGROUP \
+       -l $LOCATION \
+       --enable-purge-protection true \
+       --sku standard # Using standard SKU for simplicity
+
+    az keyvault key create \
+       --vault-name $KEYVAULT_NAME \
+       -n $KEYVAULT_KEY_NAME \
+       --protection software # Key is software-protected, not HSM
+    ----
+    +
+    Retrieve the Key Vault ID and Key URL. These values are crucial for linking the Disk Encryption Set to your Key Vault.
+
+    [source,bash]
+    ----
+    KEYVAULT_ID=$(az keyvault show --name $KEYVAULT_NAME --query "id" -o tsv)
+    KEYVAULT_KEY_URL=$(az keyvault key show --vault-name $KEYVAULT_NAME \
+                                            --name $KEYVAULT_KEY_NAME \
+                                            --query "kid" -o tsv)
+    echo "Key Vault ID: $KEYVAULT_ID"
+    echo "Key Vault Key URL: $KEYVAULT_KEY_URL"
+    ----
+
+.  Create an Azure Disk Encryption Set
+    Create an Azure Disk Encryption Set (DES) that references the encryption key you just created in your Key Vault. The DES will serve as the mechanism to apply your customer-managed key to the ARO cluster's disks.
+
+    [source,bash]
+    ----
+    az disk-encryption-set create \
+       -n $DISK_ENCRYPTION_SET_NAME \
+       -g $RESOURCEGROUP \
+       -l $LOCATION \
+       --key-url $KEYVAULT_KEY_URL \
+       --source-vault $KEYVAULT_ID
+    ----
+
+.  Grant Permissions for the Disk Encryption Set to Access Key Vault
+    For the Disk Encryption Set to utilize your key, it requires specific permissions on the Key Vault. You need to grant `wrapkey` (for encryption), `unwrapkey` (for decryption), and `get` (to read key properties) permissions to the Disk Encryption Set's managed identity.
+    +
+    First, retrieve the `principalId` of the Disk Encryption Set's system-assigned managed identity.
+
+    [source,bash]
+    ----
+    DES_IDENTITY=$(az disk-encryption-set show \
+                     -n $DISK_ENCRYPTION_SET_NAME \
+                     -g $RESOURCEGROUP \
+                     --query "identity.principalId" -o tsv)
+    echo "Disk Encryption Set Identity (principalId): $DES_IDENTITY"
+    ----
+    +
+    Now, grant the necessary permissions to your Key Vault.
+
+    [source,bash]
+    ----
+    az keyvault set-policy \
+       -n $KEYVAULT_NAME \
+       -g $RESOURCEGROUP \
+       --object-id $DES_IDENTITY \
+       --key-permissions wrapkey unwrapkey get
+    ----
+
+.  Create an Azure Red Hat OpenShift Cluster with CMK
+    With the Key Vault, key, and Disk Encryption Set configured, you can now create your ARO cluster, specifying the Disk Encryption Set. All VMs (master and worker nodes) created for this new cluster will have their OS and data disks encrypted using your customer-managed keys.
+    +
+    [NOTE]
+    ====
+    This command assumes you have already created a VNet with appropriate subnets for ARO and have your OpenShift pull secret available. Replace `--cluster-resource-group`, `--vnet`, `--master-subnet`, `--worker-subnet`, and `@pull-secret.json` with your actual values.
+    ====
+
+    [source,bash]
+    ----
+    export CLUSTER_NAME="$USER-arocmk"
+    export ARO_VNET_NAME="aro-vnet-$USER"
+    export MASTER_SUBNET_NAME="master-subnet"
+    export WORKER_SUBNET_NAME="worker-subnet"
+    export PULL_SECRET_FILE="pull-secret.json" # Path to your pull secret file
+
+    # Example: Create a private ARO cluster using CMK
+    az aro create \
+       --resource-group $RESOURCEGROUP \
+       --name $CLUSTER_NAME \
+       --vnet $ARO_VNET_NAME \
+       --master-subnet $MASTER_SUBNET_NAME \
+       --worker-subnet $WORKER_SUBNET_NAME \
+       --pull-secret @$PULL_SECRET_FILE \
+       --disk-encryption-set $DISK_ENCRYPTION_SET_NAME \
+       --apiserver-visibility Private \
+       --ingress-visibility Private \
+       --master-vm-size Standard_D8s_v3 \
+       --worker-vm-size Standard_D4s_v3 \
+       --worker-count 3
+    ----
+    +
+    This command will take a significant amount of time (typically 30-45 minutes) to provision the ARO cluster.
+
+.  Verify CMK Configuration
+    After the ARO cluster is successfully provisioned, you can verify that the customer-managed encryption keys are correctly configured for the cluster's virtual machine disks. You'll need to query the Azure Managed Disks associated with the ARO cluster's Virtual Machine Scale Sets (VMSS).
+
+    [source,bash]
+    ----
+    # Get the resource group where ARO infrastructure VMs are deployed (managed resource group)
+    ARO_INFRA_RG=$(az aro show --resource-group $RESOURCEGROUP --name $CLUSTER_NAME --query "clusterProfile.resourceGroupId" -o tsv | awk -F'/' '{print $NF}')
+    echo "ARO Infrastructure Resource Group: $ARO_INFRA_RG"
+
+    # List managed disks in the ARO infrastructure resource group and check their encryption properties
+    az disk list \
+       --resource-group $ARO_INFRA_RG \
+       --query "[?starts_with(name, 'aro-$CLUSTER_NAME')].{name:name, diskEncryptionSetId:encryption.diskEncryptionSetId, type:diskSizeGb}" \
+       -o table
+    ----
+    +
+    In the output, look for the `diskEncryptionSetId` column. The values should match the ID of your `DISK_ENCRYPTION_SET_NAME`. If this field is populated with your DES ID, it confirms that your ARO cluster's disks are using customer-managed encryption keys.
+
+[[lab-2-app-secret-management]]
+=== Lab 2: Integrate Azure Key Vault for Application Secret Management
+
+This lab guides you through the process of setting up Azure Key Vault for an application running on ARO, allowing the application to securely retrieve secrets using the Secrets Store CSI driver.
+
+[IMPORTANT]
+====
+This lab requires an existing ARO cluster and Azure CLI permissions to create Key Vaults and Azure AD Service Principals. It also assumes the Azure Key Vault Provider for Secrets Store CSI Driver is already installed in your ARO cluster. If not, you would need to install it first (typically via an OpenShift Operator).
+====
+
+.  Create a Namespace for Your Application
+    First, create a dedicated namespace in your ARO cluster for your application. This helps with resource isolation and organization.
+
+    [source,bash]
+    ----
+    oc new-project my-application
+    ----
+
+.  Create an Azure Key Vault and a Secret
+    Create a new Azure Key Vault in your subscription and then add a secret to it that your application will consume.
+
+    [source,bash]
+    ----
+    export KEYVAULT_APP_NAME="myapp-kv-$USER" # Unique Key Vault name
+    export KEYVAULT_RESOURCE_GROUP="$RESOURCEGROUP" # Use same RG or a different one
+    export KEYVAULT_LOCATION="$LOCATION" # Use same location or a different one
+
+    az keyvault create \
+       -n ${KEYVAULT_APP_NAME} \
+       -g ${KEYVAULT_RESOURCE_GROUP} \
+       --location ${KEYVAULT_LOCATION} \
+       --sku standard # Using standard SKU
+
+    az keyvault secret set \
+       --vault-name ${KEYVAULT_APP_NAME} \
+       --name secret1 \
+       --value "HelloFromKeyVault"
+    ----
+
+.  Create a Service Principal for Key Vault Access
+    Create an Azure Active Directory (AD) Service Principal. This identity will be used by the Secrets Store CSI driver to authenticate with your Azure Key Vault and retrieve secrets.
+    +
+    [NOTE]
+    ====
+    If you receive an error when creating the service principal, such as "AuthorizationFailed", you may need to upgrade your Azure CLI to the latest version or ensure your Azure account has sufficient permissions to create AAD applications.
+    ====
+
+    [source,bash]
+    ----
+    export SERVICE_PRINCIPAL_NAME="http://$KEYVAULT_APP_NAME-sp-$USER" # Unique name for SP
+    export SERVICE_PRINCIPAL_CLIENT_SECRET="$(az ad sp create-for-rbac \
+                                               --skip-assignment \
+                                               --name $SERVICE_PRINCIPAL_NAME \
+                                               --query 'password' -otsv)"
+    export SERVICE_PRINCIPAL_CLIENT_ID="$(az ad sp list \
+                                             --display-name $SERVICE_PRINCIPAL_NAME \
+                                             --query '[0].appId' -otsv)"
+
+    echo "Service Principal Client ID: $SERVICE_PRINCIPAL_CLIENT_ID"
+    echo "Service Principal Client Secret: $SERVICE_PRINCIPAL_CLIENT_SECRET" # Keep this secure!
+    ----
+    +
+    Now, grant the Service Principal permissions to *get* secrets from your Key Vault. This is the minimum permission required for the CSI driver to read secrets.
+
+    [source,bash]
+    ----
+    az keyvault set-policy \
+       --name ${KEYVAULT_APP_NAME} \
+       --spn ${SERVICE_PRINCIPAL_CLIENT_ID} \
+       --secret-permissions get
+    ----
+
+.  Configure OpenShift Security Context Constraints (SCC)
+    The Azure Key Vault Provider for Secrets Store CSI Driver's service account requires elevated permissions to function correctly within OpenShift. Grant the `privileged` SCC to the specific service account used by the CSI provider.
+    +
+    [IMPORTANT]
+    ====
+    This step assumes the Azure Key Vault Provider for Secrets Store CSI Driver is already installed and running in your ARO cluster. The default service account used by the provider is often `csi-secrets-store-provider-azure` in the `k8s-secrets-store-csi` namespace, but verify this in your specific ARO environment. The `-n my-application` ensures this policy is applied for pods in your application's namespace.
+    ====
+
+    [source,bash]
+    ----
+    oc adm policy add-scc-to-user privileged \
+       system:serviceaccount:k8s-secrets-store-csi:csi-secrets-store-provider-azure -n my-application
+    ----
+    +
+    [NOTE]
+    ====
+    To fully consume the secret in an application, you would proceed with:
+
+    .  Creating an OpenShift `SecretProviderClass` resource that references your Azure Key Vault and the secret.
+    .  Creating an OpenShift `Secret` resource that holds the Service Principal client ID and secret.
+    .  Deploying an application pod that uses the `SecretProviderClass` to mount the Key Vault secret as a volume.
+
+    These steps involve more advanced Kubernetes/OpenShift configuration for the Secrets Store CSI driver and are beyond the scope of this foundational integration topic, which focuses on the core Azure Key Vault and ARO setup.
+    ====

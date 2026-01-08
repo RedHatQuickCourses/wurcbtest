@@ -1,0 +1,4 @@
+#  Troubleshooting and Application Management
+
+* *Troubleshooting Containers and Pods*: Focuses on diagnosing and resolving issues within running application containers and pods. This often involves analyzing application logs, builder logs, and platform audit logs, which can be configured using tools like Azure Monitor and Log Analytics.
+* *Managing Applications*: Involves using the Kubernetes Workload API to control the deployment, scaling, and lifecycle of applications on the cluster.

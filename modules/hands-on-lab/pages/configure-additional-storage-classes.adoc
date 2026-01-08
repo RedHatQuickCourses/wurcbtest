@@ -1,0 +1,199 @@
+#  Configure additional storage classes
+
+= Configure Additional Storage Classes in Azure Red Hat OpenShift
+
+:navtitle: Configure Storage Classes
+:page-aliases: aro-storage-classes.adoc, storage-classes.adoc
+
+Storage classes in Kubernetes and OpenShift provide a way for administrators to describe the "classes" of storage they offer. These classes can abstract various storage characteristics, such as performance tiers, availability, backup policies, or specific underlying storage technologies. In Azure Red Hat OpenShift (ARO), storage classes dynamically provision persistent volumes based on the requested class, seamlessly integrating with Azure's robust storage services.
+
+By default, every ARO cluster comes with a pre-configured `managed-premium` StorageClass. While this default is suitable for many ReadWriteOnce (RWO) workloads, there are common scenarios where additional storage classes are required:
+
+*   **Shared File Systems (ReadWriteMany)**: Applications requiring multiple pods to concurrently read and write to the same volume (e.g., content management systems, shared configuration).
+*   **Performance Tiers**: Need for ultra-high-performance storage beyond standard Azure Disks, such as Azure NetApp Files.
+*   **Specific Azure Storage Types**: Utilizing Azure Files for NFS/SMB shares or other specialized Azure Disk configurations.
+
+This section will guide you through configuring additional storage classes in your ARO cluster, focusing on creating an Azure File StorageClass, making it the default, and demonstrating its usage with a sample application.
+
+== Understanding ARO's Default StorageClass
+
+Upon cluster creation, ARO configures a default StorageClass named `managed-premium`. This class leverages the `azure-disk` provisioner to provision Azure Premium SSDs, which are block storage devices suitable for ReadWriteOnce (RWO) persistent volumes. This means only a single pod can mount the volume at a time.
+
+You can inspect the existing storage classes in your cluster using the `oc get` command:
+
+.Get existing storage classes
+[source,bash]
+----
+oc get storageclass
+----
+
+Expected output:
+
+[source,text]
+----
+NAME                        PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+managed-premium (default)   kubernetes.io/azure-disk   Delete          Immediate           true                   2d19h
+----
+
+Notice the `(default)` annotation next to `managed-premium`, indicating that any PersistentVolumeClaim (PVC) created without explicitly specifying a `storageClassName` will automatically use this class.
+
+== Creating an Azure File Storage Class
+
+Azure Files offers fully managed file shares in the cloud that are accessible via the industry-standard Server Message Block (SMB) protocol or Network File System (NFS) protocol. It's a robust solution for applications requiring shared file storage that can be mounted by multiple pods concurrently using the ReadWriteMany (RWX) access mode.
+
+The `file.csi.azure.com` provisioner is used to dynamically provision Azure File shares. When configuring an Azure File StorageClass, it's crucial to understand the parameters and mount options that dictate its behavior and integration with the underlying Azure storage account.
+
+[NOTE]
+When naming custom storage classes that integrate with managed identities, avoid using `azurefile-csi` as the name. This specific name might be reserved or subject to automated removal by Azure services.
+
+=== Hands-on Activity: Deploying an Azure File StorageClass
+
+Let's create a new StorageClass that provisions Azure File shares.
+
+. Create a file named `azure-storageclass-azure-file.yaml` with the following content:
++
+[source,yaml,subs="attributes+"]
+----
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-file
+provisioner: file.csi.azure.com
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=0
+  - gid=0
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+  - noperm
+  - nobrl // xref:advanced-troubleshooting.adoc#posix-locks[Disable byte range locks for POSIX lock compatibility]
+parameters:
+  location: <ARO_CLUSTER_LOCATION> // e.g., eastus, westus2
+  secretNamespace: kube-system
+  skuName: Standard_LRS // Options: Standard_LRS, Standard_ZRS, Premium_LRS, Premium_ZRS
+  resourceGroup: <AZURE_FILES_RESOURCE_GROUP> // The Azure resource group where the storage account will be created
+  tags: "environment=dev,project=myproject" // Example: "key1=value1,key2=value2"
+  matchTags: "true" // Ensure storage accounts are created with specified tags
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+----
+
+. **Customize the Manifest**: Replace the placeholder values (`<ARO_CLUSTER_LOCATION>`, `<AZURE_FILES_RESOURCE_GROUP>`) with appropriate values for your Azure environment.
++
+[NOTE]
+The `nobrl` mount option is included in this manifest. This option disables sending byte range lock requests to the server, which can be critical for applications that have challenges with POSIX locks or when integrating with specific types of clients.
+
+. **Apply the Manifest**: Use the `oc create` command to apply the manifest to your ARO cluster.
++
+[source,bash]
+----
+oc create -f azure-storageclass-azure-file.yaml
+----
+
+. **Verify the New Storage Class**: Confirm that the `azure-file` storage class has been successfully created.
++
+[source,bash]
+----
+oc get storageclass
+----
+
+You should now see `azure-file` listed alongside `managed-premium` in the output.
+
+== Changing the Default StorageClass (Optional)
+
+While you can always explicitly specify a `storageClassName` in your PersistentVolumeClaim (PVC) definition, it's often convenient to change the default storage class. This means any PVC created without an explicit `storageClassName` will automatically use your newly designated default. This is particularly useful if most of your applications require a different type of storage than the ARO default.
+
+=== Hands-on Activity: Setting `azure-file` as the Default
+
+To promote `azure-file` to the default storage class, you must first mark the current default (`managed-premium`) as non-default, and then apply the default annotation to `azure-file`.
+
+. **Mark `managed-premium` as non-default**:
++
+[source,bash]
+----
+oc patch storageclass managed-premium -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class":"false"}}}'
+----
+
+. **Set `azure-file` as the new default**:
++
+[source,bash]
+----
+oc patch storageclass azure-file -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class":"true"}}}'
+----
+
+. **Verify the Default Storage Class Change**: Check the storage classes again to confirm the change.
++
+[source,bash]
+----
+oc get storageclass
+----
+
+The output should now show `azure-file (default)` indicating it's the new default.
+
+== Using the New Storage Class with an Application
+
+Let's deploy a simple application that requests persistent storage to demonstrate how it utilizes the default storage class or can explicitly request a specific one. For this activity, we'll use the `httpd-example` template provided by OpenShift.
+
+[NOTE]
+To successfully use the `httpd-example` template, your ARO cluster *must* have the Red Hat pull secret enabled during its deployment. If you encounter image pull errors, refer to the official Red Hat documentation on "Get a Red Hat pull secret" for guidance.
+
+=== Hands-on Activity: Deploying an Application with Azure File Storage
+
+. **Create a New Project**: Set up a dedicated project for this demonstration.
++
+[source,bash]
+----
+oc new-project azfiletest
+----
+
+. **Deploy the `httpd-example` Application**: This template includes a PersistentVolumeClaim (PVC) definition. Since we've configured `azure-file` as the default, the PVC should automatically provision an Azure File share.
++
+[source,bash]
+----
+oc new-app httpd-example
+----
+
+. **Monitor Application Deployment**: Wait for the application's pod to become `Ready`. This involves pulling the image, provisioning the PVC, and mounting the volume.
++
+[source,bash]
+----
+oc get pods -n azfiletest
+oc get pvc -n azfiletest
+oc get pv
+----
+
+Observe the output of `oc get pvc` and `oc get pv`. You should see that the PersistentVolume (PV) associated with your application's PVC was provisioned using the `azure-file` storage class, confirming the successful integration of your new storage class.
+
+== Integrating with Azure NetApp Files (ANF)
+
+For demanding, high-performance, and low-latency storage requirements, Azure NetApp Files (ANF) offers an enterprise-grade file storage solution. ARO can integrate with ANF by creating custom storage classes that provision volumes from ANF capacity pools.
+
+The general workflow for ANF integration typically involves:
+
+1.  **Azure NetApp Files Setup**: Creating an ANF account, capacity pools, and volumes within your Azure subscription.
+2.  **Trident Deployment**: Deploying NetApp Trident, an open-source storage orchestrator for Kubernetes, into your ARO cluster. Trident acts as the CSI (Container Storage Interface) driver that understands how to provision ANF volumes.
+3.  **Trident Backend Configuration**: Configuring Trident to communicate with your ANF account.
+4.  **Custom ANF StorageClass**: Defining a custom StorageClass in ARO that references the Trident backend and specifies ANF volume properties.
+
+[NOTE]
+While `oc patch` is used for CLI-based default storage class changes, you can also manage this via the OpenShift Web Console for ANF-backed StorageClasses:
+
+*   In the OpenShift console's sidebar, navigate to *Storage* -> *Storage Classes*.
+*   Locate your `AzureNetAppFiles_StorageClass_name`.
+*   Select the Action menu (⋮) next to it, then choose *Set as default*.
+
+This provides a visual alternative for administrators preferring the GUI.
+
+== Troubleshooting Considerations
+
+*   **Image Pull Failures (`httpd-example`)**: If the `httpd-example` pod gets stuck in `ImagePullBackOff` or similar states, ensure your ARO cluster was configured with the correct Red Hat pull secret during deployment. The template often references images from authenticated Red Hat registries.
+*   **Azure File Shared Key Access**: A common issue for Azure Files is when the backing Azure Storage Account does not have shared key access enabled. If PersistentVolumes fail to provision or mount, verify that shared key access is enabled on your Azure Storage Account, or ensure your CSI driver configuration is set up to use managed identity-based authentication if shared key access is intentionally disabled.
+*   **Azure Permissions**: Ensure that the ARO cluster's managed identity (or the service principal used during deployment) has the necessary Azure role-based access control (RBAC) permissions to create and manage Azure Storage Accounts, Azure Files shares, and other related resources within the specified resource groups.
+*   **Storage Account Naming**: Azure Storage Accounts have specific naming conventions (e.g., globally unique, lowercase alphanumeric). Ensure any dynamically provisioned storage accounts adhere to these rules.
+*   **CSI Driver Logs**: For detailed insights into provisioning failures, check the logs of the `file-csi-driver` pods (or `azure-file-csi-driver` pods, depending on your ARO version) in the `kube-system` namespace.
+
+== Next Steps
+
+By configuring additional storage classes, you gain the flexibility to provision persistent storage tailored to your applications' diverse needs, from highly available shared file systems to ultra-high-performance block storage solutions. This capability is fundamental for running complex, stateful applications on Azure Red Hat OpenShift.

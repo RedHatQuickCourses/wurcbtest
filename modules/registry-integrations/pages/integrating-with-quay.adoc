@@ -1,0 +1,187 @@
+#  Integrating with Quay
+
+= Integrating with Quay
+
+[.lead]
+Learn how to integrate your Azure Red Hat OpenShift (ARO) cluster with Red Hat Quay for robust container image management and deployment. This guide covers both public and private repository integrations, ensuring your applications can securely access necessary images.
+
+== Understanding Red Hat Quay
+
+Red Hat Quay is an enterprise-grade, open-source container image registry that provides secure storage, distribution, and deployment of container images. It offers advanced features such as image vulnerability scanning, fine-grained access control, time machine capabilities (reverting to previous image versions), and seamless integration with CI/CD pipelines.
+
+In a cloud-native environment like Azure Red Hat OpenShift, a reliable and secure container registry is paramount for managing your application images. Quay serves as a central repository for your Docker and OCI-compliant images, ensuring that your ARO clusters can securely pull the necessary images for your applications.
+
+Key benefits of integrating ARO with Quay include:
+
+*   **Centralized Image Management:** Store all your application images in a single, secure, and highly available location.
+*   **Enhanced Security:** Benefit from built-in security scanning, vulnerability reporting, and policy enforcement to maintain supply chain integrity.
+*   **Version Control:** Utilize time machine features to manage image versions and facilitate rollbacks effectively, providing historical traceability.
+*   **Access Control:** Implement granular access controls, including role-based access control (RBAC), to manage who can push and pull images.
+*   **Integration with CI/CD:** Seamlessly integrate Quay into your automated build, test, and deployment workflows, streamlining your DevOps practices.
+
+OpenShift leverages `ImageStreams` to track images from external registries like Quay. When an application is deployed, OpenShift attempts to pull the specified image from the registry. This mechanism allows OpenShift to monitor changes in the upstream registry and automatically update deployments if new image versions are detected and configured.
+
+=== Public vs. Private Quay Repositories
+
+Quay.io hosts both public and private repositories, each with distinct access requirements:
+
+*   **Public Repositories:** Images in public repositories are freely accessible and can be pulled by any OpenShift cluster without explicit authentication credentials. Many Red Hat-provided images, certified operators, and community images are available publicly on `quay.io`. The provided context lists several `quay.io` endpoints, such as `cdn02.quay.io`, `cdn03.quay.io`, `access.redhat.com`, which are used for distributing public container images and operators from Red Hat and third-parties.
+*   **Private Repositories:** Images in private repositories require authentication to be accessed. For ARO to pull images from a private Quay repository, you must provide valid credentials, typically in the form of an application password or token. This ensures that only authorized entities can access and deploy your proprietary or sensitive container images.
+
+== Hands-on Activity: Deploying an Application from Quay
+
+In this activity, you will deploy a simple application to your ARO cluster using a container image hosted on `quay.io`. We will first demonstrate deploying from a public Quay repository, then provide guidance on how to adapt this process for private repositories.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift cluster.
+*   The `oc` CLI installed and configured to connect to your ARO cluster.
+*   You are logged in to your ARO cluster with an account that has permissions to create resources in a project.
+
+=== Step 1: Create a new OpenShift Project
+
+First, create a dedicated project (namespace) for your application to ensure proper resource isolation.
+
+.Execute the following command in your terminal:
+```bash
+oc new-project quay-integration-demo
+```
+.Expected Output:
+```text
+Now using project "quay-integration-demo" on server "https://api.yourcluster.azm.p.openshiftapps.com:6443".
+
+You can add applications to this project with the 'oc new-app' command. For example, try:
+
+    oc new-app rails-sample
+
+To see what objects are in this project, run:
+
+    oc get all
+
+```
+
+=== Step 2: Deploy an Application from a Public Quay Repository
+
+We will deploy a simple "greeter" application using an image available publicly on `quay.io`. This image, `quay.io/rhdevelopers/knative-tutorial-greeter:quarkus`, is mentioned in the provided context for a Knative service deployment. For this activity, we will use a standard OpenShift deployment to illustrate the general process of pulling images from Quay.
+
+.Execute the following command to deploy the application:
+```bash
+oc new-app quay.io/rhdevelopers/knative-tutorial-greeter:quarkus --name greeter-app
+```
+*   `quay.io/rhdevelopers/knative-tutorial-greeter:quarkus` specifies the fully qualified image reference, including the registry, repository, and image tag.
+*   `--name greeter-app` assigns a logical name to the application resources created by OpenShift, such as the Deployment and Service.
+
+.Expected Output (truncated):
+```text
+--> Found image 'quay.io/rhdevelopers/knative-tutorial-greeter:quarkus' (id: ...) in registry quay.io
+    ...
+--> Creating resources ...
+    deployment.apps/greeter-app created
+    service/greeter-app created
+--> Success
+    Application is not exposed. You can expose it by running:
+        oc expose svc/greeter-app
+    Run 'oc status' to view your app.
+```
+
+OpenShift automatically creates a Deployment, a Pod, and a Service for your application. Since `quay.io` is a publicly accessible registry for this image, OpenShift's default service account can pull the image without any explicit authentication secrets.
+
+=== Step 3: Verify the Deployment
+
+Check the status of your deployed application to ensure it's running correctly.
+
+.Execute the following command to list the pods associated with your application:
+```bash
+oc get pods -l app=greeter-app
+```
+.Expected Output:
+```text
+NAME                           READY   STATUS    RESTARTS   AGE
+greeter-app-abcdefgh-ijklm     1/1     Running   0          XmYs
+```
+Ensure that the pod is in the `Running` state and `READY` column shows `1/1`.
+
+.Optionally, expose the application to external access by creating an OpenShift Route:
+```bash
+oc expose service greeter-app --port=8080 --name=greeter-route
+```
+.Expected Output:
+```text
+route.route.openshift.io/greeter-route exposed
+```
+
+.Get the URL (hostname) of the exposed application:
+```bash
+oc get route greeter-route -o jsonpath='{.spec.host}'
+```
+You can then open the provided URL in your web browser to interact with the "greeter" application and confirm its functionality.
+
+=== Integrating with Private Quay Repositories
+
+When working with private Quay repositories, your ARO cluster needs specific credentials to authenticate and pull images. This is typically achieved by creating a `Secret` of type `kubernetes.io/dockerconfigjson` in OpenShift, which contains the authentication details for the registry.
+
+.Overview of steps for private repository integration:
+
+1.  **Obtain Quay Credentials:** Generate an application-specific password or token from your Quay account. This is a best practice for automated systems rather than using your main account password. Navigate to your Quay account settings, then to "Applications" or "Access Tokens" to create one.
+2.  **Create an Image Pull Secret:** Use the `oc create secret docker-registry` command to create an OpenShift secret containing your Quay credentials. This secret securely stores the necessary `.docker/config.json` formatted data.
+    ```bash
+    oc create secret docker-registry my-quay-secret \
+      --docker-server=quay.io \
+      --docker-username=<your-quay-username> \
+      --docker-password=<your-quay-password-or-token> \
+      --docker-email=<your-email> \
+      --namespace=quay-integration-demo
+    ```
+    *   Replace `<your-quay-username>` with your Quay username or the username associated with your application token.
+    *   Replace `<your-quay-password-or-token>` with your generated application password or token.
+    *   Replace `<your-email>` with a valid email address.
+    *   `--namespace` specifies the project where the secret will be created.
+
+3.  **Link the Secret to a Service Account:** By default, OpenShift deployments use the `default` service account within a project. To allow deployments using this service account to pull from your private registry, you must link your new secret to it as an `imagePullSecret`.
+    ```bash
+    oc secrets link default my-quay-secret --for=pull --namespace=quay-integration-demo
+    ```
+    Alternatively, for more fine-grained control or when using a custom service account, you can explicitly specify `imagePullSecrets` within your Deployment or Pod manifest directly.
+
+4.  **Deploy your Application:** When deploying your application, ensure its definition is configured to use a service account that has the `imagePullSecret` linked, or include the `imagePullSecrets` in its YAML manifest.
+    For example, in a `Deployment` YAML file, you would include the `imagePullSecrets` section within the `spec.template.spec`:
+    ```yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: my-private-app
+      namespace: quay-integration-demo
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: my-private-app
+      template:
+        metadata:
+          labels:
+            app: my-private-app
+        spec:
+          containers:
+          - name: my-container
+            image: quay.io/your-private-org/your-private-image:latest # Specify your private image path here
+            ports:
+            - containerPort: 8080
+          imagePullSecrets:
+          - name: my-quay-secret # Reference the name of the secret created in step 2
+    ```
+    To deploy this, save it as `private-app-deployment.yaml` and run `oc apply -f private-app-deployment.yaml`.
+
+By following these steps, your ARO cluster will be able to securely authenticate with Red Hat Quay and pull images from private repositories, enabling you to manage and deploy your proprietary application images effectively within your OpenShift environment.
+
+=== Cleanup (Optional)
+
+To remove the resources created during this lab, delete the project.
+
+.Delete the project and all its contents:
+```bash
+oc delete project quay-integration-demo
+```
+.Expected Output:
+```text
+project.project.openshift.io "quay-integration-demo" deleted
+```

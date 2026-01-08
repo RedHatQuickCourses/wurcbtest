@@ -1,0 +1,60 @@
+#  ARO platform capabilities
+
+= ARO Platform Capabilities
+
+Azure Red Hat OpenShift (ARO) represents a pivotal offering in the hybrid cloud landscape, delivering a fully managed OpenShift service directly on Azure. It uniquely combines the enterprise-grade Kubernetes platform from Red Hat with the robust global infrastructure and services of Microsoft Azure. This section delves into the core capabilities that define ARO, highlighting its architecture, operational model, and the rich feature set it provides to developers and operators.
+
+== What is Azure Red Hat OpenShift (ARO)?
+
+ARO is a **turnkey managed OpenShift service** on Azure, jointly engineered, operated, and supported by Microsoft and Red Hat. This collaborative model ensures that customers benefit from the deep expertise of both companies, simplifying complex container orchestration and focusing on application development rather than infrastructure management.
+
+Its primary purpose is to provide an OpenShift experience that feels native to Azure, seamlessly integrating with the Azure ecosystem while offering the full power of Red Hat OpenShift.
+
+=== Joint Engineering, Operation, and Support Model
+
+One of ARO's most distinctive capabilities is its **shared responsibility and unified support model**:
+
+*   **Joint Engineering:** Microsoft and Red Hat engineers collaborate closely on the development and integration of ARO. This ensures optimal performance, security, and compatibility between OpenShift and Azure infrastructure.
+*   **Joint Operation:** The control plane and core infrastructure of an ARO cluster are jointly operated. This includes continuous monitoring, patching, and upgrades, ensuring the cluster remains healthy, secure, and up-to-date without customer intervention.
+*   **Unified Support:** Customers benefit from a single point of contact for support. Whether an issue originates from the underlying Azure infrastructure or the OpenShift platform, the support experience is streamlined through a collaborative effort between Microsoft and Red Hat support teams. This eliminates the complexities often associated with multi-vendor solutions.
+
+=== Managed Control Plane and Infrastructure
+
+ARO simplifies cluster management by providing a **fully managed control plane and underlying infrastructure**. This capability significantly reduces the operational burden on IT teams:
+
+*   **Control Plane Management:** The OpenShift control plane (master nodes) is fully managed by Microsoft and Red Hat. This means all components like `kube-apiserver`, `etcd`, `kube-scheduler`, `kube-controller-manager`, and OpenShift-specific operators are maintained, patched, and upgraded automatically.
+    The provided context illustrates this with examples of core cluster operators such as `aro`, `authentication`, `control-plane-machine-set`, and `image-registry`. These operators are continuously monitored for their `AVAILABLE`, `PROGRESSING`, and `DEGRADED` states, indicating active management and health checks by the ARO service.
+*   **Infrastructure Management:** The Azure Virtual Machines (VMs), networking, and storage components that host the control plane are also managed. This includes OS patching, ensuring high availability, and handling underlying Azure infrastructure updates.
+*   **Worker Node Management:** While worker nodes offer more customer configurability, ARO still manages the underlying OS and basic OpenShift integration. Customers primarily manage the scaling and sizing of these nodes, while core operational aspects remain supervised by the ARO service.
+
+=== Deep Azure Integration
+
+ARO is designed for deep integration with Azure services, enabling a cohesive and efficient cloud experience:
+
+*   **Azure Networking:** ARO clusters deploy directly into customer-specified Azure Virtual Networks (VNets) and subnets, allowing seamless connectivity with other Azure resources. This is evident in the `az aro create` command, which specifies `--vnet`, `--master-subnet`, and `--worker-subnet` parameters.
+*   **Azure Identity and Access Management (IAM):** Integration with Azure Active Directory (Azure AD) for user authentication and authorization, allowing organizations to leverage existing identity infrastructure. The `--enable-managed-identity` and `--assign-cluster-identity` parameters in the cluster creation command demonstrate this tight integration with Azure's identity services.
+*   **Azure Container Registry (ACR):** Seamless integration with ACR for private image storage and management, enhancing supply chain security and efficiency.
+*   **Azure Monitor and Log Analytics:** Native integration for comprehensive monitoring, logging, and diagnostics of cluster health and application performance.
+*   **Azure Key Vault:** Ability to integrate with Azure Key Vault for secure management of secrets, keys, and certificates.
+
+=== Comprehensive OpenShift Features
+
+Beyond the managed aspects, ARO provides access to the full spectrum of Red Hat OpenShift features, empowering developers and operators with a rich application platform:
+
+*   **Developer Workflows:** Support for Source-to-Image (S2I), OpenShift Pipelines (Tekton), and GitOps with ArgoCD for streamlined application development and deployment.
+*   **Advanced Networking:** OpenShift SDN provides robust pod networking, while routes and ingress controllers allow for secure and scalable application exposure. Capabilities like custom DNS and DNS forwarding are fully supported, as highlighted in the guided exercises.
+*   **Storage Management:** Support for various storage classes, including integration with Azure Disk and Azure Files, offering persistent storage for stateful applications. The ability to configure additional storage classes is a core platform capability.
+*   **Container and Pod Management:** Full Kubernetes Workload API for managing deployments, stateful sets, daemon sets, and other workloads. The platform includes tools and capabilities for troubleshooting containers and pods, as covered in upcoming guided exercises.
+*   **Image Registries:** Beyond the internal OpenShift registry, ARO supports integration with external registries like Azure Container Registry (ACR) and Quay, providing flexibility for image management.
+*   **Backup and Restore:** Integration with tools like Velero for comprehensive backup and restore operations of cluster applications and persistent volumes, ensuring data resiliency.
+
+=== Infrastructure Flexibility and Cost Optimization
+
+ARO allows for flexibility in configuring the underlying Azure infrastructure to meet specific workload requirements and cost objectives:
+
+*   **Node Autoscaling:** Clusters can be configured with node autoscaling to automatically adjust the number of worker nodes based on demand, optimizing resource utilization and cost.
+*   **Diverse VM Sizes:** Choice of various Azure Virtual Machine sizes for worker nodes, allowing customers to select compute, memory, and storage configurations best suited for their applications.
+*   **Azure Spot Virtual Machines:** ARO supports the use of Azure Spot Virtual Machines for worker nodes, offering significant cost savings for fault-tolerant workloads. The context explicitly mentions this capability, noting that while Spot VMs can reduce costs, ARO clusters should always maintain at least three non-Spot worker nodes for stability and essential cluster operations.
+*   **Dedicated Machine Sets:** The ability to create dedicated machine sets allows for workload isolation, specialized hardware, or different pricing tiers within the same cluster.
+
+By offering a fully managed experience with deep Azure integration and access to the full power of OpenShift, ARO empowers organizations to accelerate their containerization journey, improve developer productivity, and operate applications with confidence and efficiency. These capabilities will be further explored in subsequent sections and hands-on lab activities.

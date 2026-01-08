@@ -1,0 +1,11 @@
+#  Registry Integrations
+
+=== Registry Integrations
+
+Registry integrations in Azure Red Hat OpenShift (ARO) allow for managing and storing container images required for applications. This includes utilizing the cluster's built-in registry and integrating with external solutions.
+
+*   xref:./aro-platform-capabilities.adoc[Internal OpenShift Registry]:: ARO provides a built-in container image registry that automatically provisions new image repositories.
+    ** *Inside the cluster:* Accessible via `image-registry.openshift-image-registry.svc.cluster.local:5000` for pods.
+    ** *Outside the cluster:* Can be exposed via a Route to allow external push/pull operations, requiring specific permissions for users or ServiceAccounts.
+*   xref:./integrating-with-azure-container-registry.adoc[Integrating with Azure Container Registry (ACR)]:: ARO supports integration with Azure's fully managed container registry service.
+*   xref:./integrating-with-quay.adoc[Integrating with Quay]:: ARO can integrate with Quay, a Red Hat enterprise-grade container image registry.

@@ -1,0 +1,11 @@
+#  ARO Cluster Provisioning
+
+xref:aro-cluster-provisioning.adoc#creating-an-azure-red-hat-openshift-cluster[ARO Cluster Provisioning] involves setting up an Azure Red Hat OpenShift cluster within Azure.
+
+Key aspects include:
+
+*   Creating a public or private xref:aro-cluster-provisioning.adoc#creating-a-private-azure-red-hat-openshift-cluster[ARO cluster] using the `az aro create` command.
+*   Defining essential networking components such as the Virtual Network and dedicated subnets for master and worker nodes.
+*   Specifying the OpenShift version.
+*   Configuring managed identities for cluster operations.
+*   Optionally enabling customer-managed encryption keys (CMK) for worker nodes.

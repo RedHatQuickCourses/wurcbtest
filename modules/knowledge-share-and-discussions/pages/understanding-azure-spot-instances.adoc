@@ -1,0 +1,237 @@
+#  Understanding Azure Spot Instances
+
+= Understanding Azure Spot Instances
+
+:navtitle: Azure Spot Instances
+
+This module delves into Azure Spot Virtual Machines, explaining their benefits, considerations, and how to integrate them into an Azure Red Hat OpenShift (ARO) cluster. You will learn how to leverage Spot Instances for cost optimization while maintaining cluster stability.
+
+== What are Azure Spot Instances?
+
+Azure Spot Virtual Machines offer access to unused Azure compute capacity at a significant discount compared to pay-as-you-go prices. They are a cost-effective solution for workloads that can tolerate interruptions, such as batch processing jobs, development/test environments, or other stateless applications.
+
+[NOTE]
+====
+While Spot Instances provide substantial cost savings, it's crucial to understand their primary characteristic: *eviction*. As stated in the provided context, "At any point in time when Azure needs the capacity back, the Azure infrastructure will evict Azure Spot Virtual Machines." This means the VM will be stopped and deallocated.
+====
+
+=== Key Characteristics and Benefits
+
+*   *Cost Savings*: Utilize Azure's unused capacity at deeply discounted rates.
+*   *Interruptible Workloads*: Ideal for fault-tolerant applications, flexible jobs, and development/testing environments that can handle potential interruptions.
+*   *Capacity Management*: Azure infrastructure manages the eviction process when capacity is needed elsewhere. When a VM is no longer available, it goes into a `Deallocated` provisioning state.
+
+== Azure Spot Instances in Azure Red Hat OpenShift (ARO)
+
+Integrating Azure Spot Virtual Machines into an ARO cluster requires careful consideration to maintain the stability and reliability of your OpenShift environment.
+
+=== ARO Specific Considerations
+
+*   *Control Plane Restriction*: Azure Spot VMs *cannot* be used for ARO control plane nodes. The context explicitly states, "An ARO cluster can't have any spot VM-based control nodes." The control plane must always run on standard, non-Spot VMs to ensure the stability and availability of the OpenShift cluster.
+*   *Worker Node Requirement*: An ARO cluster *should always have at least three worker nodes that are non-Spot VMs*. This ensures a baseline of reliable compute capacity for core cluster operations and critical workloads. Spot VMs are used for additional, interruptible worker capacity.
+*   *MachineSets*: In ARO, machine management, including the configuration of Spot VMs, is accomplished using xref:https://docs.openshift.com/container-platform/latest/machine_management/applying-autoscaling-to-machinesets.html[MachineSet] resources. MachineSets function similarly to ReplicaSets for pods, allowing you to define and manage groups of machines. As per the context, "The use of Spot VMs is specified by adding the `spotVMOptions` field within the template spec of a MachineSet." This field is added within the `spec.template.spec.providerSpec.value` section of a MachineSet.
+*   *Eviction Handling*: When an Azure Spot VM is evicted, it transitions to a `Deallocated` provisioning state. OpenShift's MachineSet controller will typically attempt to replace the evicted machine based on the `replicas` defined in the MachineSet, but this is an interruptible event that needs to be planned for.
+*   *Taints for Spot Nodes*: To ensure that interruptible workloads are scheduled on Spot VMs and critical workloads are not, Spot VM-based worker nodes are typically configured with taints. The context provides an example:
++
+----
+taints:
+  - effect: NoExecute
+    key: spot
+    value: 'true'
+----
+This `spot:NoExecute` taint prevents pods without a matching toleration from being scheduled on that node, effectively "scheduling interruptible workloads."
+
+[IMPORTANT]
+====
+Always ensure you have at least three non-Spot worker nodes and three control plane nodes in your ARO cluster. Spot VMs should only be used for additional worker capacity for workloads that can tolerate interruptions.
+====
+
+=== Quota Considerations
+
+When planning to use Spot Instances, it's important to adjust your Azure subscription quotas. The context advises, "it's recommended to set quota for the machine type you'll be using for Spot instances to be slightly higher than should be needed (maybe by 2*n, where n is the number of cores used by a machine)." This overhead helps prevent provisioning failures when Spot VMs are being created, especially if replacements are needed due to evictions, which can lead to multiple machines being in creation/deletion states concurrently.
+
+== Hands-on Lab: Configuring Azure Spot Instances for ARO
+
+In this lab, you will configure your Azure Red Hat OpenShift cluster to utilize Azure Spot Virtual Machines by creating a new MachineSet. This will allow you to add cost-effective, interruptible worker capacity to your cluster.
+
+=== Prerequisites
+
+*   An existing Azure Red Hat OpenShift (ARO) cluster.
+*   `oc` CLI and `az` CLI installed and configured to connect to your ARO cluster and Azure subscription.
+*   Sufficient quota in your Azure subscription for the VM size you plan to use for Spot instances, as discussed in the "Quota Considerations" section.
+
+=== Activity Steps
+
+Perform the following steps to create a MachineSet for Azure Spot Virtual Machines in your ARO cluster:
+
+. Connect to your OpenShift cluster using the `oc` CLI.
++
+----
+oc login --token=<your_token> --server=<your_api_server>
+----
+
+. List the existing MachineSets in your cluster. By default, an ARO cluster will have three MachineSets deployed for its worker nodes.
++
+----
+oc get machinesets -n openshift-machine-api
+----
++
+You will see an output similar to this:
++
+----
+NAME                                       DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-5t2dj-worker-eastus3           1         1         1       1           3d1h
+aro-cluster-abcde-worker-westus2           1         1         1       1           3d1h
+aro-cluster-fghef-worker-southcentralus    1         1         1       1           3d1h
+----
++
+[NOTE]
+====
+The names of your MachineSets will vary based on your cluster name and region.
+====
+
+. Describe one of the existing worker MachineSets and output its configuration to a YAML file. This will serve as a template for your new Spot MachineSet. Replace `<machineset-name>` with one of the names from the previous step.
++
+----
+oc get machineset aro-cluster-5t2dj-worker-eastus3 -n openshift-machine-api -o yaml > spot-machineset-template.yaml
+----
+
+. Open the `spot-machineset-template.yaml` file in a text editor and make the following critical changes, as outlined in the context:
+
+**a.** Change the `metadata.name` field to a new, unique name for your Spot MachineSet (e.g., `aro-cluster-5t2dj-spot-worker`).
++
+----
+# ...
+metadata:
+  name: aro-cluster-5t2dj-spot-worker # <1>
+# ...
+----
+<1> A new, unique name for your Spot MachineSet.
+
+**b.** Update the `spec.selector.matchLabels.machine.openshift.io/cluster-api-machineset` field to match your new `metadata.name`.
++
+----
+# ...
+spec:
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: aro-cluster-5t2dj
+      machine.openshift.io/cluster-api-machineset: aro-cluster-5t2dj-spot-worker # <1>
+# ...
+----
+<1> Must match the new `metadata.name` of this MachineSet.
+
+**c.** Update the `spec.template.metadata.labels.machine.openshift.io/cluster-api-machineset` field to also match your new `metadata.name`.
++
+----
+# ...
+spec:
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: aro-cluster-5t2dj
+        machine.openshift.io/cluster-api-machineset: aro-cluster-5t2dj-spot-worker # <1>
+# ...
+----
+<1> Must match the new `metadata.name` of this MachineSet.
+
+**d.** *Add* the `spotVMOptions: {}` field within `spec.template.spec.providerSpec.value`. This is the crucial configuration that designates the machines created by this MachineSet as Azure Spot Virtual Machines. Ensure it's placed correctly under `providerSpec.value`.
++
+----
+# ...
+spec:
+  template:
+    spec:
+      providerSpec:
+        value:
+          # ... other provider-specific settings ...
+          spotVMOptions: {} # <1>
+          # ...
+----
+<1> This line tells Azure to provision Spot Virtual Machines.
+
+**e.** (Optional but Recommended) You might want to remove the `spec.replicas` field, or set it to `0` initially, and then scale it up after creation. For this lab, let's set `spec.replicas` to `1` to immediately provision one Spot VM.
++
+----
+# ...
+spec:
+  replicas: 1 # <1>
+# ...
+----
+<1> Set the desired number of Spot worker nodes.
+
+**f.** (Optional) Add taints to your Spot MachineSet template to ensure that only tolerating workloads are scheduled on these nodes. Add the following under `spec.template.spec`:
++
+----
+# ...
+spec:
+  template:
+    spec:
+      taints:
+        - effect: NoExecute
+          key: spot
+          value: 'true'
+      # ... other spec settings ...
+# ...
+----
+
+. Save the modified YAML file (e.g., `spot-machineset.yaml`).
+
+. Deploy the new Spot MachineSet to your cluster.
++
+----
+oc apply -f spot-machineset.yaml -n openshift-machine-api
+----
+
+. Verify that your new Spot MachineSet has been created and is provisioning a Spot VM.
++
+----
+oc get machinesets -n openshift-machine-api
+----
++
+You should see your new `spot-worker` MachineSet, and after a few minutes, you should see a `READY` worker node associated with it.
++
+----
+NAME                                       DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-5t2dj-worker-eastus3           1         1         1       1           3d1h
+aro-cluster-abcde-worker-westus2           1         1         1       1           3d1h
+aro-cluster-fghef-worker-southcentralus    1         1         1       1           3d1h
+aro-cluster-5t2dj-spot-worker              1         1         1       1           2m47s <1>
+----
+<1> Your newly created Spot MachineSet and its associated node.
+
+. (Optional) Verify that the Spot node has the `spot` taint applied:
++
+----
+oc get nodes -l machine.openshift.io/cluster-api-machineset=aro-cluster-5t2dj-spot-worker -o jsonpath='{.items[*].spec.taints}'
+----
++
+You should see output similar to:
++
+----
+[{"effect":"NoExecute","key":"spot","value":"true"}]
+----
+
+[NOTE]
+====
+This lab demonstrates the creation of a MachineSet for Azure Spot VMs. In a production environment, you would typically configure a separate MachineSet for your critical workloads that require guaranteed capacity, and use Spot MachineSets for workloads that can tolerate interruptions. You would then use node selectors and tolerations to ensure pods are scheduled appropriately.
+====
+
+=== Lab Clean-up (Optional)
+
+To remove the Spot MachineSet and the associated Spot VM:
+
+. Delete the Spot MachineSet:
++
+----
+oc delete machineset aro-cluster-5t2dj-spot-worker -n openshift-machine-api
+----
+
+. Verify that the MachineSet and its associated machines are being terminated:
++
+----
+oc get machinesets -n openshift-machine-api
+oc get machines -n openshift-machine-api
+----
++
+The Spot MachineSet and its machines should disappear after a few moments.

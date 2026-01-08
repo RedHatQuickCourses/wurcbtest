@@ -1,0 +1,505 @@
+#  Externalizing application configurations
+
+= Externalizing Application Configurations in Azure Red Hat OpenShift
+
+In modern cloud-native application development, it's a best practice to separate application code from its configuration. This principle, often referred to as the "12-Factor App" methodology, ensures that applications are more portable, scalable, and easier to manage across different environments (development, staging, production). Externalizing application configurations allows you to change how an application behaves without needing to rebuild its image or redeploy the code.
+
+== Why Externalize Configurations?
+
+Externalizing configurations offers several significant benefits:
+
+*   **Portability:** Applications can run identically in various environments, with only the configuration changing.
+*   **Maintainability:** Configuration changes don't require code changes, simplifying updates and reducing the risk of introducing bugs.
+*   **Security:** Sensitive information (like database passwords or API keys) can be managed separately and securely, often without embedding them directly into application code or container images.
+*   **Scalability:** Different instances of an application can share the same code but be configured differently (e.g., connecting to different databases).
+*   **CI/CD Integration:** Streamlines continuous integration and continuous deployment pipelines by allowing configuration to be injected at deployment time.
+*   **Environment-Specific Settings:** Easily manage variations in settings between development, test, and production environments (e.g., log levels, API endpoints).
+
+In Azure Red Hat OpenShift (ARO), which is built on Kubernetes, the primary mechanisms for externalizing application configurations are **ConfigMaps** and **Secrets**.
+
+== Core Mechanisms for Configuration Management
+
+=== ConfigMaps
+
+A ConfigMap is an API object used to store non-confidential data in key-value pairs. Applications can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. ConfigMaps are ideal for storing configuration data that doesn't contain sensitive information, such as application settings, URLs, or feature flags.
+
+==== Technical Explanation
+
+ConfigMaps provide a way to inject configuration data into pods. They are not designed for sensitive data, but rather for general configuration.
+
+*   **Key-Value Pairs:** A ConfigMap stores data in `key: value` format. The values can be short strings or entire file contents.
+*   **Data Types:** While typically text, ConfigMaps can store any type of string data.
+*   **Consumption Methods:**
+    *   **Environment Variables:** Individual keys from a ConfigMap can be injected as environment variables into a container.
+    *   **Volume Mounts:** The entire ConfigMap can be mounted as a volume, with each key-value pair represented as a file within the mounted directory. This is particularly useful for configuration files (e.g., `application.properties`, `nginx.conf`).
+    *   **Command-Line Arguments:** Values can be passed as command-line arguments to the container's entrypoint.
+*   **Immutability (Optional):** ConfigMaps can be marked as immutable, preventing accidental or malicious updates. This improves stability and performance.
+
+==== Example: Creating and Using a ConfigMap
+
+Let's say you have a simple web application that needs to display a welcome message and an API URL.
+
+.Create a ConfigMap
+First, define a ConfigMap in a YAML file (e.g., `my-app-config.yaml`):
+
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+data:
+  APP_WELCOME_MESSAGE: "Welcome to ARO Applications!"
+  API_URL: "https://api.example.com/v1"
+  config.properties: |
+    # This is a sample properties file
+    app.name=MyWebApp
+    app.version=1.0.0
+    db.connection.timeout=30s
+----
+
+Apply the ConfigMap to your OpenShift cluster:
+
+[source,bash]
+----
+oc apply -f my-app-config.yaml
+----
+
+.Deploy an application consuming the ConfigMap
+Now, deploy an application that consumes these configurations. We'll show how to use both environment variables and a mounted file.
+
+[source,yaml]
+----
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        image: quay.io/centos7/httpd-24-centos7:latest # Using a simple HTTPD image for demonstration
+        ports:
+        - containerPort: 8080
+        env:
+        - name: WELCOME_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: my-app-config
+              key: APP_WELCOME_MESSAGE
+        - name: API_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: my-app-config
+              key: API_URL
+        volumeMounts:
+        - name: config-volume
+          mountPath: "/etc/config/"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: my-app-config
+          items:
+          - key: config.properties
+            path: config.properties
+----
+
+Apply the DeploymentConfig:
+
+[source,bash]
+----
+oc apply -f my-app-deployment.yaml
+----
+
+In this example:
+*   `WELCOME_MESSAGE` and `API_ENDPOINT` environment variables will be set with values from `my-app-config`.
+*   The `config.properties` file will be mounted inside the container at `/etc/config/config.properties`.
+
+[NOTE]
+For a real application, you would replace `quay.io/centos7/httpd-24-centos7:latest` with your actual application image and adjust the application's code to read these environment variables or configuration files. For HTTPD, you might need to use a custom image with a script that processes these values into HTTPD's configuration.
+
+=== Secrets
+
+Secrets are similar to ConfigMaps but are specifically designed to hold sensitive information, such as passwords, OAuth tokens, and SSH keys. OpenShift (Kubernetes) Secrets ensure that sensitive data is not exposed in the application's container image or directly in plain text in Pod definitions.
+
+==== Technical Explanation
+
+Secrets are fundamental for securing application credentials.
+
+*   **Base64 Encoding:** The values stored in Secrets are base64 encoded. This is *not* encryption but rather an encoding mechanism to ensure data can be stored safely within YAML and transported correctly. For true encryption at rest, OpenShift/Kubernetes leverages underlying Azure disk encryption and can be further enhanced with solutions like Azure Key Vault integration.
+*   **Consumption Methods:** Similar to ConfigMaps, Secrets can be consumed as:
+    *   **Environment Variables:** Individual keys from a Secret can be injected as environment variables.
+    *   **Volume Mounts:** The entire Secret can be mounted as a volume, with each key-value pair represented as a file. This is common for certificates or key files.
+*   **Security Considerations:**
+    *   Secrets are stored in `etcd` (the Kubernetes backing store). On ARO, `etcd` is managed by Microsoft and Red Hat.
+    *   Access to Secrets is controlled by Kubernetes RBAC.
+    *   When consumed as environment variables, they are visible to anyone with access to the container's environment (e.g., `oc exec <pod-name> -- env`).
+    *   When mounted as files, they reside on the container's filesystem.
+    *   For enhanced security, consider integrating with external secret management solutions like Azure Key Vault or HashiCorp Vault, which is discussed in a later section.
+
+==== Example: Creating and Using a Secret
+
+Let's imagine our application needs a database password.
+
+.Create a Secret
+First, define your sensitive data. It's often best practice to create secrets from files or using the `oc create secret` command, which handles base64 encoding for you.
+
+[source,bash]
+----
+# Create a dummy password file
+echo -n 'mySuperSecurePassword123' > db-password.txt
+
+# Create the secret from the file
+oc create secret generic my-db-secret --from-file=password=db-password.txt
+----
+
+Alternatively, you can define it in YAML, but you must base64 encode the value yourself:
+
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-db-secret
+type: Opaque # Or kubernetes.io/basic-auth, etc. for specific types
+data:
+  username: bXlVc2Vy # base64 encoded 'myUser'
+  password: bXlTdXBlclNlY3VyZVBhc3N3b3JkMTIz # base64 encoded 'mySuperSecurePassword123'
+----
+
+[TIP]
+You can encode a string using `echo -n 'your_string' | base64`.
+
+.Deploy an application consuming the Secret
+Now, deploy an application that consumes this Secret.
+
+[source,yaml]
+----
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: my-app-db
+spec:
+  replicas: 1
+  selector:
+    app: my-app-db
+  template:
+    metadata:
+      labels:
+        app: my-app-db
+    spec:
+      containers:
+      - name: my-app-db-container
+        image: registry.access.redhat.com/ubi8/nginx-120:1-120 # Using a simple Nginx image for demonstration
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: my-db-secret
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: my-db-secret
+              key: password
+        volumeMounts:
+        - name: tls-cert
+          mountPath: "/etc/tls"
+          readOnly: true
+      volumes:
+      - name: tls-cert
+        secret:
+          secretName: my-tls-secret # Assuming you have a TLS secret with 'tls.crt' and 'tls.key'
+          items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+----
+
+Apply the DeploymentConfig:
+
+[source,bash]
+----
+oc apply -f my-app-db-deployment.yaml
+----
+
+In this example:
+*   `DB_USERNAME` and `DB_PASSWORD` environment variables will be set with values from `my-db-secret`.
+*   A theoretical `my-tls-secret` is mounted as files (`tls.crt`, `tls.key`) for HTTPS configuration.
+
+=== Environment Variables Directly
+
+For very simple, non-sensitive, and static configurations, you can directly define environment variables within the container definition in your Pod or Deployment. While this works, it's generally less flexible than ConfigMaps, especially for managing changes or sharing configurations across multiple pods.
+
+==== Example: Direct Environment Variables
+
+[source,yaml]
+----
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: simple-app
+spec:
+  replicas: 1
+  selector:
+    app: simple-app
+  template:
+    metadata:
+      labels:
+        app: simple-app
+    spec:
+      containers:
+      - name: simple-app-container
+        image: registry.access.redhat.com/ubi8/nginx-120:1-120
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_COLOR
+          value: "blue"
+        - name: LOG_LEVEL
+          value: "INFO"
+----
+
+This is suitable for immutable settings that are tightly coupled with the application's deployment.
+
+== Hands-on Activity: Externalizing Application Configuration
+
+In this lab, you will deploy a simple web application that displays configurable messages. You will use a ConfigMap to externalize a public message and a Secret to externalize a sensitive API key.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift cluster.
+*   The `oc` CLI configured and logged in to your ARO cluster.
+*   A basic understanding of `oc` commands.
+
+=== Lab Steps
+
+.Step 1: Create a New Project
+First, create a new OpenShift project to isolate your lab resources.
+
+[source,bash]
+----
+oc new-project external-config-lab
+----
+
+.Step 2: Create a ConfigMap for Non-Sensitive Data
+We'll create a ConfigMap to store a welcome message and a frontend color for our application.
+
+. Create a file named `my-app-config.yaml`:
++
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  WELCOME_MESSAGE: "Hello from ARO! Configuration is Externalized!"
+  FRONTEND_COLOR: "lightskyblue"
+----
+. Apply the ConfigMap:
++
+[source,bash]
+----
+oc apply -f my-app-config.yaml
+----
+. Verify the ConfigMap was created:
++
+[source,bash]
+----
+oc get configmap frontend-config -o yaml
+----
+
+.Step 3: Create a Secret for Sensitive Data
+Next, we'll create a Secret for a hypothetical API key. Remember, Secret data must be base64 encoded.
+
+. Create a file named `my-app-secret.yaml`:
++
+[source,yaml]
+----
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secret
+type: Opaque
+data:
+  API_KEY: c3VwZXJTZWNyZXRBUElLZXk0NTY3ODk= # This is base64 for 'superSecretAPIKey456789'
+----
++
+[TIP]
+To generate the base64 encoded string, you can use: `echo -n 'superSecretAPIKey456789' | base64`
+. Apply the Secret:
++
+[source,bash]
+----
+oc apply -f my-app-secret.yaml
+----
+. Verify the Secret was created (note that `data` fields are still base64 encoded by default):
++
+[source,bash]
+----
+oc get secret backend-secret -o yaml
+----
++
+[WARNING]
+Do *not* use `-o yaml` for secrets in production if you are concerned about exposing base64 encoded values. For this lab, it's acceptable.
+
+.Step 4: Deploy an Application Consuming the ConfigMap and Secret
+We'll use a simple Nginx image and a custom entrypoint script to demonstrate reading these configurations.
+
+. Create a file named `my-app-deployment.yaml`:
++
+[source,yaml]
+----
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: my-demo-app
+  labels:
+    app: my-demo-app
+spec:
+  replicas: 1
+  selector:
+    app: my-demo-app
+  template:
+    metadata:
+      labels:
+        app: my-demo-app
+    spec:
+      containers:
+      - name: app-container
+        image: registry.access.redhat.com/ubi8/nginx-120:1-120
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: GREETING_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: WELCOME_MESSAGE
+        - name: APP_BG_COLOR
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-config
+              key: FRONTEND_COLOR
+        - name: MY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secret
+              key: API_KEY
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "<html>
+          <head><title>ARO Demo App</title></head>
+          <body style='background-color: ${APP_BG_COLOR};'>
+          <h1>${GREETING_MESSAGE}</h1>
+          <p>Your API Key (for demonstration): ${MY_API_KEY}</p>
+          <p>This configuration is externalized!</p>
+          </body>
+          </html>" > /usr/share/nginx/html/index.html
+          nginx -g "daemon off;"
+----
+. Apply the DeploymentConfig:
++
+[source,bash]
+----
+oc apply -f my-app-deployment.yaml
+----
+. Wait for the pod to be ready:
++
+[source,bash]
+----
+oc get pods -w -l app=my-demo-app
+----
++
+Wait until the pod shows `Running` status.
+
+.Step 5: Expose the Application
+Create a route to access your application from a web browser.
+
+[source,bash]
+----
+oc expose service my-demo-app --port=8080
+----
+
+. Get the URL for the application:
++
+[source,bash]
+----
+oc get route my-demo-app -o jsonpath='{.spec.host}'
+----
++
+Copy the URL (e.g., `my-demo-app-external-config-lab.apps.your-aro-domain.com`).
+
+.Step 6: Verify Externalized Configuration
+Open your web browser and navigate to the URL obtained in the previous step.
+
+You should see a page with:
+*   The welcome message: "Hello from ARO! Configuration is Externalized!"
+*   A light skyblue background color.
+*   Your API key: "superSecretAPIKey456789".
+
+This confirms that your application successfully read the values from the ConfigMap and the Secret.
+
+.Step 7: Update Configuration and Observe Changes
+Let's update the welcome message in the ConfigMap.
+
+. Edit `my-app-config.yaml` to change the `WELCOME_MESSAGE`:
++
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+data:
+  WELCOME_MESSAGE: "Updated message from ARO! Configuration changed!"
+  FRONTEND_COLOR: "lightskyblue"
+----
+. Apply the updated ConfigMap:
++
+[source,bash]
+----
+oc apply -f my-app-config.yaml
+----
+. Restart the application pod to pick up the new ConfigMap values (ConfigMaps and Secrets mounted as environment variables generally require a pod restart or recreation to take effect. If mounted as files, changes are often reflected, but not always immediately, and some applications might need a reload).
++
+[source,bash]
+----
+oc rollout latest my-demo-app
+----
+. Wait for the new pod to be ready and refresh your browser.
++
+You should now see the updated welcome message.
+
+.Step 8: Clean Up
+Delete the project and all its resources.
+
+[source,bash]
+----
+oc delete project external-config-lab
+----
++
+Confirm deletion if prompted.
+
+=== Troubleshooting and Best Practices
+
+*   **ConfigMap/Secret Immutability:** For critical configurations, consider marking ConfigMaps and Secrets as immutable to prevent accidental changes (`immutable: true` in metadata).
+*   **Rolling Updates:** When a ConfigMap or Secret used as an environment variable is updated, pods typically need to be restarted or redeployed for the changes to take effect. If mounted as files, changes may propagate, but application reload logic might still be required.
+*   **Secret Management:** For highly sensitive or numerous secrets, consider integrating ARO with external secret management solutions like Azure Key Vault via the Azure Key Vault Provider for Secrets Store CSI Driver or community operators like External Secrets Operator. This prevents secrets from residing directly in `etcd` in decrypted form (even base64-encoded secrets are easily decodable).
+*   **Structured Configuration:** For complex applications, organize configurations logically. You might use multiple ConfigMaps or Secrets (e.g., `app-frontend-config`, `app-backend-config`, `db-secrets`).
+*   **Templates:** Use templating tools like Helm or Kustomize to manage and deploy configurations consistently across environments.
+*   **Security Context:** Always ensure your pods run with the least necessary privileges when accessing secrets.
+*   **Audit Logging:** OpenShift and Azure provide extensive audit logging. Monitor access to ConfigMaps and Secrets, especially those containing sensitive information.

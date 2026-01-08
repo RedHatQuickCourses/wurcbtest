@@ -1,0 +1,100 @@
+#  Using the internal OpenShift registry
+
+= Using the Internal OpenShift Registry
+
+The internal OpenShift Container Platform registry is a built-in image registry that runs directly within your OpenShift cluster. It provides a convenient and secure location for storing and managing container images that are used by applications deployed on the cluster. This registry is an integral part of OpenShift's image management lifecycle, allowing for seamless integration with CI/CD pipelines, image streams, and application deployments.
+
+The internal registry is particularly useful for:
+
+*   **Accelerated Development Cycles:** Developers can push custom application images directly to the internal registry without needing an external image repository.
+*   **Security and Compliance:** Images stored internally remain within the cluster's security perimeter, simplifying compliance requirements.
+*   **Air-gapped Environments:** In environments with limited or no external network access, the internal registry provides a self-contained solution for image management.
+*   **Integration with OpenShift Features:** It integrates natively with OpenShift's Image Streams, enabling automatic deployment updates when new images are pushed.
+
+[[accessing-internal-registry]]
+== Accessing the Internal OpenShift Registry
+
+You can interact with the internal registry from both inside and outside the OpenShift cluster, depending on your workflow requirements.
+
+=== Access from Inside the Cluster
+
+When applications, CI/CD platforms (like Jenkins or OpenShift Pipelines), or other Pods running within the OpenShift cluster need to access the internal registry, they can do so directly via its ClusterIP service. This method provides secure and high-speed access without exposing the registry to external networks.
+
+The fully qualified domain name (FQDN) for internal access is `image-registry.openshift-image-registry.svc.cluster.local:5000`. This address is resolvable by all Pods within the cluster.
+
+=== Access from Outside the Cluster
+
+For workflows that require accessing the internal registry from outside the cluster (e.g., pushing images from a developer's laptop, an external CI/CD platform, or a different Kubernetes/OpenShift cluster), you need to expose the registry externally. This is typically done by creating an OpenShift `Route` resource.
+
+**Prerequisites:**
+
+*   You must have `kubeadmin` credentials or equivalent administrative permissions to modify cluster-wide configurations.
+*   Configuring Microsoft Entra authentication for your cluster is recommended as it simplifies external interaction with the internal registry.
+
+[[exposing-registry-external]]
+=== Hands-on Activity: Exposing the Internal Registry Externally
+
+This activity will guide you through exposing the internal OpenShift registry using an OpenShift Route and then authorizing an identity for external access.
+
+.Steps to Expose the Built-in Registry Externally:
+
+. **Expose the registry via a Route:**
+    As the `kubeadmin` user, execute the following commands to configure a default route for the internal registry. This makes the registry accessible via a public URL.
+
+    [source,bash]
+    ----
+    oc patch config.imageregistry.operator.openshift.io/cluster --patch='{"spec": {"defaultRoute":true}}' --type=merge
+    ----
+
+. **Disable redirect for the registry:**
+    After exposing the registry, it's often necessary to disable redirects to ensure external clients can connect correctly without encountering unexpected behavior.
+
+    [source,bash]
+    ----
+    oc patch config.imageregistry.operator.openshift.io/cluster --patch='[{"op": "add", "path": "/spec/disableRedirect", "value": true}]' --type=json
+    ----
+
+. **Find the registry's externally routable FQDN:**
+    Once the route is created, you can retrieve its external hostname, which clients outside the cluster will use to connect.
+
+    As `kubeadmin`, execute:
+
+    [source,bash]
+    ----
+    oc get route -n openshift-image-registry default-route --template='{{ .spec.host }}'
+    ----
+    The output will be the FQDN (e.g., `default-route-openshift-image-registry.apps.your-cluster-domain.com`). This is the address you will use to push and pull images from outside the cluster.
+
+[NOTE]
+For cluster users and Microsoft Entra users, this external FQDN will be the same name you use to authenticate into the cluster. For OpenShift `ServiceAccounts`, format the name as `system:serviceaccount:<project>:<name>`.
+
+[[authorize-identity]]
+=== Hands-on Activity: Authorize an Identity to Access the Registry
+
+Regardless of whether you are accessing the registry from inside or outside the cluster, any identity (a cluster user, Microsoft Entra user, or ServiceAccount) must be granted explicit permissions to interact with the internal registry.
+
+.Steps to Authorize an Identity:
+
+. **Grant `registry-viewer` role:**
+    This role allows an identity to pull (read) images from the internal registry. Replace `<user>` with the actual username, ServiceAccount name, or Entra ID user principal name you wish to authorize.
+
+    As `kubeadmin`, execute:
+
+    [source,bash]
+    ----
+    # Note: replace "<user>" with the identity you need to access the registry
+    oc policy add-role-to-user -n openshift-image-registry registry-viewer <user>
+    ----
+
+. **Grant `registry-editor` role:**
+    This role allows an identity to push (write) images to the internal registry, in addition to pulling them. It implies `registry-viewer` permissions.
+
+    As `kubeadmin`, execute:
+
+    [source,bash]
+    ----
+    # Note: replace "<user>" with the identity you need to access the registry
+    oc policy add-role-to-user -n openshift-image-registry registry-editor <user>
+    ----
+
+After completing these steps, the specified identity will have the necessary permissions to either pull or push images to the internal OpenShift registry, depending on the roles granted.

@@ -1,0 +1,14 @@
+#  Network Security Policies
+
+Network Security Policies in Azure Red Hat OpenShift (ARO) control network traffic flow within the cluster.
+
+*   **Ingress Network Policies**::
+    *   Supported by OpenShift SDN, enabled by default, and enforced by users.
+    *   V1 NetworkPolicy compliant, offering granular control down to the pod level using `NetworkPolicy` objects.
+    *   Can include ingress control via IP allow lists using route annotations.
+    *   All cluster ingress traffic traverses the defined load balancer.
+*   **Egress Network Policies**::
+    *   Supported by the OpenShift egress firewall feature using `EgressNetworkPolicy` objects.
+    *   Used to prevent or limit outbound traffic from pods.
+    *   Limited to one policy per namespace/project and not supported on the `default` namespace.
+    *   Policies are evaluated in order (first to last).

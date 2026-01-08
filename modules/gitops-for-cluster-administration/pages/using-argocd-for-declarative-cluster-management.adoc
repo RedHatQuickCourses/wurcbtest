@@ -1,0 +1,306 @@
+#  Using ArgoCD for declarative cluster management
+
+= Using ArgoCD for Declarative Cluster Management
+
+This section explores GitOps principles and demonstrates how to leverage ArgoCD for declarative management of your Azure Red Hat OpenShift (ARO) clusters. You will learn how to automate application deployment, synchronization, and state management using Git as the single source of truth.
+
+== Understanding GitOps and ArgoCD
+
+GitOps is an operational framework that takes DevOps best practices used for application development, such as version control, collaboration, compliance, and CI/CD, and applies them to infrastructure automation. It fundamentally shifts the management of Kubernetes clusters and applications to a Git repository.
+
+In a GitOps workflow:
+
+*   **Declarative Infrastructure:** The desired state of your entire system (applications, configurations, infrastructure) is declared in Git.
+*   **Version Control:** Every change to the desired state is a Git commit, providing a complete audit trail, easy rollbacks, and collaboration.
+*   **Automation:** Automated tools continuously observe the desired state in Git and the actual state in the cluster, automatically applying any deviations to bring the cluster into alignment.
+
+**ArgoCD** is a declarative, GitOps continuous delivery tool for Kubernetes. It automates the deployment of desired application states specified in Git repositories to Kubernetes clusters. ArgoCD acts as a specialized controller that continuously monitors your Git repositories for changes to application manifests and synchronizes those changes to your OpenShift cluster.
+
+=== Why use ArgoCD with ARO?
+
+Integrating ArgoCD with Azure Red Hat OpenShift provides several benefits for cluster administrators and application developers:
+
+*   **Automated Deployments:** Eliminate manual `oc apply` commands. Deploy applications directly from Git to your ARO cluster automatically.
+*   **Version Control for Everything:** Infrastructure configurations, application manifests, and even OpenShift custom resources are all version-controlled in Git. This provides a clear history, easy rollbacks, and auditability.
+*   **Drift Detection and Correction:** ArgoCD continuously monitors the live state of your applications in the ARO cluster and compares it to the desired state in Git. If any drift is detected (e.g., a manual change was made to a resource on the cluster that deviates from Git), ArgoCD can automatically correct it or alert you.
+*   **Self-Service for Developers:** Developers can update application configurations simply by committing changes to Git, triggering automatic deployments without needing direct `oc` access to the cluster beyond what's defined in Git.
+*   **Disaster Recovery:** Rebuilding an ARO cluster and redeploying all applications becomes straightforward; simply point ArgoCD to your Git repositories, and it will restore the desired state.
+*   **Multi-Cluster Management:** While ArgoCD focuses on deploying to a single cluster, its design can extend to managing applications across multiple ARO clusters from a central Git repository.
+*   **Security and Compliance:** Enforce policies and security configurations consistently across environments by managing them through Git.
+
+=== Core Concepts of ArgoCD
+
+*   **Application:** An ArgoCD `Application` is a Kubernetes custom resource that defines the desired state of a set of Kubernetes resources (e.g., Deployments, Services, ConfigMaps) in a Git repository and specifies which cluster and namespace they should be deployed to.
+*   **Project:** ArgoCD Projects provide a logical grouping of applications, allowing you to enforce policies such as source repositories, destination clusters/namespaces, and resource types that applications within the project can manage.
+*   **Synchronization:** The process by which ArgoCD applies the desired state from Git to the cluster. This can be manual (triggered by a user) or automatic (ArgoCD periodically polls Git for changes and applies them).
+*   **Health:** ArgoCD tracks the health of deployed applications, providing insights into their operational status (e.g., `Healthy`, `Degraded`, `Missing`).
+*   **Sources:** Git repositories (using various protocols like HTTP, SSH), Helm charts, Kustomize configurations, and directory structures.
+*   **Destinations:** The Kubernetes cluster and namespace where the application should be deployed.
+
+=== ArgoCD Architecture (High-Level)
+
+ArgoCD typically consists of several components running inside your Kubernetes (OpenShift) cluster:
+
+*   **API Server:** Exposes the gRPC and REST APIs, allowing the ArgoCD UI and CLI to interact with it.
+*   **Controller:** Continuously monitors running applications, compares the current state with the desired state in Git, and performs sync operations.
+*   **Repo Server:** An internal service that caches Git repositories and renders Kubernetes manifests (e.g., from Kustomize or Helm).
+*   **Application Controller:** Manages the lifecycle of ArgoCD `Application` resources.
+*   **UI/CLI:** Provides user interfaces for interacting with ArgoCD.
+
+== Hands-on Activity: Declarative Cluster Management with ArgoCD
+
+In this hands-on lab, you will install the OpenShift GitOps Operator (which includes ArgoCD), configure a sample application, and observe how ArgoCD automates its deployment and management on your ARO cluster.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift (ARO) cluster.
+*   `oc` CLI installed and configured to connect to your ARO cluster.
+*   Admin access to the ARO cluster.
+*   A Git repository (e.g., GitHub, GitLab, Azure DevOps) to host your application manifests. For this lab, we'll assume a public GitHub repository.
+
+=== Step 1: Install the OpenShift GitOps Operator
+
+The OpenShift GitOps Operator simplifies the deployment and management of ArgoCD on OpenShift.
+
+. Log in to the OpenShift Web Console as a user with `cluster-admin` privileges.
+. Navigate to *Operators* -> *OperatorHub*.
+. Search for `OpenShift GitOps`.
+. Click on the `OpenShift GitOps` tile and then click *Install*.
+. On the *Install Operator* page:
+    *   Set *Installation mode* to `All namespaces on the cluster (default)`.
+    *   Set *Update channel* to the recommended stable channel (e.g., `stable`).
+    *   Set *Approval strategy* to `Automatic`.
+    *   Click *Install*.
+. Wait for the operator to install. You can monitor its status by navigating to *Operators* -> *Installed Operators* and checking the `openshift-gitops` project. The status should eventually show `Succeeded`.
+
+=== Step 2: Access the ArgoCD Web UI
+
+Once the OpenShift GitOps Operator is installed, ArgoCD components will be running in the `openshift-gitops` namespace.
+
+. Retrieve the ArgoCD route:
++
+[source,bash]
+----
+oc get route -n openshift-gitops argocd-server -o jsonpath='{.spec.host}'
+----
+. Copy the URL output. This is your ArgoCD Web UI address.
+. Retrieve the initial admin password for ArgoCD:
++
+[source,bash]
+----
+oc extract secret/argocd-cluster --keys=admin.password -n openshift-gitops --to=-
+----
++
+[WARNING]
+====
+For a production environment, you should configure proper authentication with an external identity provider (e.g., Azure AD) and rotate this initial password.
+====
+. Open the ArgoCD Web UI URL in your browser.
+. Log in using `admin` as the username and the password you retrieved.
+
+=== Step 3: Prepare a Sample Git Repository
+
+For this lab, we'll use a simple NGINX deployment manifest. You can fork this example repository or create your own.
+
+. **Option A: Use an existing public repository**
++
+We will use a simple NGINX example from a public repository. For instance: `https://github.com/argoproj/argocd-example-apps.git` and specifically the `guestbook` example directory.
++
+[source,yaml]
+----
+# guestbook-ui-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guestbook-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guestbook-ui
+  template:
+    metadata:
+      labels:
+        app: guestbook-ui
+    spec:
+      containers:
+      - name: guestbook-ui
+        image: gcr.io/google-samples/gb-frontend:v4
+        ports:
+        - containerPort: 80
+----
+
+. **Option B: Create your own Git repository**
+    .. Create a new public Git repository (e.g., `aro-argocd-demo`) on GitHub.
+    .. Inside this repository, create a directory, for example, `nginx-app`.
+    .. Inside `nginx-app`, create a file named `deployment.yaml` with the following content:
+    +
+    [source,yaml]
+    ----
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: my-nginx-app
+      labels:
+        app: my-nginx-app
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: my-nginx-app
+      template:
+        metadata:
+          labels:
+            app: my-nginx-app
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:1.21.0
+            ports:
+            - containerPort: 80
+            resources:
+              limits:
+                cpu: "100m"
+                memory: "128Mi"
+              requests:
+                cpu: "50m"
+                memory: "64Mi"
+    ----
+    .. Commit and push this file to your repository.
+
+=== Step 4: Create an ArgoCD Application
+
+Now, let's instruct ArgoCD to deploy our sample application from Git.
+
+. In the ArgoCD Web UI, click the `+ NEW APP` button.
+. Fill in the application details:
+    *   **Application Name:** `my-nginx-app` (or `guestbook` if using the example repo)
+    *   **Project:** `default` (or choose/create another if desired)
+    *   **Sync Policy:** `Automatic` (select `Prune Resources` and `Self Heal` for robust automation)
+. In the *Source* section:
+    *   **Repository URL:** Enter the URL of your Git repository (e.g., `https://github.com/YOUR_USERNAME/aro-argocd-demo.git` or `https://github.com/argoproj/argocd-example-apps.git`)
+    *   **Revision:** `HEAD` (or `master`/`main`)
+    *   **Path:** `nginx-app` (if you created a subdirectory, or `guestbook` for the example repo)
+. In the *Destination* section:
+    *   **Cluster:** `in-cluster` (refers to the cluster ArgoCD is running on, i.e., your ARO cluster)
+    *   **Namespace:** `nginx-test` (or `guestbook` for the example)
+. Click `CREATE`.
+
+ArgoCD will now fetch the manifests from your Git repository, detect that the resources are not present in the `nginx-test` namespace on your ARO cluster, and automatically synchronize them.
+
+. Observe the ArgoCD UI:
+    *   The `my-nginx-app` application will appear, initially showing `OutOfSync` and `Missing` status.
+    *   Within moments, it will transition to `Synchronizing`, and then `Synced` and `Healthy` as ArgoCD deploys the NGINX deployment and pod.
+. Verify the deployment on your ARO cluster using `oc`:
++
+[source,bash]
+----
+oc get deployment -n nginx-test
+oc get pods -n nginx-test
+----
++
+You should see your `my-nginx-app` deployment and a running NGINX pod.
+
+=== Step 5: Simulate a Configuration Change and Observe Synchronization
+
+This step demonstrates the power of GitOps: managing application changes through Git.
+
+. Modify your `deployment.yaml` file in your Git repository. For example, change the number of replicas from `1` to `3`:
++
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx-app
+  labels:
+    app: my-nginx-app
+spec:
+  replicas: 3 # <--- Change this value
+  selector:
+    matchLabels:
+      app: my-nginx-app
+  template:
+    metadata:
+      labels:
+        app: my-nginx-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21.0
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+----
+. Commit and push this change to your Git repository.
+. Go back to the ArgoCD Web UI.
+. After a short period (due to automatic sync policy), you will see the `my-nginx-app` application status change to `OutOfSync`. ArgoCD has detected the difference between the Git repository and the live cluster state.
+. ArgoCD will then automatically start `Synchronizing` and apply the change. You will see new NGINX pods being created.
+. Verify the change on your ARO cluster:
++
+[source,bash]
+----
+oc get deployment my-nginx-app -n nginx-test
+----
++
+The output should now show `3` replicas.
++
+[source,bash]
+----
+oc get pods -n nginx-test
+----
++
+You should see three NGINX pods running.
+
+=== Step 6: Simulate Manual Cluster Drift (and ArgoCD's Self-Healing)
+
+Now, let's see how ArgoCD handles unexpected changes made directly to the cluster, bypassing Git.
+
+. Manually scale down the NGINX deployment on your ARO cluster:
++
+[source,bash]
+----
+oc scale deployment my-nginx-app --replicas=1 -n nginx-test
+----
+. Observe the ArgoCD UI for `my-nginx-app`.
+    *   Initially, the application might still show `Synced`.
+    *   Soon, ArgoCD's controller will detect the drift (Git says 3 replicas, cluster says 1).
+    *   Because we configured the `Self Heal` sync option, ArgoCD will automatically resynchronize the application, scaling the deployment back up to 3 replicas as defined in Git.
+    *   The application status will briefly go `OutOfSync`, then `Synchronizing`, and finally `Synced` and `Healthy` again, with 3 pods running.
+. Verify on the cluster that the replicas have been restored to `3`:
++
+[source,bash]
+----
+oc get deployment my-nginx-app -n nginx-test
+----
+
+This demonstrates ArgoCD's powerful self-healing capability, ensuring your ARO cluster always reflects the desired state defined in Git.
+
+=== Step 7: Clean Up
+
+. In the ArgoCD Web UI, select the `my-nginx-app` application.
+. Click `DELETE` (top right corner) and confirm. This will remove the application definition from ArgoCD and also prune all associated resources from your ARO cluster.
+. Verify that the deployment and pods are gone from your ARO cluster:
++
+[source,bash]
+----
+oc get deployment -n nginx-test
+oc get pods -n nginx-test
+----
++
+You should see no resources found.
+. You can also delete the `nginx-test` namespace:
++
+[source,bash]
+----
+oc delete namespace nginx-test
+----
+. To uninstall the OpenShift GitOps Operator, navigate to *Operators* -> *Installed Operators* in the OpenShift Web Console, find the `OpenShift GitOps` operator in the `openshift-gitops` project, click the `...` menu, and select `Uninstall Operator`.
+
+This lab has provided a foundational understanding of GitOps with ArgoCD and its practical application on Azure Red Hat OpenShift, empowering you to automate and manage your cluster resources declaratively.

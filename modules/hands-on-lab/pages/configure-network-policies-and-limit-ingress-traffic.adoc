@@ -1,0 +1,270 @@
+#  Configure network policies and limit ingress traffic
+
+= Configure Network Policies and Limit Ingress Traffic
+:navtitle: Configure Network Policies
+
+Understanding and implementing robust network policies is crucial for securing applications and controlling traffic flow within your Azure Red Hat OpenShift (ARO) clusters. ARO leverages OpenShift's Software Defined Networking (SDN) capabilities, built upon OVN-Kubernetes, to provide granular control over network communication for pods, projects, and external access.
+
+== Overview of Network Policies in ARO
+
+In Azure Red Hat OpenShift, network policies are fundamental to controlling how applications communicate with each other and with external services. They allow administrators to define rules that govern inbound (ingress) and outbound (egress) traffic at the pod level, enhancing security and isolating workloads.
+
+The underlying network plugin for ARO is OVN-Kubernetes, which integrates seamlessly with Kubernetes `NetworkPolicy` objects. This allows for comprehensive control over network traffic down to individual pods, even within the same cluster or namespace.
+
+.`OpenShift SDN and NetworkPolicy Control`
+****
+OpenShift Software Defined Networking (SDN) configures an overlay network using Open vSwitch (OVS), an OpenFlow implementation based on Container Network Interface (CNI). This enables features like `NetworkPolicy` objects for defining ingress and egress rules. The `ovs-networkpolicy` plugin enforces these rules.
+****
+
+=== Ingress Network Policies
+
+Ingress network policies in ARO are supported as part of OpenShift SDN and are enabled by default. They are designed to control inbound connections to pods. You, as the cluster administrator or project administrator, are responsible for defining and enforcing these policies.
+
+*   **V1 NetworkPolicy Compliance**: OpenShift's ingress network policies are fully compliant with Kubernetes V1 `NetworkPolicy` specifications. This allows you to define standard rules based on pod selectors, namespace selectors, and IP blocks.
+*   **Granular Control**: You can apply policies that restrict traffic between pods on the same cluster, and even within the same namespace, providing fine-grained security.
+
+.`Ingress Policy Limitations`
+****
+While ingress network policies are V1 `NetworkPolicy` compliant, certain `Egress` and `IPBlock` types *within an ingress policy definition* might behave differently or have limitations compared to other Kubernetes environments. For managing outbound traffic, OpenShift provides dedicated `EgressNetworkPolicy` objects.
+****
+
+=== Egress Network Policies
+
+Beyond ingress control, ARO also provides mechanisms to manage outbound traffic from pods using `EgressNetworkPolicy` objects, which leverage OpenShift's egress firewall feature. Egress policies are critical for preventing data exfiltration or limiting application access to external resources.
+
+*   **Purpose**: These policies prevent or limit outbound traffic, allowing you to define which external destinations a pod or namespace can connect to.
+*   **Scope**: There is typically only one egress policy per namespace/project.
+*   **Evaluation Order**: Egress policies are evaluated in order (first to last).
+*   **Limitations**: Egress policies are *not supported* on the `default` namespace. Also, currently, all virtual machines within ARO must have outbound internet access, which is a consideration for the underlying infrastructure, not necessarily the pod-level egress policy itself.
+
+== Limiting Ingress Traffic
+
+Limiting ingress traffic to your applications in ARO involves using `NetworkPolicy` objects as the primary mechanism. Additionally, route annotations offer a way to control traffic at the OpenShift Route level for specific ingress points.
+
+=== Using NetworkPolicy Objects for Ingress Control
+
+The most robust way to limit ingress traffic to pods is by creating `NetworkPolicy` objects. These policies specify how a group of pods is allowed to communicate with other pod groups or network endpoints.
+
+By default, in OpenShift, if no `NetworkPolicy` is applied to a pod, it can accept traffic from all sources within the cluster. Applying a `NetworkPolicy` immediately isolates the pod, denying all traffic not explicitly permitted by the policy.
+
+The cluster ingress traffic always traverses the defined load balancer, which then forwards it to the OpenShift IngressController, and finally to your application pods via services. `NetworkPolicy` objects act *after* the IngressController routes the traffic to the target service/pod.
+
+=== Route Annotations for IP Allow Lists
+
+For ingress control at the OpenShift Route level, project administrators can add specific route annotations. One common use case is implementing an IP allow list, which restricts access to an application exposed via a route to only specific source IP addresses. This provides an additional layer of security before traffic even reaches the application pod.
+
+For example, an annotation like `haproxy.router.openshift.io/ip_whitelist: "192.168.1.0/24 10.0.0.1"` can be added to a route to allow traffic only from the specified IP ranges.
+
+=== Understanding the Ingress Path
+
+Recall that all cluster ingress traffic traverses the defined load balancer. ARO automatically sets up public cloud load balancers and configures the OpenShift Ingress cluster operator and the default `IngressController`. You can also add additional customer-managed `IngressControllers` and set the default `IngressController` as private. `NetworkPolicy` objects then provide granular control over this traffic once it enters the cluster network and targets your application pods.
+
+== Hands-on Activity: Configuring Network Policies to Limit Ingress Traffic
+
+In this lab, you will deploy a simple Nginx application, expose it via an OpenShift Route, and then create a `NetworkPolicy` to restrict ingress access to it.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI tool configured and logged into your cluster with administrative privileges.
+*   `kubectl` CLI tool installed.
+
+=== Step 1: Create a New Project and Deploy a Sample Application
+
+First, create a dedicated project for this lab and deploy a basic Nginx application.
+
+1.  **Create a new project**:
+    ```bash
+    oc new-project network-policy-lab
+    ```
+    This command switches your context to the new `network-policy-lab` project.
+
+2.  **Deploy the Nginx application**:
+    Create a `Deployment` and `Service` for Nginx.
+
+    [source,yaml]
+    ----
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: my-nginx
+      labels:
+        app: my-nginx
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: my-nginx
+      template:
+        metadata:
+          labels:
+            app: my-nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:latest
+            ports:
+            - containerPort: 80
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: my-nginx-service
+    spec:
+      selector:
+        app: my-nginx
+      ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 80
+    ----
+
+    Save this content as `nginx-app.yaml` and apply it:
+    ```bash
+    oc apply -f nginx-app.yaml
+    ```
+
+3.  **Expose the Nginx application using a Route**:
+    ```bash
+    oc expose service my-nginx-service
+    ```
+
+4.  **Verify the application and access it**:
+    Get the route URL:
+    ```bash
+    oc get route my-nginx-service -o jsonpath='{.spec.host}'
+    ```
+    Open the URL in your web browser. You should see the Nginx welcome page. Alternatively, use `curl`:
+    ```bash
+    curl $(oc get route my-nginx-service -o jsonpath='{.spec.host}')
+    ```
+    You should receive an HTML response from Nginx.
+
+=== Step 2: Create a Network Policy to Deny All Ingress
+
+Now, you will create a `NetworkPolicy` that isolates the `my-nginx` pod, denying all ingress traffic not explicitly allowed. Since this policy won't allow *any* traffic initially, it will effectively block access to Nginx.
+
+1.  **Define the NetworkPolicy**:
+    Create a file named `deny-all-ingress.yaml` with the following content:
+
+    [source,yaml]
+    ----
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: deny-all-ingress
+      namespace: network-policy-lab
+    spec:
+      podSelector:
+        matchLabels:
+          app: my-nginx
+      policyTypes:
+        - Ingress
+      ingress: [] # An empty ingress list denies all ingress traffic
+    ----
+
+    *   `podSelector`: This targets any pod with the label `app: my-nginx`.
+    *   `policyTypes: - Ingress`: Specifies that this policy applies to ingress traffic.
+    *   `ingress: []`: An empty list under `ingress` means "allow no ingress traffic". If this section was omitted, the `podSelector` alone would isolate the pod.
+
+2.  **Apply the NetworkPolicy**:
+    ```bash
+    oc apply -f deny-all-ingress.yaml
+    ```
+
+3.  **Verify access is denied**:
+    Try accessing the Nginx application again using the route URL or `curl`:
+    ```bash
+    curl $(oc get route my-nginx-service -o jsonpath='{.spec.host}')
+    ```
+    You should now see a connection timeout or a connection refused error, indicating that the `NetworkPolicy` is blocking traffic to the Nginx pod.
+
+=== Step 3: Modify Network Policy to Allow Specific Ingress (Optional)
+
+To demonstrate how to selectively allow ingress, let's create a second Nginx instance and configure the policy to allow traffic *only* from pods within the same namespace that have a specific label.
+
+1.  **Deploy a "client" Nginx application in the same namespace**:
+    This Nginx will act as a client trying to access `my-nginx`.
+    [source,yaml]
+    ----
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: my-client-nginx
+      labels:
+        app: client-nginx
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: client-nginx
+      template:
+        metadata:
+          labels:
+            app: client-nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:latest
+            ports:
+            - containerPort: 80
+    ----
+    Save as `client-nginx.yaml` and apply:
+    ```bash
+    oc apply -f client-nginx.yaml
+    ```
+
+2.  **Modify the `NetworkPolicy` to allow ingress from `client-nginx`**:
+    Edit `deny-all-ingress.yaml` to `allow-from-client.yaml` to permit traffic from pods with `app: client-nginx` label within the same namespace.
+
+    [source,yaml]
+    ----
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-from-client
+      namespace: network-policy-lab
+    spec:
+      podSelector:
+        matchLabels:
+          app: my-nginx
+      policyTypes:
+        - Ingress
+      ingress:
+        - from:
+          - podSelector:
+              matchLabels:
+                app: client-nginx
+    ----
+
+    *   This policy still isolates `my-nginx` but now explicitly allows ingress `from` any pod in the *same namespace* (`network-policy-lab`) that has the label `app: client-nginx`.
+
+3.  **Apply the modified NetworkPolicy**:
+    First, delete the old policy (or just apply the new one with a different name). Let's delete and re-create for clarity.
+    ```bash
+    oc delete networkpolicy deny-all-ingress
+    oc apply -f allow-from-client.yaml
+    ```
+
+4.  **Test connectivity from the client pod**:
+    Execute a `curl` command *from* the `my-client-nginx` pod to the `my-nginx-service`.
+    ```bash
+    CLIENT_POD=$(oc get pod -l app=client-nginx -o jsonpath='{.items[0].metadata.name}')
+    oc exec -it $CLIENT_POD -- curl my-nginx-service.network-policy-lab.svc.cluster.local
+    ```
+    You should now see the Nginx welcome page HTML response, confirming that the client pod can access `my-nginx-service` due to the `NetworkPolicy`.
+
+5.  **Verify external access is *still* denied**:
+    Try accessing `my-nginx` from your local machine via the Route URL again.
+    ```bash
+    curl $(oc get route my-nginx-service -o jsonpath='{.spec.host}')
+    ```
+    This external access should *still* be denied because the `NetworkPolicy` only allowed ingress from specific pods *within* the cluster, not from external sources via the Route.
+
+=== Cleanup
+
+When you are finished with this lab, clean up the resources:
+```bash
+oc delete project network-policy-lab
+```
+This command will delete the project and all resources within it, including deployments, services, routes, and network policies.

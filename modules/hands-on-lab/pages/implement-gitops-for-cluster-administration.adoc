@@ -1,0 +1,341 @@
+#  Implement GitOps for cluster administration
+
+// tag::gitops-module[]
+= Implement GitOps for Cluster Administration
+:navtitle: Implement GitOps
+:page-aliases: aro-gitops-implementation.adoc
+
+[.lead]
+Learn how to leverage GitOps principles with OpenShift GitOps (Argo CD) to manage your Azure Red Hat OpenShift (ARO) clusters and applications declaratively. This module covers the core concepts of GitOps, explains how Argo CD works, and provides a hands-on lab to deploy and manage an application using GitOps.
+
+== What is GitOps?
+
+GitOps is an operational framework that takes DevOps best practices used for application development, such as version control, collaboration, compliance, and CI/CD, and applies them to infrastructure automation and application deployment. It fundamentally shifts the way we manage infrastructure and applications by treating Git repositories as the single source of truth for the desired state of a system.
+
+[NOTE]
+GitOps isn't just about deploying applications; it's about managing your entire cluster's configuration, from infrastructure components to network policies and application deployments, all through Git.
+
+=== The Core Principles of GitOps
+
+GitOps is built upon four fundamental principles:
+
+*   **Declarative Configuration:** All desired states of the system (infrastructure, applications, and configurations) are expressed declaratively. This means defining *what* the system should look like, rather than *how* to achieve it. Kubernetes manifests, Helm charts, and Kustomize files are prime examples of declarative configurations.
+
+*   **Git as the Single Source of Truth:** The entire desired state of the system is stored in a Git repository. Any changes to the system must originate from a Git commit. This provides a robust audit trail, version history, and enables collaboration through standard Git workflows (e.g., pull requests, code reviews).
+
+*   **Automated Delivery:** Changes pushed to the Git repository are automatically detected and applied to the target environment (e.g., your ARO cluster). This eliminates manual configuration and reduces human error, enabling faster and more reliable deployments.
+
+*   **Continuous Reconciliation:** An agent (like Argo CD) running within the cluster continuously observes the actual state of the system and compares it with the desired state defined in Git. If any divergence is detected, the agent automatically takes corrective actions to bring the cluster back to its desired state. This ensures drift detection and self-healing capabilities.
+
+=== Why GitOps for Cluster Administration?
+
+Adopting GitOps for managing your ARO cluster brings numerous benefits:
+
+*   **Version Control and Auditability:** Every configuration change is a commit in Git, providing a complete, immutable history. You can easily see who made what change, when, and why, facilitating auditing and compliance.
+*   **Increased Reliability and Stability:** By enforcing a declarative approach, you reduce the chances of configuration drift and manual errors. The continuous reconciliation process ensures your cluster always matches the defined desired state.
+*   **Faster Disaster Recovery:** In case of a catastrophic failure, your entire cluster state (applications and infrastructure configurations) can be rebuilt rapidly by simply re-applying the configurations from your Git repository.
+*   **Enhanced Security:** Git-based workflows can enforce strict access controls and approval processes (e.g., mandatory pull request reviews) before changes are applied, limiting direct, unprivileged access to production clusters.
+*   **Improved Collaboration:** Teams can collaborate on infrastructure and application changes using familiar Git workflows, fostering transparency and reducing bottlenecks.
+*   **Single Source of Truth:** Git becomes the definitive place to find the current and historical state of your cluster, simplifying troubleshooting and understanding of the environment.
+
+== OpenShift GitOps (Argo CD)
+
+OpenShift GitOps is Red Hat's opinionated distribution of Argo CD, a powerful open-source declarative, GitOps continuous delivery tool for Kubernetes. It is the recommended solution for implementing GitOps workflows on Red Hat OpenShift, including Azure Red Hat OpenShift.
+
+=== How Argo CD Works
+
+Argo CD operates by continuously monitoring specified Git repositories for desired state definitions (Kubernetes manifests, Helm charts, Kustomize configurations) and comparing them with the actual state of resources in a target Kubernetes cluster.
+
+Key components of Argo CD and their roles:
+
+*   **API Server:** Exposes the Argo CD API, web user interface (UI), and CLI. It handles authentication and authorization.
+*   **Repository Server:** An internal service responsible for fetching, caching, and rendering Kubernetes manifests from various Git repositories (including Helm charts and Kustomize overlays).
+*   **Application Controller:** The core reconciliation engine. It continuously monitors running applications, compares their live state to the desired state defined in Git, and orchestrates `sync` operations to converge the actual state with the desired state.
+*   **Dex Server:** Provides identity management for Argo CD, integrating with external identity providers like OpenShift's OAuth for single sign-on.
+
+When you define an `Application` resource in Argo CD, you specify:
+
+*   The Git repository URL.
+*   The path within the repository where the Kubernetes manifests are located.
+*   The target cluster and namespace where the application should be deployed.
+*   Synchronization policies (e.g., automatic synchronization, pruning, self-healing).
+
+Argo CD then takes over, ensuring that the resources in your cluster always reflect what's defined in your Git repository.
+
+== Hands-on Lab: Implementing GitOps with Argo CD in ARO
+
+In this lab, you will configure OpenShift GitOps (Argo CD) to deploy and manage a simple NGINX application declaratively from a Git repository on your Azure Red Hat OpenShift cluster.
+
+=== Prerequisites
+
+Before you begin, ensure you have the following:
+
+*   An active Azure Red Hat OpenShift (ARO) cluster.
+*   The `oc` CLI configured and logged in to your ARO cluster with administrative privileges.
+*   Access to a Git repository (e.g., GitHub, GitLab, Azure DevOps Repos) where you can store Kubernetes manifest files. This can be a public or private repository. If private, you'd need to configure Git credentials in Argo CD (not covered in this basic lab).
+*   The OpenShift GitOps Operator installed on your cluster. This is typically installed by default in ARO 4.x clusters.
+
+=== Activity 1: Verify OpenShift GitOps Installation and Access the UI
+
+First, let's ensure that the OpenShift GitOps components are running correctly in your cluster and locate the Argo CD web UI.
+
+1.  **Check for the OpenShift GitOps Operator:**
+    Confirm that the OpenShift GitOps Operator is installed and healthy in the `openshift-gitops` namespace.
+    +
+    [,bash]
+    ----
+    oc get csv -n openshift-gitops | grep openshift-gitops-operator
+    ----
+    +
+    You should see output similar to the following, indicating the operator is `Succeeded`:
+    +
+    [,text]
+    ----
+    openshift-gitops-operator.vX.Y.Z   OpenShift GitOps Operator   X.Y.Z   Succeeded
+    ----
+
+2.  **Verify Argo CD Pods:**
+    Check that the core Argo CD pods are running in the `openshift-gitops` namespace.
+    +
+    [,bash]
+    ----
+    oc get pods -n openshift-gitops -l app.kubernetes.io/name=argocd-application-controller
+    oc get pods -n openshift-gitops -l app.kubernetes.io/name=argocd-server
+    oc get pods -n openshift-gitops -l app.kubernetes.io/name=argocd-repo-server
+    ----
+    +
+    You should see these pods in a `Running` state.
+
+3.  **Access the Argo CD Web UI:**
+    Obtain the route to the Argo CD web UI.
+    +
+    [,bash]
+    ----
+    oc get route -n openshift-gitops argocd-server -o jsonpath='{.spec.host}'
+    ----
+    +
+    Copy the `HOST/PORT` from the output and paste it into your web browser. You can typically log in using your OpenShift credentials via the "LOGIN WITH OPENSHIFT" button (provided by Dex).
+
+=== Activity 2: Prepare Your Git Repository
+
+We will use a simple NGINX deployment and service for this lab. You'll create a new Git repository and add these manifest files.
+
+1.  **Create a new Git repository:**
+    *   Go to your preferred Git hosting service (e.g., GitHub, GitLab, Azure DevOps Repos).
+    *   Create a *new public or private repository*. Let's name it `aro-gitops-apps`.
+    *   Clone the repository to your local machine:
+        +
+        [,bash]
+        ----
+        git clone https://github.com/<YOUR_GITHUB_USER>/aro-gitops-apps.git
+        cd aro-gitops-apps
+        ----
+        +
+        Replace `<YOUR_GITHUB_USER>` with your actual Git username or organization.
+
+2.  **Create application manifest files:**
+    *   Inside the `aro-gitops-apps` directory on your local machine, create a sub-directory named `nginx-app`.
+    *   Navigate into the `nginx-app` directory: `cd nginx-app`.
+    *   Create a file named `deployment.yaml` with the following content:
+        +
+        [,yaml]
+        ----
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: nginx-deployment
+          labels:
+            app: nginx
+        spec:
+          replicas: 2
+          selector:
+            matchLabels:
+              app: nginx
+          template:
+            metadata:
+              labels:
+                app: nginx
+            spec:
+              containers:
+              - name: nginx
+                image: nginx:1.14.2
+                ports:
+                - containerPort: 80
+        ----
+
+    *   Still inside `nginx-app`, create a file named `service.yaml` with the following content:
+        +
+        [,yaml]
+        ----
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: nginx-service
+        spec:
+          selector:
+            app: nginx
+          ports:
+            - protocol: TCP
+              port: 80
+              targetPort: 80
+        ----
+
+3.  **Commit and push the changes:**
+    Save your changes, then add, commit, and push the new files to your Git repository.
+    +
+    [,bash]
+    ----
+    git add .
+    git commit -m "Add initial nginx application manifests"
+    git push origin main
+    ----
+    +
+    (If your default branch is `master`, use `git push origin master`.)
+
+=== Activity 3: Create an Argo CD Application
+
+Now, you will define an Argo CD `Application` resource, which tells Argo CD where to find your application manifests in Git and where to deploy them in your ARO cluster.
+
+1.  **Create a new project/namespace for the application (optional, but good practice):**
+    While Argo CD can create the namespace, creating it beforehand using `oc` provides explicit control.
+    +
+    [,bash]
+    ----
+    oc new-project gitops-nginx-app
+    ----
+
+2.  **Create the Argo CD Application resource:**
+    Open your text editor and create a file named `nginx-argocd-app.yaml` (you can create this in a temporary local directory *outside* your `aro-gitops-apps` repository, as this file is for Argo CD configuration, not the application itself).
+    +
+    [,yaml]
+    ----
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: nginx-gitops-app
+      namespace: openshift-gitops # <<1>>
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/<YOUR_GITHUB_USER>/aro-gitops-apps.git # <<2>>
+        targetRevision: HEAD
+        path: nginx-app # <<3>>
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: gitops-nginx-app # <<4>>
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true # <<5>>
+    ----
+    <1> All Argo CD `Application` resources *must* reside in the `openshift-gitops` namespace.
+    <2> Replace `<YOUR_GITHUB_USER>` with your Git username or the organization where your repository is hosted.
+    <3> This is the specific path *within* your Git repository where the Kubernetes manifests for this application are located.
+    <4> The target namespace on your ARO cluster where the application will be deployed.
+    <5> This `syncOption` tells Argo CD to automatically create the target namespace (`gitops-nginx-app`) if it doesn't already exist.
+
+3.  **Apply the Argo CD Application resource:**
+    Deploy the Argo CD `Application` resource to your cluster.
+    +
+    [,bash]
+    ----
+    oc apply -f nginx-argocd-app.yaml -n openshift-gitops
+    ----
+
+4.  **Observe synchronization in the Argo CD UI:**
+    *   Go back to the Argo CD web UI. You should see a new application named `nginx-gitops-app` appear.
+    *   Watch as it synchronizes. The application's health and sync status should transition from `Missing`/`OutOfSync` to `Healthy` and `Synced`, respectively.
+    *   You can click on the application to see its deployed resources (Deployment, Service, Pods) and their health status.
+
+5.  **Verify application deployment in OpenShift:**
+    Use the `oc` CLI to confirm that the NGINX deployment and service have been created in the `gitops-nginx-app` namespace.
+    +
+    [,bash]
+    ----
+    oc get all -n gitops-nginx-app
+    ----
+    +
+    You should see the `nginx-deployment` (with 2 pods ready) and `nginx-service` along with their associated pods.
+
+=== Activity 4: Perform a GitOps-driven Update
+
+Now, let's demonstrate the power of GitOps by making a change in your Git repository and observing Argo CD automatically reflecting that change in the ARO cluster.
+
+1.  **Modify the Deployment in Git:**
+    *   Edit the `deployment.yaml` file in your local `aro-gitops-apps/nginx-app` directory.
+    *   Change the number of replicas from `2` to `3`:
+        +
+        [,yaml]
+        ----
+        # ... (previous content)
+        spec:
+          replicas: 3 # <<1>>
+          selector:
+        # ... (rest of the file)
+        ----
+        <1> Change this line to `replicas: 3`.
+
+2.  **Commit and push the change:**
+    Save your changes, then add, commit, and push the updated `deployment.yaml` file to your Git repository.
+    +
+    [,bash]
+    ----
+    git add .
+    git commit -m "Scale nginx deployment to 3 replicas"
+    git push origin main
+    ----
+
+3.  **Observe reconciliation:**
+    *   Go back to the Argo CD web UI. Within a short period (typically 3 minutes by default, but can be configured), you will see the `nginx-gitops-app` briefly become `OutOfSync` (as Argo CD detects the divergence) and then `Syncing` (as it applies the change).
+    *   Once `Synced` again, click on the application and check the `nginx-deployment` resource. You should see the replicas updated to 3.
+    *   Verify this with `oc` CLI:
+        +
+        [,bash]
+        ----
+        oc get deployment nginx-deployment -n gitops-nginx-app
+        ----
+        +
+        You should see `3/3` under `READY` and `AVAILABLE`, indicating that the deployment has successfully scaled up.
+
+=== Activity 5: Clean Up
+
+To clean up the resources created during this lab:
+
+1.  **Delete the Argo CD Application:**
+    Deleting the Argo CD `Application` resource instructs Argo CD to remove all resources it was managing for that application from the target cluster.
+    +
+    [,bash]
+    ----
+    oc delete -f nginx-argocd-app.yaml -n openshift-gitops
+    ----
+    +
+    Argo CD will now proceed to delete the `nginx-deployment` and `nginx-service` from the `gitops-nginx-app` namespace.
+
+2.  **Verify resources are deleted:**
+    Wait a moment, then check if the application resources are gone.
+    +
+    [,bash]
+    ----
+    oc get all -n gitops-nginx-app
+    ----
+    +
+    You should see "No resources found" or similar output after a short while.
+
+3.  **Delete the namespace:**
+    Finally, delete the project/namespace you created for the application.
+    +
+    [,bash]
+    ----
+    oc delete project gitops-nginx-app
+    ----
+
+4.  **(Optional) Delete your Git repository:**
+    You can also delete the `aro-gitops-apps` repository from your Git hosting service.
+
+== Conclusion
+
+You have successfully implemented GitOps principles using OpenShift GitOps (Argo CD) to declaratively manage an application on your Azure Red Hat OpenShift cluster. This hands-on experience demonstrated how to define your desired application state in Git, how Argo CD continuously reconciles that state with your cluster, and how simple it is to perform updates by merely pushing changes to your Git repository. This approach streamlines deployments, enhances auditability, and provides a robust framework for continuous delivery of both cluster configurations and applications.
+
+// end::gitops-module[]

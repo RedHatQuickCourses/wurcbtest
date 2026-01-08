@@ -1,0 +1,586 @@
+#  Troubleshooting containers and pods
+
+= Troubleshooting Containers and Pods in Azure Red Hat OpenShift
+
+Managing applications in a Kubernetes-based environment like Azure Red Hat OpenShift (ARO) involves ensuring that containers and pods run smoothly. However, issues can arise due to various factors, including misconfigurations, resource constraints, network problems, or application bugs. This section provides a structured approach to identifying and resolving common problems with containers and pods.
+
+== Understanding the Troubleshooting Workflow
+
+Effective troubleshooting in OpenShift follows a systematic approach. Before diving into specific commands, it's essential to understand the typical lifecycle of a pod and identify common failure points.
+
+. A pod is created: This involves pulling the container image, allocating resources, and scheduling the pod to a node.
+. The container starts: The container runtime initializes the container, runs the entrypoint command, and monitors its health.
+. The application runs: The application inside the container processes requests and performs its intended function.
+
+Failure can occur at any of these stages. Our goal is to pinpoint *where* the failure is happening.
+
+=== Key Troubleshooting Principles
+
+*   **Start Broad, Then Narrow Down:** Begin by checking the overall status of the pod, then progressively examine more granular details like container logs, events, and underlying node conditions.
+*   **Utilize Observability Tools:** Leverage logs, metrics, and events to gain insights into the system's behavior. A robust logging solution is crucial for efficient troubleshooting. As highlighted in the provided context, verifying the deployment of your container logging solution (e.g., *checking `omsagent` or similar logging agents*) is a foundational step in ensuring you have the data needed for analysis.
+*   **Reproduce the Issue:** If possible, try to reproduce the problem to understand its conditions and scope.
+*   **Check Recent Changes:** Often, issues are introduced by recent changes to deployments, configurations, or infrastructure.
+*   **Consult Documentation and Community:** Official documentation, knowledge bases, and community forums (like the "Troubleshooting guide" mentioned in the context) can provide solutions for known issues.
+
+== Essential Troubleshooting Tools
+
+The primary tools for troubleshooting in ARO are the OpenShift Command-line Interface (CLI) (`oc`) and the Kubernetes Command-line Interface (`kubectl`). Both offer similar functionalities for managing and inspecting Kubernetes resources, with `oc` providing additional OpenShift-specific capabilities.
+
+[IMPORTANT]
+Always ensure you are logged into your ARO cluster using `oc login` before attempting any troubleshooting commands.
+
+== Detailed Troubleshooting Steps and Hands-on Activities
+
+Let's walk through the common steps to troubleshoot a failing pod or container.
+
+=== Step 1: Check Pod Status
+
+The first step is to check the current status of the affected pod. This provides a high-level overview of whether the pod is running, pending, or in a failed state.
+
+==== Technical Explanation
+
+The `oc get pod` command retrieves information about pods. The `STATUS` column is particularly important:
+*   `Running`: The pod and all its containers are healthy and running.
+*   `Pending`: The pod has been accepted by the Kubernetes cluster but one or more of the container images has not been created. This could be due to a lack of resources, image pull errors, or volume mounting issues.
+*   `ContainerCreating`: The pod has been scheduled to a node, and the container runtime is in the process of pulling images and starting containers.
+*   `CrashLoopBackOff`: A container in the pod is repeatedly crashing and restarting. This often indicates an application error.
+*   `ImagePullBackOff` or `ErrImagePull`: Kubernetes cannot pull the specified container image. This could be due to incorrect image name, tag, registry authentication issues, or network problems.
+*   `Error`: A container has exited with a non-zero exit code.
+*   `OOMKilled`: A container was terminated because it exceeded its memory limit.
+*   `Completed`: The pod has run to completion (e.g., a Job pod).
+
+==== Hands-on Activity: Inspecting Pod Status
+
+.  **Identify a problematic pod (or simulate one):**
+    For this activity, we'll create a simple pod that immediately crashes to simulate a `CrashLoopBackOff` state.
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: failing-pod
+    spec:
+      containers:
+      - name: failing-container
+        image: busybox
+        command: ["/bin/sh", "-c", "sleep 1; exit 1"] # This command will cause the container to exit with an error
+    ----
+
+.  **Deploy the failing pod:**
+
+    [source,bash]
+    ----
+    oc apply -f failing-pod.yaml
+    ----
+
+.  **Check the status of the pod:**
+
+    [source,bash]
+    ----
+    oc get pod failing-pod
+    ----
+
+    *Expected Output (after a short delay):*
+    [source,console]
+    ----
+    NAME          READY   STATUS             RESTARTS   AGE
+    failing-pod   0/1     CrashLoopBackOff   X          Xs
+    ----
+    (Where `X` will be increasing numbers)
+
+.  **Clean up the failing pod:**
+    [source,bash]
+    ----
+    oc delete pod failing-pod
+    ----
+
+=== Step 2: Examine Pod Events and Details
+
+If the pod status is not `Running`, the `oc describe` command is your next best friend. It provides a wealth of information about the pod's current state, events, and resource configurations.
+
+==== Technical Explanation
+
+`oc describe pod <pod-name>` outputs details such as:
+*   **Labels, Annotations, IP Address:** Basic metadata.
+*   **Containers:** Details about each container in the pod, including image, port, environment variables, resource limits, and state.
+*   **Init Containers:** Information about any initialization containers.
+*   **Conditions:** Current conditions of the pod (e.g., `Initialized`, `Ready`, `ContainersReady`).
+*   **Volumes:** Mounted volumes.
+*   **QoS Class:** Quality of Service class.
+*   **Node:** Which node the pod is scheduled on.
+*   **Events:** A chronological list of events related to the pod, providing crucial clues about what went wrong (e.g., `Failed to pull image`, `OOMKilled`, `Back-off restarting failed container`).
+
+==== Hands-on Activity: Describing a Pod
+
+.  **Re-deploy the failing pod from Step 1:**
+
+    [source,bash]
+    ----
+    oc apply -f failing-pod.yaml
+    ----
+
+.  **Describe the failing pod:**
+
+    [source,bash]
+    ----
+    oc describe pod failing-pod
+    ----
+
+    *Expected Output Snippet (focus on the `Events` section):*
+    [source,console]
+    ----
+    ...
+    Containers:
+      failing-container:
+        Container ID:   cri-o://...
+        Image:          busybox
+        Image ID:       docker.io/library/busybox@sha256:...
+        Port:           <none>
+        Host Port:      <none>
+        Command:
+          /bin/sh
+          -c
+          sleep 1; exit 1
+        State:          Waiting
+          Reason:       CrashLoopBackOff
+        Last State:     Terminated
+          Reason:       Error
+          Exit Code:    1  <-- Crucial!
+          Started:      ...
+          Finished:     ...
+        Ready:          False
+        Restart Count:  X
+        Limits:
+          cpu:     100m
+          memory:  128Mi
+        Requests:
+          cpu:     10m
+          memory:  64Mi
+        Environment:    <none>
+        Mounts:
+          /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-abcde (ro)
+    ...
+    Events:
+      Type     Reason     Age        From               Message
+      ----     ------     ----       ----               -------
+      Normal   Scheduled  X          default-scheduler  Successfully assigned default/failing-pod to ...
+      Normal   Pulled     X          kubelet            Container image "busybox" already present on machine
+      Normal   Created    X          kubelet            Created container failing-container
+      Normal   Started    X          kubelet            Started container failing-container
+      Warning  BackOff    X          kubelet            Back-off restarting failed container
+      Warning  Failed     X          kubelet            Error: container has run to completion
+    ----
+
+    *Analysis:* The `Events` clearly show `Back-off restarting failed container` and the `State` of the container showing `Exit Code: 1`, indicating an intentional application-level error. This helps distinguish it from an image pull error or a node issue.
+
+.  **Clean up:**
+    [source,bash]
+    ----
+    oc delete pod failing-pod
+    ----
+
+=== Step 3: View Container Logs
+
+For a deeper dive into what's happening *inside* the container, examining its logs is paramount. Applications typically write stdout and stderr, which OpenShift captures.
+
+==== Technical Explanation
+
+The `oc logs <pod-name> [-c <container-name>]` command retrieves logs for a specific container within a pod.
+*   If a pod has only one container, `-c <container-name>` is optional.
+*   Use `-f` or `--follow` to stream logs in real-time.
+*   Use `--since=<duration>` (e.g., `--since=1h`) or `--tail=<lines>` to filter logs.
+*   Use `--previous` to view logs from the previous instance of a crashed container.
+
+==== Hands-on Activity: Accessing Container Logs
+
+.  **Create a pod that logs periodically:**
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: logging-pod
+    spec:
+      containers:
+      - name: logger
+        image: busybox
+        command: ["/bin/sh", "-c", "while true; do echo 'Hello from logging-pod at $(date)'; sleep 5; done"]
+    ----
+
+.  **Deploy the logging pod:**
+
+    [source,bash]
+    ----
+    oc apply -f logging-pod.yaml
+    ----
+
+.  **View the logs of the `logger` container:**
+
+    [source,bash]
+    ----
+    oc logs logging-pod -c logger
+    ----
+
+    *Expected Output:*
+    [source,console]
+    ----
+    Hello from logging-pod at Mon Apr 15 10:00:00 UTC 2024
+    Hello from logging-pod at Mon Apr 15 10:00:05 UTC 2024
+    ...
+    ----
+
+.  **Stream logs in real-time:**
+
+    [source,bash]
+    ----
+    oc logs -f logging-pod -c logger
+    ----
+    (Press `Ctrl+C` to stop streaming)
+
+.  **Clean up:**
+    [source,bash]
+    ----
+    oc delete pod logging-pod
+    ----
+
+[NOTE]
+For advanced log analysis and aggregation in ARO, you would typically integrate with solutions like OpenShift Logging (powered by Elasticsearch, Fluentd, and Kibana - EFK stack) or forward logs to external systems like Azure Monitor, similar to how the context mentions verifying container logging solutions. This allows for centralized log collection, searching, and alerting.
+
+=== Step 4: Execute Commands Inside a Container (RSH/Exec)
+
+Sometimes, you need to interact directly with a container to diagnose issues, such as checking file system contents, network connectivity, or running debug tools.
+
+==== Technical Explanation
+
+*   `oc rsh <pod-name> [-c <container-name>]`: Provides a remote shell into a running container. This is OpenShift's preferred method for interactive shells.
+*   `oc exec -it <pod-name> [-c <container-name>] -- <command>`: Executes a command inside a container. Use `-it` for an interactive terminal (e.g., `oc exec -it <pod-name> -- bash`).
+
+==== Hands-on Activity: Interacting with a Container
+
+.  **Create a simple NGINX pod:**
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: nginx-shell
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+    ----
+
+.  **Deploy the NGINX pod:**
+
+    [source,bash]
+    ----
+    oc apply -f nginx-shell.yaml
+    ----
+
+.  **Wait for the pod to be `Running`:**
+
+    [source,bash]
+    ----
+    oc get pod nginx-shell -w
+    ----
+    (Wait until `STATUS` is `Running`, then press `Ctrl+C`)
+
+.  **Use `oc rsh` to get a shell into the NGINX container:**
+
+    [source,bash]
+    ----
+    oc rsh nginx-shell
+    ----
+
+    *Once inside the container (your prompt will change):*
+    [source,console]
+    ----
+    # ls /etc/nginx
+    conf.d      fastcgi_params  koi-utf     mime.types  modules     nginx.conf  scgi_params uwsgi_params  win-utf
+    # exit
+    ----
+
+.  **Use `oc exec` to run a command (e.g., check process status):**
+
+    [source,bash]
+    ----
+    oc exec nginx-shell -- ps aux
+    ----
+
+    *Expected Output (snippet):*
+    [source,console]
+    ----
+    PID   USER     TIME  COMMAND
+        1 root      0:00 nginx: master process nginx -g daemon off;
+        6 nginx     0:00 nginx: worker process
+        7 nginx     0:00 nginx: worker process
+        ...
+    ----
+
+.  **Clean up:**
+    [source,bash]
+    ----
+    oc delete pod nginx-shell
+    ----
+
+=== Step 5: Network Troubleshooting
+
+Network connectivity issues can prevent pods from communicating with each other or with external services.
+
+==== Technical Explanation
+
+Common network problems include:
+*   **DNS Resolution Issues:** Pods unable to resolve hostnames.
+*   **Service/Route Misconfiguration:** Services not correctly exposing pods, or routes not correctly exposing services externally.
+*   **Network Policy Restrictions:** Network policies blocking legitimate traffic.
+*   **CNI Plugin Issues:** Problems with the Container Network Interface (CNI) plugin.
+
+==== Hands-on Activity: Basic Network Checks
+
+.  **Deploy a simple `debug` pod with network tools:**
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: net-debug
+    spec:
+      containers:
+      - name: net-debug-container
+        image: curlimages/curl
+        command: ["tail", "-f", "/dev/null"] # Keep container running indefinitely
+    ----
+
+.  **Deploy the debug pod:**
+
+    [source,bash]
+    ----
+    oc apply -f net-debug.yaml
+    ----
+
+.  **Wait for the pod to be `Running` and get a shell into it:**
+
+    [source,bash]
+    ----
+    oc rsh net-debug
+    ----
+
+.  **Inside the `net-debug` container, perform network checks:**
+
+    *   **Test external connectivity:**
+        [source,console]
+        ----
+        # curl -v google.com
+        *   Trying 142.250.187.110:80...
+        * Connected to google.com (142.250.187.110) port 80 (#0)
+        > GET / HTTP/1.1
+        > Host: google.com
+        > User-Agent: curl/8.5.0
+        > Accept: */*
+        >
+        < HTTP/1.1 301 Moved Permanently
+        ...
+        ----
+
+    *   **Test DNS resolution (e.g., Kubernetes API server):**
+        [source,console]
+        ----
+        # nslookup kubernetes.default
+        Server:    10.128.0.10
+        Address 1: 10.128.0.10 kube-dns.kube-system.svc.cluster.local
+
+        Name:      kubernetes.default
+        Address 1: 172.30.0.1 kubernetes.default.svc.cluster.local
+        ----
+        (The `Server` IP is your cluster's DNS service IP, and `Address 1` for `kubernetes.default` is the ClusterIP of the Kubernetes API service).
+
+    *   **Exit the debug container:**
+        [source,console]
+        ----
+        # exit
+        ----
+
+.  **Clean up:**
+    [source,bash]
+    ----
+    oc delete pod net-debug
+    ----
+
+=== Step 6: Resource-Related Issues
+
+Pods can fail or become unstable if they exhaust their assigned CPU or memory resources.
+
+==== Technical Explanation
+
+*   **OOMKilled (Out Of Memory Killed):** If a container exceeds its `memory.limit`, the Kubernetes Kubelet will terminate it. This will appear as an `OOMKilled` reason in `oc describe` and in logs.
+*   **CPU Throttling:** If a container continuously hits its `cpu.limit`, its CPU usage will be throttled, leading to performance degradation and potentially unresponsive applications.
+
+To diagnose resource issues, check:
+*   **`oc describe pod <pod-name>`:** Look for `Limits` and `Requests` under the `Containers` section and `OOMKilled` events.
+*   **OpenShift Monitoring (Grafana/Prometheus):** For historical and real-time CPU/memory usage of pods and nodes.
+
+==== Hands-on Activity: Simulating and Diagnosing OOMKilled
+
+.  **Create a pod with a very low memory limit that will quickly OOM:**
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: oom-pod
+    spec:
+      containers:
+      - name: memory-eater
+        image: progrium/stress
+        command: ["stress", "--vm", "1", "--vm-bytes", "200M", "--vm-hang", "1"] # Tries to allocate 200MB
+        resources:
+          limits:
+            memory: "100Mi" # Limit it to 100MB
+          requests:
+            memory: "50Mi"
+    ----
+
+.  **Deploy the OOM pod:**
+
+    [source,bash]
+    ----
+    oc apply -f oom-pod.yaml
+    ----
+
+.  **Monitor its status:**
+
+    [source,bash]
+    ----
+    oc get pod oom-pod -w
+    ----
+    (You should see `CrashLoopBackOff` or `Error` after some time, then `OOMKilled` in describe.)
+
+.  **Describe the pod to find the `OOMKilled` event:**
+
+    [source,bash]
+    ----
+    oc describe pod oom-pod
+    ----
+
+    *Expected Output Snippet (look for `Last State` and `Events`):*
+    [source,console]
+    ----
+    ...
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       OOMKilled  <-- Here it is!
+      Exit Code:    137
+      Started:      ...
+      Finished:     ...
+    ...
+    Events:
+      Type     Reason          Age                  From               Message
+      ----     ------          ----                 ----               -------
+      Normal   Scheduled       X                    default-scheduler  Successfully assigned default/oom-pod to ...
+      Normal   Pulled          X                    kubelet            Container image "progrium/stress" already present on machine
+      Normal   Created         X                    kubelet            Created container memory-eater
+      Normal   Started         X                    kubelet            Started container memory-eater
+      Warning  OOMKilled       Xs (x over xs)       kubelet            Container memory-eater was OOM-killed.
+      Warning  BackOff         Xs (x over xs)       kubelet            Back-off restarting failed container
+    ----
+
+.  **Clean up:**
+    [source,bash]
+    ----
+    oc delete pod oom-pod
+    ----
+
+=== Step 7: Image Pull Issues
+
+When a pod enters `ImagePullBackOff` or `ErrImagePull` state, it means the container runtime on the node cannot retrieve the specified image from the registry.
+
+==== Technical Explanation
+
+Common causes include:
+*   **Incorrect Image Name/Tag:** Typo in the image name or tag.
+*   **Private Registry Authentication:** Missing or incorrect image pull secret for a private registry (e.g., Azure Container Registry, Quay).
+*   **Network Connectivity:** Node unable to reach the image registry.
+*   **Image Does Not Exist:** The image or tag was deleted from the registry.
+
+==== Hands-on Activity: Simulating ImagePullBackOff
+
+.  **Create a pod with a non-existent image:**
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: bad-image-pod
+    spec:
+      containers:
+      - name: bad-container
+        image: non-existent-registry.io/non-existent-image:latest # This image does not exist
+        command: ["tail", "-f", "/dev/null"]
+    ----
+
+.  **Deploy the bad image pod:**
+
+    [source,bash]
+    ----
+    oc apply -f bad-image-pod.yaml
+    ----
+
+.  **Monitor its status:**
+
+    [source,bash]
+    ----
+    oc get pod bad-image-pod -w
+    ----
+    (It should quickly show `ImagePullBackOff` or `ErrImagePull`).
+
+.  **Describe the pod to find the detailed error:**
+
+    [source,bash]
+    ----
+    oc describe pod bad-image-pod
+    ----
+
+    *Expected Output Snippet (look for `State` and `Events`):*
+    [source,console]
+    ----
+    ...
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    ...
+    Events:
+      Type     Reason                 Age                From               Message
+      ----     ------                 ----               ----               -------
+      Normal   Scheduled              X                  default-scheduler  Successfully assigned default/bad-image-pod to ...
+      Warning  FailedCreatePodSandBox X                  kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to get sandbox image "registry.access.redhat.com/rhel8/pause": failed to get image "registry.access.redhat.com/rhel8/pause": ...
+      Normal   Pulling                Xs (x over xs)     kubelet            Pulling image "non-existent-registry.io/non-existent-image:latest"
+      Warning  Failed                 Xs (x over xs)     kubelet            Failed to pull image "non-existent-registry.io/non-existent-image:latest": rpc error: code = NotFound desc = no matching manifest for "non-existent-registry.io/non-existent-image:latest" in the remote repository
+      Warning  Failed                 Xs (x over xs)     kubelet            Error: ErrImagePull
+      Warning  BackOff                Xs (x over xs)     kubelet            Back-off pulling image "non-existent-registry.io/non-existent-image:latest"
+    ----
+
+.  **Clean up:**
+    [source,bash]
+    ----
+    oc delete pod bad-image-pod
+    ----
+
+[TIP]
+For issues related to Azure Container Registry (ACR) or Quay integration with ARO, ensure your `ImagePullSecret` is correctly configured and referenced in your pod specification or service account. The "Registry Integrations" section of this course covers this in detail.
+
+== Advanced Troubleshooting Considerations
+
+*   **Node-Level Issues:** If multiple pods on a single node are failing, the issue might be with the node itself. Check node status (`oc get node <node-name>`, `oc describe node <node-name>`) for resource pressure, network issues, or disk problems.
+*   **Persistent Volume Issues:** Pods mounting Persistent Volumes (PVs) can fail if the PV/PVC binding is incorrect, the underlying storage is inaccessible, or permissions are misconfigured.
+*   **OpenShift Operators:** If a component managed by an OpenShift Operator is failing, check the status and logs of the Operator itself.
+*   **OpenShift Console Monitoring:** The OpenShift Web Console provides a graphical interface to view pod status, events, logs, and resource usage, often simplifying initial diagnosis.
+
+By systematically applying these troubleshooting steps and utilizing the powerful `oc` and `kubectl` CLI tools, you can effectively diagnose and resolve most issues encountered with containers and pods in your Azure Red Hat OpenShift clusters. Remember to leverage comprehensive logging and monitoring solutions, as good observability is the cornerstone of efficient troubleshooting.

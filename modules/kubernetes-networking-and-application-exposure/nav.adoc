@@ -1,0 +1,4 @@
+* xref:kubernetes-networking-and-application-exposure.adoc[]
+** xref:understanding-kubernetes-pod-and-service-networks.adoc[]
+** xref:scaling-and-exposing-applications-to-external-access.adoc[]
+** xref:externalizing-application-configurations.adoc[]

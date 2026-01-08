@@ -1,0 +1,9 @@
+#  Cluster Application Data Management
+
+== Cluster Application Data Management
+
+Cluster Application Data Management involves managing the lifecycle and integrity of application data within an OpenShift cluster.
+Key aspects include:
+
+*   **Backup and Restore:** Implementing strategies to safeguard critical application data and configurations.
+*   **Velero:** Utilizing tools like Velero for performing backup and restore operations of cluster applications and their persistent data.

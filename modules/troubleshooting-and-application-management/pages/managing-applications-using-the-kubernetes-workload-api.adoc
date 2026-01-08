@@ -1,0 +1,455 @@
+#  Managing applications using the Kubernetes Workload API
+
+= Managing Applications using the Kubernetes Workload API
+
+The Kubernetes Workload API is a fundamental component of Kubernetes and Azure Red Hat OpenShift (ARO), providing the core mechanisms for defining, deploying, and managing applications. It enables administrators and developers to declare the desired state of their applications, which the Kubernetes control plane then works to maintain. This includes everything from simple, ephemeral tasks to complex, stateful services that run continuously.
+
+== Understanding the Kubernetes Workload API
+
+At its heart, the Kubernetes Workload API is a collection of API resources that represent the components and operational characteristics of your applications. These resources allow you to manage the entire lifecycle of your workloads, from initial deployment and scaling to updates, rollbacks, and eventual termination. The API follows a *declarative* model, meaning you describe *what* you want the system to achieve, and Kubernetes handles the *how*.
+
+The primary components of the Workload API are controllers that manage various types of workloads, ensuring that the actual state of the cluster matches the desired state defined in your manifests.
+
+=== Key Workload API Objects
+
+The Kubernetes Workload API is composed of several critical objects, each designed for specific application management scenarios:
+
+*   **Pods**: The smallest deployable units in Kubernetes. A Pod is an abstraction over a container (or group of containers) and includes shared storage, network resources, and specifications for how to run the containers. Pods are ephemeral; they are not designed to be directly managed for long-running applications but are instead managed by higher-level controllers.
+*   **Deployments**: The most common and recommended way to manage stateless, long-running applications. Deployments provide declarative updates to Pods and ReplicaSets, enabling capabilities like rolling updates, rollbacks, and scaling.
+*   **ReplicaSets**: Ensures a specified number of Pod replicas are running at all times. Deployments manage ReplicaSets, so you typically don't interact with ReplicaSets directly.
+*   **StatefulSets**: Used for stateful applications, which require stable unique network identifiers, stable persistent storage, and ordered graceful deployment, scaling, and deletion. Ideal for databases, message queues, and other stateful services.
+*   **DaemonSets**: Ensures that a copy of a specified Pod runs on *all* (or a subset of) nodes in the cluster. Commonly used for cluster-level operations like log collectors, monitoring agents, or storage daemons.
+*   **Jobs**: Designed for short-lived, batch tasks that run to completion. A Job creates one or more Pods and ensures that a specified number of them successfully terminate. Once a Job completes, its Pods are not restarted.
+*   **CronJobs**: Creates Jobs on a recurring schedule, similar to `cron` in Linux. Useful for scheduled backups, report generation, or other periodic tasks.
+
+By combining these objects, you gain powerful control over how your applications behave within your ARO cluster.
+
+== Managing Long-Lived Applications
+
+Long-lived applications are services that are expected to run continuously, serving requests or performing background processes indefinitely. For these workloads, Kubernetes offers `Deployments` and `StatefulSets`.
+
+=== Deployments for Stateless Applications
+
+Deployments are the workhorse for managing stateless applications. They allow you to:
+
+*   **Declaratively define** the desired state of your application (e.g., number of replicas, container image, environment variables).
+*   **Perform rolling updates** to new versions of your application without downtime.
+*   **Rollback** to a previous version if an update causes issues.
+*   **Scale** the number of application instances up or down based on demand.
+
+**Example: Deployment Manifest**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx-app
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.23.3
+        ports:
+        - containerPort: 80
+```
+
+This Deployment ensures that three Pods running the `nginx:1.23.3` image are always active. If a Pod fails, the Deployment controller automatically creates a new one.
+
+=== StatefulSets for Stateful Applications
+
+When your application requires stable identity, persistent storage, and ordered operations, `StatefulSets` are the right choice. They are critical for applications like:
+
+*   Databases (e.g., PostgreSQL, MongoDB)
+*   Distributed key-value stores (e.g., etcd, ZooKeeper)
+*   Message queues (e.g., Kafka, RabbitMQ)
+
+Key features of StatefulSets include:
+
+*   **Stable Network Identifiers**: Each Pod in a StatefulSet gets a unique, sticky identity (e.g., `web-0`, `web-1`).
+*   **Stable Persistent Storage**: Automatically provisions PersistentVolumes (PVs) for each Pod, ensuring data persistence even if Pods are rescheduled.
+*   **Ordered Deployment and Scaling**: Pods are created, updated, and deleted in a strict, ordinal order. This is crucial for maintaining data consistency in clustered applications.
+
+**Example: StatefulSet (Conceptual)**
+
+A StatefulSet manifest is more complex, typically involving a `Service` for network identity and `VolumeClaimTemplates` for persistent storage.
+
+```yaml
+# ... (simplified for conceptual understanding)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx # must match .spec.template.metadata.labels
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: k8s.gcr.io/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+  volumeClaimTemplates:
+  - metadata:
+      name: www
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "managed-csi" # ARO default or custom storage class
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+=== DaemonSets for Node-Specific Operations
+
+`DaemonSets` ensure that every eligible node in the cluster runs a copy of a specified Pod. This is ideal for services that provide node-level functionality, such as:
+
+*   Logging agents (e.g., Fluentd, Logstash)
+*   Monitoring agents (e.g., Prometheus Node Exporter)
+*   Network plugins
+*   Storage providers
+
+When new nodes are added to the cluster, the DaemonSet controller automatically deploys a Pod to them. When nodes are removed, these Pods are garbage collected.
+
+== Managing Short-Lived Applications
+
+Short-lived applications are tasks that run to completion and then stop, rather than running indefinitely. Kubernetes provides `Jobs` and `CronJobs` for these scenarios.
+
+=== Jobs for Batch Tasks
+
+A `Job` creates one or more Pods and ensures that a specified number of them successfully terminate. Once a Job completes, it records its status and does not automatically restart its Pods.
+
+**Typical Use Cases:**
+
+*   Batch processing
+*   Data migrations
+*   Complex calculations
+*   One-off scripts
+
+**Example: Job Manifest**
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-calculator
+spec:
+  template:
+    spec:
+      containers:
+      - name: pi
+        image: perl
+        command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: OnFailure # Pod restarts if it fails, until completion
+  backoffLimit: 4 # Maximum retries before considering the Job failed
+```
+
+This Job runs a Perl script to calculate pi to 2000 decimal places. The `restartPolicy: OnFailure` ensures that if the Pod crashes, it will be restarted up to `backoffLimit` times.
+
+=== CronJobs for Scheduled Tasks
+
+`CronJobs` automate the creation of Jobs on a recurring schedule, similar to a Unix `cron` utility.
+
+**Typical Use Cases:**
+
+*   Scheduled backups
+*   Periodic data synchronization
+*   Regular report generation
+*   Automated cleanup tasks
+
+**Example: CronJob Manifest**
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello-cron
+spec:
+  schedule: "*/1 * * * *" # Runs every minute
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox:1.28
+            command: ["sh", "-c", "echo 'Hello from the Kubernetes CronJob!' && date"]
+          restartPolicy: OnFailure
+```
+
+This CronJob will create a new Job every minute, which in turn creates a Pod that prints a message and the current date.
+
+---
+
+== Hands-on Activity: Deploying and Managing an Application with the Kubernetes Workload API
+
+In this hands-on activity, you will use the `Deployment` API object to deploy a simple NGINX web server application, scale it, update its image, and then clean up the resources. This will demonstrate managing a long-lived application.
+
+=== Objective
+
+*   Deploy a multi-replica NGINX web server using a Kubernetes Deployment.
+*   Expose the NGINX application using an OpenShift Route.
+*   Scale the application up and down.
+*   Perform a rolling update to a new NGINX version.
+*   Clean up all created resources.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift (ARO) cluster.
+*   The `oc` CLI tool configured and logged in to your ARO cluster.
+*   Basic understanding of `oc` commands.
+
+=== Steps
+
+.  **Login to your ARO Cluster**
+    Ensure you are logged in to your ARO cluster using the `oc` CLI. If not, follow the instructions provided during your cluster creation or by your administrator.
+
+    ```bash
+    oc login --token=<your-token> --server=<your-api-server>
+    ```
+
+.  **Create a New Project (Namespace)**
+    It's good practice to create a dedicated project for your lab resources.
+
+    ```bash
+    oc new-project workload-api-lab
+    ```
+
+.  **Define the NGINX Deployment**
+    Create a file named `nginx-deployment.yaml` with the following content. This defines a Deployment named `nginx-app` that will run 3 replicas of the `nginx:1.23.3` image.
+
+    ```yaml
+    # nginx-deployment.yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nginx-app
+      labels:
+        app: nginx
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: nginx
+      template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:1.23.3
+            ports:
+            - containerPort: 80
+              name: http
+    ```
+
+.  **Apply the Deployment**
+    Use `oc apply` to create the Deployment resource in your cluster.
+
+    ```bash
+    oc apply -f nginx-deployment.yaml
+    ```
+
+    You should see output similar to: `deployment.apps/nginx-app created`
+
+.  **Verify the Deployment and Pods**
+    Check the status of your Deployment and the Pods it created.
+
+    ```bash
+    oc get deployment nginx-app
+    oc get pods -l app=nginx
+    ```
+
+    You should see `nginx-app` with 3 desired, 3 current, and 3 available replicas. The `oc get pods` command should show three Pods running, all with `Running` status.
+
+.  **Expose the Application with a Service and Route**
+    To access the NGINX application from outside the cluster, you need to create a `Service` and an `OpenShift Route`.
+
+    First, create a Service:
+
+    ```bash
+    oc expose deployment nginx-app --port=80
+    ```
+    You should see: `service/nginx-app exposed`
+
+    Next, create a Route:
+
+    ```bash
+    oc expose service nginx-app
+    ```
+    You should see: `route.route.openshift.io/nginx-app exposed`
+
+    Get the URL of the Route:
+
+    ```bash
+    oc get route nginx-app
+    ```
+    Copy the `HOST/PORT` from the output (e.g., `nginx-app-workload-api-lab.apps.<cluster-id>.<region>.aroapp.io`). Open this URL in your web browser. You should see the default NGINX welcome page.
+
+.  **Scale the Application**
+    Let's scale the application to 5 replicas.
+
+    ```bash
+    oc scale deployment/nginx-app --replicas=5
+    ```
+
+    Verify the scaling by checking the Pods again:
+
+    ```bash
+    oc get deployment nginx-app
+    oc get pods -l app=nginx
+    ```
+    You should now see 5 Pods running. Kubernetes automatically created two new Pods to meet the desired replica count.
+
+.  **Perform a Rolling Update**
+    Now, let's update the NGINX image to a newer version (`nginx:1.25.3`). This will trigger a rolling update, replacing the old Pods with new ones gradually, ensuring no downtime.
+
+    Edit the `nginx-deployment.yaml` file and change the `image` line from `nginx:1.23.3` to `nginx:1.25.3`:
+
+    ```yaml
+    # ...
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:1.25.3 # <--- Change this line
+            ports:
+            - containerPort: 80
+              name: http
+    # ...
+    ```
+
+    Apply the updated Deployment manifest:
+
+    ```bash
+    oc apply -f nginx-deployment.yaml
+    ```
+
+    Watch the rollout status:
+
+    ```bash
+    oc rollout status deployment/nginx-app
+    ```
+    You will see the old Pods gracefully terminating and new Pods with the updated image being created. After a few moments, the rollout should complete.
+
+    You can also observe the Pods:
+
+    ```bash
+    oc get pods -l app=nginx
+    ```
+    You will see a mix of new and old Pods during the update, eventually resolving to all new Pods.
+
+.  **Clean Up Resources**
+    To remove all resources created in this lab, delete the project.
+
+    ```bash
+    oc delete project workload-api-lab
+    ```
+    Confirm the deletion by typing `workload-api-lab` when prompted. This will remove the Deployment, Service, Route, and all associated Pods.
+
+---
+
+== Hands-on Activity: Running a One-Off Task with a Kubernetes Job
+
+This activity demonstrates how to use a Kubernetes `Job` to run a short-lived task to completion.
+
+=== Objective
+
+*   Create a Kubernetes Job that executes a simple command and then terminates.
+*   Monitor the Job's progress and view its logs.
+*   Clean up the Job and associated Pods.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift (ARO) cluster.
+*   The `oc` CLI tool configured and logged in to your ARO cluster.
+*   (Optional) The `workload-api-lab` project created in the previous activity, or create a new one.
+
+=== Steps
+
+.  **Ensure you are in the correct Project**
+    If you're continuing from the previous lab, you should already be in `workload-api-lab`. If not, switch to it or create a new one.
+
+    ```bash
+    oc project workload-api-lab
+    # OR
+    # oc new-project batch-job-lab
+    ```
+
+.  **Define the Job Manifest**
+    Create a file named `simple-job.yaml` with the following content. This Job will run a Pod that prints "Hello from Kubernetes Job!" to the console and then exits successfully.
+
+    ```yaml
+    # simple-job.yaml
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: hello-world-job
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox:1.28
+            command: ["echo", "Hello from Kubernetes Job!"]
+          restartPolicy: Never # Crucial for Jobs: Pod should not restart after successful completion
+    ```
+    *   `restartPolicy: Never` is important for Jobs, as it ensures that the Pod is not restarted once it successfully completes its task. For tasks that might fail and need retries, `OnFailure` would be used.
+
+.  **Apply the Job**
+    Create the Job resource in your cluster:
+
+    ```bash
+    oc apply -f simple-job.yaml
+    ```
+    You should see output similar to: `job.batch/hello-world-job created`
+
+.  **Monitor the Job and Pod Status**
+    Check the status of your Job and the Pod it created:
+
+    ```bash
+    oc get job hello-world-job
+    oc get pods -l job-name=hello-world-job
+    ```
+    You'll initially see the Job in a `0/1` completions state and the Pod in `ContainerCreating` or `Running`. After a few moments, the Job should show `1/1` completions, and the Pod should transition to `Completed` status.
+
+.  **View Job Logs**
+    Once the Pod is `Completed`, you can view its logs to confirm the output:
+
+    ```bash
+    oc logs -l job-name=hello-world-job
+    ```
+    You should see: `Hello from Kubernetes Job!`
+
+.  **Clean Up Resources**
+    Delete the Job and its associated Pod:
+
+    ```bash
+    oc delete job hello-world-job
+    ```
+    You should see: `job.batch "hello-world-job" deleted`
+
+    If you created a new project for this activity, you can delete it:
+
+    ```bash
+    oc delete project batch-job-lab
+    ```
+
+This activity demonstrates how Kubernetes Jobs are used for executing finite, one-off tasks efficiently within your ARO cluster.

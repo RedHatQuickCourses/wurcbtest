@@ -1,0 +1,262 @@
+#  Integrating Azure AD with OpenShift OAuth
+
+= Integrating Azure AD with OpenShift OAuth
+
+[abstract]
+This module guides you through integrating Azure Active Directory (Azure AD), now known as Microsoft Entra ID, as an identity provider for your Azure Red Hat OpenShift (ARO) cluster using OpenShift OAuth. This integration allows users to authenticate to the ARO cluster using their existing Azure AD credentials, streamlining user management, enhancing security through centralized identity management, and providing a seamless single sign-on experience.
+
+== Understanding OpenShift OAuth and Azure AD Integration
+
+OpenShift Container Platform leverages an internal OAuth server to manage authentication and authorization for cluster users. This OAuth server can be configured to integrate with various external identity providers, including OpenID Connect (OIDC) compatible services. Azure Active Directory (Azure AD), now rebranded as Microsoft Entra ID, is a prominent cloud-based identity and access management service that fully supports the OpenID Connect protocol.
+
+Integrating Azure AD with your ARO cluster's OpenShift OAuth offers several key benefits:
+
+*   *Centralized Identity Management:* Users authenticate against Azure AD, which acts as the single source of truth for user identities. This simplifies user onboarding and offboarding.
+*   *Single Sign-On (SSO):* Users who are already logged into Azure AD can access the OpenShift Web Console or CLI without needing to re-enter their credentials.
+*   *Enhanced Security:* Leverage Azure AD's robust security features, such as multi-factor authentication (MFA) and conditional access policies, for accessing your OpenShift cluster.
+*   *Simplified Administration:* Cluster administrators can manage user access and group memberships within Azure AD, and these can be mapped to OpenShift roles for fine-grained authorization.
+
+The integration process involves configuring an OpenID identity provider within OpenShift's `OAuth` custom resource that points to your Azure AD tenant. This setup requires an Azure AD application registration to act as the client for OpenShift, providing the necessary `clientID` and `clientSecret` for secure communication. OpenShift will redirect authentication requests to Azure AD, and upon successful authentication, Azure AD redirects back to OpenShift with an ID token, which OpenShift then uses to establish a user session.
+
+A critical component in ARO, especially for clusters provisioned with managed identities, is the `pod-identity-webhook`. This mutating admission webhook plays a vital role in injecting authentication-related environment variables and projecting signed service account tokens to application pods. While its primary role isn't directly in the OAuth flow, its correct operation is essential for various cluster services that might rely on identity projection, including those potentially involved in the initial setup or management of credentials.
+
+== Prerequisites
+
+Before proceeding with the integration, ensure you have the following:
+
+*   An existing Azure Red Hat OpenShift (ARO) cluster provisioned with a xref:../aro-cluster-provisioning/creating-an-aro-cluster.adoc#_managed_identity_aro_cluster[managed identity].
+*   The `oc` CLI configured to connect to your ARO cluster with `cluster-admin` privileges.
+*   Azure CLI (`az`) installed and configured with permissions to manage resources in your Azure subscription, including creating Azure AD App Registrations and managing secrets.
+*   A tenant administrator or equivalent role in Azure AD with permissions to create and manage application registrations and secrets.
+
+== Verify the Pod Identity Webhook
+
+As noted in the provided context, the `pod-identity-webhook` deployment is an important component in ARO clusters, especially those using managed identities. It's crucial to verify its correct configuration. This webhook injects authentication-related environment variables and projects signed service account tokens to application pods, ensuring that managed identities function as expected within the cluster.
+
+To verify the `pod-identity-webhook` deployment:
+
+. *Describe the `pod-identity-webhook` deployment*:
++
+Open your terminal and run the following `oc` command to inspect the `pod-identity-webhook` deployment in the `openshift-cloud-credential-operator` namespace:
++
+[source,bash,subs="+attributes"]
+----
+oc describe deployment pod-identity-webhook -n openshift-cloud-credential-operator
+----
+
+. *Check for the `target.workload.openshift.io/management` annotation*:
++
+In the output of the `oc describe` command, examine the `Annotations` section for the presence of `target.workload.openshift.io/management: true`.
++
+[source,yaml]
+----
+...
+Annotations:        target.workload.openshift.io/management: true
+...
+----
++
+[NOTE]
+You should see a response similar to the example above. If this annotation is missing from the `pod-identity-webhook` deployment, it might indicate an issue with your ARO cluster's managed identity configuration. In such a scenario, it is recommended to open a support case with Red Hat and Microsoft for assistance.
+
+== Step-by-Step Integration Guide: Azure AD with OpenShift OAuth
+
+This section walks you through the detailed steps to integrate Azure AD as an identity provider for your ARO cluster.
+
+=== 1. Register an Application in Azure AD (Microsoft Entra ID)
+
+The first step is to register a new application in your Azure AD tenant. This application acts as the client for OpenShift, enabling it to authenticate users via OpenID Connect.
+
+. *Navigate to Azure Active Directory*:
++
+Log in to the Azure portal (portal.azure.com) with an account that has permissions to manage Azure AD applications. Search for and select *Azure Active Directory* (or *Microsoft Entra ID*).
+
+. *Create a New Application Registration*:
++
+In the left-hand navigation pane, under *Manage*, select *App registrations*, then click *New registration*.
+
+. *Configure Application Registration Details*:
++
+Fill in the following details for your new application:
+** *Name:* Provide a descriptive name, for example, `ARO-OpenShift-OAuth`.
+** *Supported account types:* Select *Accounts in this organizational directory only (Single tenant)* or *Accounts in any organizational directory (Any Azure AD directory - Multitenant)*, depending on your organization's requirements. For most ARO integrations, *Single tenant* is sufficient.
+** *Redirect URI (optional):* Select `Web` as the platform. For the URI, enter the OAuth callback URL for your ARO cluster. This URL follows a specific format:
++
+`https://oauth-openshift.apps.<cluster-domain>.<region>.aroapp.io/oauth2callback/<identity-provider-name>`
++
+Replace `<cluster-domain>` with your ARO cluster's domain (e.g., `myaro.eastus.aroapp.io`), `<region>` with your cluster's Azure region (e.g., `eastus`), and `<identity-provider-name>` with a unique name you will use for this identity provider in OpenShift (e.g., `entraID` or `azuread`).
++
+*Example Redirect URI:*
+`https://oauth-openshift.apps.myarocluster.eastus.aroapp.io/oauth2callback/entraID`
++
+[IMPORTANT]
+The `identity-provider-name` must match the `name` field you will use in the `OAuth` custom resource definition in OpenShift (e.g., `entraID`). Ensure this URI is accurate to prevent `AADSTS50011` errors during authentication.
+
+. *Register the application*:
++
+Click *Register*.
+
+. *Record the Client ID (Application ID)*:
++
+After the application is registered, you will be taken to its *Overview* page. Copy the *Application (client) ID*. This value will be used as the `clientID` in your OpenShift OAuth configuration.
+
+. *Create a Client Secret*:
++
+In the left-hand navigation pane, under *Manage*, select *Certificates & secrets*. Click *New client secret*.
++
+** *Description:* Provide a description for the secret (e.g., `ARO OpenShift OAuth Client Secret`).
+** *Expires:* Choose an expiration period. Best practice is to select a shorter duration and plan for regular secret rotation.
++
+Click *Add*. Immediately copy the *Value* of the client secret. This value is only shown once and will be used as the `clientSecret` in OpenShift. If you lose it, you'll need to create a new one.
+
+. *Grant API Permissions*:
++
+In the left-hand navigation pane, under *Manage*, select *API permissions*. Click *Add a permission*.
++
+** Select *Microsoft Graph*.
+** Select *Delegated permissions*.
+** Expand *OpenId permissions* and ensure `email`, `offline_access`, `openid`, and `profile` are selected.
+** Expand *User* and ensure `User.Read` is selected.
+** Click *Add permissions*.
++
+After adding permissions, click *Grant admin consent for <your-tenant-name>* if available and required for your organization, to ensure all users can consent to the application.
+
+=== 2. Create an OpenShift Secret for the Azure AD Client Secret
+
+To securely store the Azure AD client secret in OpenShift, you must create a Kubernetes Secret in the `openshift-config` namespace.
+
+. *Retrieve your Azure AD Client Secret*:
++
+Ensure you have the *Value* of the client secret you generated in the previous step.
+
+. *Create the `openid-client-secret-azuread` Secret*:
++
+Replace `<your-azuread-client-secret>` with the actual secret value.
++
+[source,bash,subs="+attributes"]
+----
+oc create secret generic openid-client-secret-azuread \
+  --from-literal=clientSecret=<your-azuread-client-secret> \
+  -n openshift-config
+----
++
+[IMPORTANT]
+The name of the secret, `openid-client-secret-azuread`, must exactly match what is referenced in the `OAuth` custom resource definition.
+
+=== 3. Configure OpenShift OAuth Identity Provider
+
+Now, you will configure OpenShift's OAuth server to use Azure AD as an OpenID Connect identity provider.
+
+. *Prepare the `OAuth` custom resource definition (CRD)*:
++
+Create a YAML file, for example, `azuread-oauth.yaml`, with the following content. Replace `$appId` with your Azure AD Application (client) ID and ensure the `name` under `identityProviders` matches the `<identity-provider-name>` you used for the redirect URI (e.g., `entraID`).
++
+[source,yaml,subs="+attributes"]
+----
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - name: entraID <1>
+    mappingMethod: claim
+    type: OpenID
+    openID:
+      clientID: <your-azuread-application-client-id> <2>
+      clientSecret:
+        name: openid-client-secret-azuread <3>
+      extraScopes:
+      - email
+      - profile
+----
+<1> The name of your identity provider in OpenShift. This must match the `identity-provider-name` in your Azure AD Redirect URI.
+<2> Replace with the *Application (client) ID* from your Azure AD App Registration.
+<3> This references the Kubernetes Secret you created in the previous step.
+
+. *Apply the OAuth configuration*:
++
+Apply the YAML file to your ARO cluster using `oc apply`:
++
+[source,bash,subs="+attributes"]
+----
+oc apply -f azuread-oauth.yaml
+----
++
+[NOTE]
+The OpenShift OAuth server will automatically reconfigure itself after you apply this change. It may take a few moments for the new identity provider to become available.
+
+=== 4. Test Azure AD Authentication
+
+After applying the configuration, it's time to verify that the integration works as expected.
+
+. *Log out from the OpenShift Web Console*:
++
+If you are currently logged into the OpenShift Web Console, log out to ensure you see the updated login screen.
+
+. *Access the OpenShift Web Console*:
++
+Navigate to your ARO cluster's OpenShift Web Console URL (e.g., `https://console-openshift-console.apps.myarocluster.eastus.aroapp.io`).
+
+. *Select the Azure AD Identity Provider*:
++
+On the login page, you should now see a new option to log in with your configured identity provider (e.g., *entraID*). Click on this option.
+
+. *Authenticate with Azure AD*:
++
+You will be redirected to the Microsoft login page. Enter your Azure AD credentials. If prompted, grant consent for the application to access your profile.
+
+. *Verify Successful Login*:
++
+Upon successful authentication, you will be redirected back to the OpenShift Web Console, logged in with your Azure AD account. You can verify your user information by clicking on your username in the top-right corner of the console.
+
+== Troubleshooting
+
+Here are common issues you might encounter during the integration and how to troubleshoot them.
+
+=== Error: AADSTS50011 - The redirect URI specified in the request does not match
+
+*   *Symptom*: When attempting to log in with Azure AD, you receive an error message in the browser similar to `AADSTS50011: The redirect URI https://oauth-openshift.apps.<domain>.<regions>.aroapp.io/oauth2callback/<identity> specified in the request doesn't match the redirect URIs configured for the application...`.
+
+*   *Explanation*: This error indicates a mismatch between the redirect URI configured in your Azure AD Application Registration and the actual redirect URI OpenShift is sending during the OAuth flow. Azure AD strictly enforces that the callback URI must be pre-registered for security reasons.
+
+*   *Resolution*:
+    . *Verify OpenShift's expected Redirect URI*:
+    +
+    Ensure that the `Redirect URI` configured in your Azure AD application registration exactly matches the format `https://oauth-openshift.apps.<cluster-domain>.<region>.aroapp.io/oauth2callback/<identity-provider-name>`. Pay close attention to:
+    ** The cluster domain and region.
+    ** The exact spelling and case of `oauth-openshift`.
+    ** The `identity-provider-name` (e.g., `entraID`) must match what you specified in the OpenShift `OAuth` CR.
+    . *Update Azure AD App Registration*:
+    +
+    Go to the Azure portal, navigate to *Azure Active Directory* -> *App registrations*, select your application, then go to *Authentication*. Under *Web* -> *Redirect URIs*, add or update the URI to precisely match what OpenShift expects.
+    . *Check for Trailing Slashes or Typos*: Even a single character difference, such as a trailing slash, can cause this error. Double-check for any typos.
+
+=== Missing `target.workload.openshift.io/management` annotation on `pod-identity-webhook`
+
+*   *Symptom*: As observed during the prerequisite checks, the `pod-identity-webhook` deployment in `openshift-cloud-credential-operator` namespace is missing the `target.workload.openshift.io/management: true` annotation.
+
+*   *Explanation*: This annotation is crucial for the correct functioning of managed identities and related identity projection within an ARO cluster. Its absence suggests a potential misconfiguration or issue with the cluster's managed identity setup, which might impact various cluster services, though not directly the OAuth flow for user authentication.
+
+*   *Resolution*: If you encounter this, it's a strong indicator of an underlying platform issue. You should immediately xref:../knowledge-share/support-cases.adoc[open a support case] with Red Hat and Microsoft, providing them with the output of `oc describe deployment pod-identity-webhook -n openshift-cloud-credential-operator`.
+
+=== General Authentication Failures (No specific error)
+
+*   *Symptom*: You click the identity provider, get redirected to Microsoft login, but after authentication, you're either redirected back to OpenShift without logging in, or you get a generic error page.
+
+*   *Resolution*:
+    . *Verify Client ID and Client Secret*: Double-check that the `clientID` in your OpenShift `OAuth` CR and the `clientSecret` stored in the `openid-client-secret-azuread` Secret are correct and match your Azure AD App Registration. Ensure the secret value was copied correctly when it was first generated (as it's only shown once).
+    . *Check Secret Expiration*: Verify that your Azure AD client secret has not expired. If it has, generate a new one in Azure AD and update the `openid-client-secret-azuread` Secret in OpenShift.
+    . *Examine OpenShift OAuth Logs*: Check the logs of the `oauth-apiserver` and `oauth-proxy` pods for more detailed error messages.
+    +
+    [source,bash,subs="+attributes"]
+    ----
+    oc logs -f <oauth-apiserver-pod-name> -n openshift-authentication
+    oc logs -f <oauth-proxy-pod-name> -n openshift-authentication
+    ----
+    . *Verify API Permissions*: Ensure that the Azure AD application has the necessary API permissions (`User.Read`, `email`, `profile`) and that admin consent has been granted if required.
+
+== Related Content
+
+*   link:https://docs.openshift.com/container-platform/latest/authentication/configuring-azure-active-directory.html[Configuring Azure Active Directory as an identity provider]
+*   link:https://learn.microsoft.com/en-us/azure/openshift/howto-integrate-aad-with-aro[Integrate Azure Active Directory with Azure Red Hat OpenShift (Microsoft Docs)]
+*   link:https://learn.microsoft.com/en-us/azure/openshift/concepts-managed-identities[Managed identities with Azure Red Hat OpenShift]

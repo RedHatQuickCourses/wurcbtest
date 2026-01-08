@@ -1,0 +1,143 @@
+#  Exploring Hosted Control Planes
+
+= Exploring Hosted Control Planes
+:navtitle: Exploring Hosted Control Planes
+:label: exploring-hosted-control-planes
+:page-aliases: hosted-control-planes.adoc
+
+This section delves into the concept of Hosted Control Planes (HCPs), a critical architectural pattern that underpins many managed Kubernetes services, including Azure Red Hat OpenShift (ARO). We will explore what a Kubernetes control plane entails, the challenges of managing it, and how HCPs address these challenges by providing a more efficient, scalable, and cost-effective operational model. Understanding HCPs offers valuable insight into the core benefits of ARO's managed service offering.
+
+== What is a Kubernetes Control Plane?
+
+Before diving into hosted control planes, it's essential to understand the fundamental role of the Kubernetes control plane. In a standard Kubernetes cluster, the control plane is the brain that manages and orchestrates the worker nodes and the workloads running on them. It consists of several key components:
+
+*   *kube-apiserver*: The front end of the Kubernetes control plane. It exposes the Kubernetes API, which is used by various tools and services to communicate with the cluster.
+*   *etcd*: A consistent and highly available key-value store used to store all cluster data, including configuration, state, and metadata.
+*   *kube-scheduler*: Watches for newly created pods with no assigned node and selects a node for them to run on.
+*   *kube-controller-manager*: Runs controller processes. These controllers watch the shared state of the cluster through the API server and make changes attempting to move the current state towards the desired state. Examples include the Node controller, Replication controller, Endpoints controller, and Service Account controller.
+*   *cloud-controller-manager* (optional): Integrates the cluster with a specific cloud provider's API. This component is responsible for various cloud-specific operations, such as creating load balancers, persistent volumes, and integrating with networking resources.
+
+These components typically run on dedicated *control plane nodes* (formerly known as master nodes), distinct from the *worker nodes* where application workloads are executed.
+
+== The Challenge of Managing Kubernetes Control Planes
+
+While Kubernetes offers powerful orchestration capabilities, managing its control plane can be complex and resource-intensive, especially at scale. Some of the challenges include:
+
+*   *High Availability (HA)*: Ensuring the control plane is highly available requires running multiple instances of each component, setting up robust load balancing, and careful configuration of `etcd` for quorum.
+*   *Operational Overhead*: Maintaining, upgrading, patching, and securing the control plane components demands significant operational expertise and time. This includes certificate management, backup and restore procedures for `etcd`, and monitoring.
+*   *Resource Consumption*: Control plane components, especially `etcd`, can be resource-intensive, requiring dedicated VMs or instances.
+*   *Security*: Securing the API server, `etcd`, and other components is paramount to protect the entire cluster from unauthorized access and data breaches.
+*   *Scalability*: Scaling the control plane to support a growing number of worker nodes and applications requires careful planning and execution.
+
+For organizations that want to leverage Kubernetes without bearing the full burden of control plane management, hosted control planes offer an attractive solution.
+
+== Introducing Hosted Control Planes (HCP)
+
+A *Hosted Control Plane* (HCP), sometimes referred to as a "managed control plane" or "super-cluster" architecture, is an architectural pattern where the Kubernetes control plane components (API server, `etcd`, scheduler, controller manager) for multiple tenant clusters are run on a separate, dedicated infrastructure managed by a service provider. The tenant clusters then consist primarily of only worker nodes that connect back to their respective hosted control plane.
+
+This design significantly abstracts away the complexity of control plane management from the end-user or tenant.
+
+=== How Hosted Control Planes Work
+
+The core idea behind HCPs is the separation of concerns:
+
+1.  *Centralized Management*: The service provider (e.g., Microsoft and Red Hat for ARO) manages a fleet of control planes on a shared, highly optimized infrastructure. This infrastructure is often referred to as the "management cluster" or "hosting cluster."
+2.  *Tenant Clusters (Data Planes)*: Each user or tenant receives their own dedicated set of worker nodes, which form the "data plane" of their Kubernetes cluster. These worker nodes are configured to connect securely to their assigned hosted control plane.
+3.  *API Endpoint*: The tenant interacts with their cluster through a secure API endpoint provided by the hosted control plane.
+4.  *Isolation*: While the control planes might share underlying compute resources, they are logically isolated from each other, ensuring that one tenant's control plane operations do not impact another's.
+5.  *Reduced Footprint*: For the tenant, their cluster's footprint is primarily just the worker nodes and associated network/storage resources, as the control plane resources are managed elsewhere.
+
+image::hosted-control-plane-architecture.png[Hosted Control Plane Architecture, align="center"]
+
+=== Benefits of Hosted Control Planes
+
+Adopting an HCP model, as seen in services like Azure Red Hat OpenShift, offers several significant advantages:
+
+*   *Reduced Operational Overhead*: The responsibility for maintaining, upgrading, and securing the control plane shifts entirely to the service provider. This frees up customer teams to focus on application development and deployment.
+*   *Cost Efficiency*: By abstracting the control plane, customers only pay for the worker nodes and associated resources, often at a lower rate than if they had to run their own dedicated control plane VMs. The service provider can achieve economies of scale by running multiple control planes on shared, optimized infrastructure.
+*   *Enhanced Security*: Service providers can implement advanced security measures, compliance certifications, and robust isolation mechanisms for the control plane infrastructure.
+*   *Simplified Scalability*: The control plane can be scaled independently of the data plane, and the provider handles the complexities of scaling the control plane to accommodate growing tenant needs.
+*   *Higher Availability*: Service providers build highly available and resilient control plane architectures by default, often leveraging redundant components and automated failover mechanisms.
+*   *Faster Provisioning*: Provisioning a new cluster is typically faster as the control plane infrastructure is already in place; only the worker nodes need to be provisioned and connected.
+
+=== Hosted Control Planes in Azure Red Hat OpenShift (ARO)
+
+Azure Red Hat OpenShift is a prime example of a service that leverages the hosted control plane concept. When you create an ARO cluster:
+
+*   The OpenShift control plane components (including Kubernetes control plane components, OpenShift API server, OpenShift controllers, etc.) are deployed and fully managed by Microsoft and Red Hat.
+*   These control plane components run on dedicated Azure infrastructure that is abstracted away from your direct view and management.
+*   You, as the customer, provision and manage your worker nodes (compute machines) within your Azure subscription. These worker nodes connect back to the managed control plane.
+
+This joint engineering, operation, and support model ensures that the complex and critical control plane is always healthy, up-to-date, and secure, allowing ARO users to focus solely on their applications and worker node configurations. You don't interact directly with the control plane VMs; instead, you interact with the OpenShift and Kubernetes APIs exposed by the managed control plane.
+
+=== OpenShift's HyperShift Project: A Native HCP Implementation
+
+Red Hat has also developed `HyperShift`, an upstream OpenShift project that explicitly implements a hosted control plane architecture within OpenShift itself. `HyperShift` allows you to run OpenShift control planes as pods on a "management cluster" (sometimes called a "hypershift cluster" or "hosting cluster"), with the associated worker nodes running in an external cloud provider (e.g., AWS, Azure).
+
+This provides:
+
+*   *Tenant Control Plane Isolation*: Each hosted control plane runs in its own namespace as a set of pods and services on the management cluster, providing strong isolation.
+*   *Reduced Cloud Resource Footprint*: Tenant clusters require minimal cloud provider resources (primarily worker nodes and network), as the control plane is hosted elsewhere.
+*   *Operational Consistency*: Enables a consistent way to manage a large fleet of OpenShift clusters using the same OpenShift tooling and concepts.
+
+While ARO's underlying implementation might differ, the `HyperShift` project demonstrates Red Hat's commitment to and expertise in the hosted control plane paradigm.
+
+== Activity: Understanding the ARO Managed Control Plane
+
+While you cannot directly provision or modify the control plane components in an Azure Red Hat OpenShift cluster, understanding *how* ARO abstracts and manages it is crucial for advanced administration. This activity helps you conceptualize the separation of concerns.
+
+=== Objective
+
+To observe the characteristics of a managed control plane within an ARO cluster and understand its implications for administration.
+
+=== Steps
+
+.  *Access your ARO Cluster*:
+    Ensure you have an active ARO cluster and are logged in using the `oc` CLI.
++
+[,bash]
+----
+oc login <your-aro-api-server-url> --token=<your-token>
+----
+
+.  *List Nodes and Observe Roles*:
+    In a self-managed Kubernetes or OpenShift cluster, you would typically see nodes with the `master` or `control-plane` role. In ARO, you will primarily see `worker` nodes, as the control plane nodes are managed externally.
++
+[,bash]
+----
+oc get nodes -o wide
+----
++
+Observe the output. You should see only `worker` nodes. The control plane nodes are intentionally not exposed to you via `oc get nodes` because they are managed by Microsoft and Red Hat.
+
+.  *Attempt to Access Control Plane Pods (Conceptual)*:
+    In a self-managed OpenShift cluster, you could list pods in the `openshift-kube-apiserver`, `openshift-etcd`, etc., namespaces to see the control plane components.
++
+[,bash]
+----
+oc get pods -n openshift-kube-apiserver
+oc get pods -n openshift-etcd
+# ... and other control plane namespaces
+----
++
+*Expected Output*: You might get `No resources found in openshift-kube-apiserver namespace.` or similar messages for most core control plane components, or you might see client-side proxies that allow *limited* interaction, but not the actual managed control plane pods themselves. This is because the actual control plane pods run within the provider's managed infrastructure, separate from your data plane worker nodes. You only interact with the API exposed by these managed components.
+
+.  *Identify Managed Resources through Azure Portal*:
+    Navigate to your ARO resource group in the Azure Portal. You will primarily see resources related to your worker nodes (VMSS, disks, network interfaces), load balancers, and other networking components. You won't directly see individual VMs labeled "master" or "control plane" that you can manage or SSH into, reinforcing the managed nature. The `aro` resource itself represents the managed control plane.
+
+.  *Discuss Operational Responsibilities*:
+    Consider the implications of this managed control plane setup.
+    *   *Customer Responsibility*: Managing worker nodes (scaling, patching OS, application deployments), network configuration (NSGs, VNet peering), storage, application monitoring, and security within your namespace.
+    *   *Microsoft/Red Hat Responsibility*: Ensuring the high availability, security, patching, and upgrades of the control plane components (API server, etcd, scheduler, controllers). This includes certificate rotation, `etcd` backups, and core infrastructure health.
+
+.  *Contrast with Self-Managed Kubernetes*:
+    Think about the additional tasks you would perform if you were running a self-managed Kubernetes cluster on Azure VMs (e.g., using `kubeadm`):
+    *   Provisioning and configuring VMs for control plane nodes.
+    *   Setting up `etcd` clustering and backups.
+    *   Configuring load balancers for the API server.
+    *   Managing control plane upgrades and patches.
+    *   Troubleshooting control plane component failures.
+    +
+    Recognize how ARO's hosted control plane model offloads these complex tasks, allowing you to focus on your applications.
+
+This conceptual exploration highlights the division of responsibilities and the inherent benefits of the hosted control plane architecture utilized by Azure Red Hat OpenShift, streamlining your advanced administration efforts.

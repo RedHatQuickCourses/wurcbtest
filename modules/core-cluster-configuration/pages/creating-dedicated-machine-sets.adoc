@@ -1,0 +1,194 @@
+#  Creating dedicated machine sets
+
+= Creating Dedicated Machine Sets
+
+This section guides you through the process of creating dedicated machine sets in Azure Red Hat OpenShift (ARO). Dedicated machine sets allow you to provision nodes with specific characteristics, such as different VM sizes, labels, or the use of Azure Spot Virtual Machines, to optimize resource utilization and cost for particular workloads.
+
+== Understanding ARO Machine Sets
+
+Azure Red Hat OpenShift leverages MachineSets to manage the worker nodes in your cluster. A MachineSet is a Kubernetes object that defines a group of machines (VMs) with identical configurations. It ensures that a specified number of machines matching a template are running at any given time.
+
+By default, an ARO cluster comes with several MachineSets, typically three, each managing worker nodes in a different availability zone (if applicable). These default MachineSets provision general-purpose virtual machines.
+
+Creating *dedicated* machine sets allows administrators to:
+
+*   **Tailor Resources:** Provision nodes with specific VM sizes, CPU architectures, or GPU capabilities for specialized workloads (e.g., AI/ML, high-performance computing).
+*   **Optimize Costs:** Utilize Azure Spot Virtual Machines for fault-tolerant workloads, significantly reducing compute costs.
+*   **Isolate Workloads:** Apply specific labels or taints to nodes within a dedicated machine set, allowing you to schedule pods exclusively to these nodes or prevent certain pods from running on them.
+*   **Manage Scaling Independently:** Scale specific types of worker nodes up or down based on the demand of the workloads running on them, without affecting other parts of the cluster.
+
+These dedicated machine sets operate alongside your default worker MachineSets, providing flexibility in managing your cluster's compute capacity.
+
+== Hands-on Activity: Creating a Dedicated Spot Instance Machine Set
+
+This activity demonstrates how to create a dedicated machine set that utilizes Azure Spot Virtual Machines. Spot VMs are a cost-effective option for workloads that can tolerate interruptions, as they leverage unused Azure capacity.
+
+=== Prerequisites
+
+*   Ensure you have the `oc` OpenShift CLI and `az` Azure CLI installed and configured to connect to your ARO cluster and Azure subscription, respectively.
+*   You must have `cluster-admin` privileges on the ARO cluster.
+
+=== Step 1: Examine an Existing MachineSet
+
+To create a new machine set, it's best practice to base it on an existing one. This ensures you capture all the necessary ARO-specific configurations.
+
+1.  List the existing machine sets in your cluster:
+    ....
+    oc get machineset -n openshift-machine-api
+    ....
+
+    .Sample Output
+    ....
+    NAME                                     DESIRED   CURRENT   READY   AVAILABLE   AGE
+    aro-cluster-5t2dj-worker-eastus1         1         1         1       1           3d1h
+    aro-cluster-5t2dj-worker-eastus2         1         1         1       1           3d1h
+    aro-cluster-5t2dj-worker-eastus3         1         1         1       1           3d1h
+    ....
+
+2.  Choose one of the worker machine sets (e.g., `aro-cluster-5t2dj-worker-eastus1`) and export its definition to a YAML file. Replace `<EXISTING_MACHINESET_NAME>` with the name of one of your existing machine sets.
+    ....
+    oc get machineset <EXISTING_MACHINESET_NAME> -n openshift-machine-api -o yaml > spotmachineset-template.yaml
+    ....
+
+=== Step 2: Modify the MachineSet Definition for Spot Instances
+
+Now, you will edit the `spotmachineset-template.yaml` file to create a new dedicated machine set that uses Azure Spot instances.
+
+Open `spotmachineset-template.yaml` in your preferred text editor and make the following changes:
+
+1.  **Change `metadata.name`**: Assign a unique name to your new machine set. For example, change `aro-cluster-5t2dj-worker-eastus1` to `aro-cluster-5t2dj-spot-eastus1`.
+2.  **Update `spec.selector.matchLabels`**: Modify the `machine.openshift.io/cluster-api-machineset` label to match the new name you assigned in `metadata.name`.
+3.  **Update `spec.template.metadata.labels`**: Modify the `machine.openshift.io/cluster-api-machineset` label to match the new name. You might also want to add an additional label, such as `node-role.kubernetes.io/spot=`, to easily identify these nodes.
+4.  **Add `spotVMOptions`**: Within `spec.template.spec.providerSpec.value`, add the `spotVMOptions` field and set its value to an empty object `{}`. This is the crucial step that configures the machine set to use Azure Spot Virtual Machines.
+
+    [NOTE]
+    You might also consider changing `spec.replicas` from `1` to `0` initially if you want to apply the file without immediately provisioning a node, or set it to your desired initial replica count.
+
+Here's an abridged example highlighting the key changes for a Spot MachineSet. Remember to adapt the full YAML from your exported template.
+
+.spotmachineset.yaml (Abridged Example with Key Changes)
+....
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  creationTimestamp: null
+  name: aro-cluster-5t2dj-spot-eastus1 <1>
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-machineset: aro-cluster-5t2dj-spot-eastus1 <2>
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: aro-cluster-5t2dj
+        machine.openshift.io/cluster-api-machine: aro-cluster-5t2dj-spot-eastus1
+        machine.openshift.io/cluster-api-machineset: aro-cluster-5t2dj-spot-eastus1 <3>
+        node-role.kubernetes.io/worker: ""
+        node-role.kubernetes.io/spot: "" <4>
+    spec:
+      providerSpec:
+        value:
+          apiVersion: azureprovider.openshift.io/v1beta1
+          cloudProviderSource: OpenShiftManaged
+          credentialsSecret:
+            name: azure-cloud-credentials
+          image:
+            offer: aro-rhel8
+            publisher: redhat
+            sku: aro_416_gen2
+            version: 416.86.202307251756-0 <5>
+          internalLoadBalancer: ""
+          kind: AzureMachineProviderSpec
+          location: eastus <6>
+          managedIdentity: aro-cluster-5t2dj-identity
+          natRule: 0
+          networkResourceGroup: aro-cluster-5t2dj-rg
+          osDisk:
+            diskSizeGB: 128
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          resourceGroup: aro-cluster-5t2dj-rg
+          spotVMOptions: {} <7>
+          sshPrivateKey: ""
+          sshPublicKey: ""
+          subnet: aro-cluster-5t2dj-worker-subnet
+          userDataSecret:
+            name: worker-user-data
+          vmSize: Standard_D4s_v3 <8>
+          vnet: aro-cluster-5t2dj-vnet
+          zone: "1" <9>
+      taints:
+        - effect: NoSchedule
+          key: spot-instance
+          value: "true" <10>
+....
+<1> New, unique name for the dedicated MachineSet.
+<2> Update this selector label to match the new name.
+<3> Update this template label to match the new name.
+<4> *Optional:* Add a specific label to identify spot nodes. You can use this for node selectors in your Pods.
+<5> Verify the `image.version` is current for your cluster's OpenShift version. You might need to update this.
+<6> Ensure `location` matches your Azure region.
+<7> This crucial field enables Azure Spot Virtual Machines for this MachineSet.
+<8> *Optional:* Change `vmSize` if you need different compute capabilities for your dedicated nodes.
+<9> *Optional:* Change `zone` to `2` or `3` to deploy nodes in a different availability zone if desired, or remove it to allow Azure to pick. If removing it, ensure your MachineSet name doesn't imply a specific zone.
+<10> *Optional:* Add a `NoSchedule` taint to prevent pods from scheduling on these nodes unless they explicitly tolerate the taint. This is useful for preventing non-spot-tolerant workloads from landing on these interruptible nodes.
+
+Save the modified file as `spotmachineset.yaml`.
+
+=== Step 3: Create the New MachineSet
+
+Apply the modified YAML file to your cluster to create the dedicated machine set.
+
+....
+oc create -f spotmachineset.yaml
+....
+
+.Sample Output
+....
+machineset.machine.openshift.io/aro-cluster-5t2dj-spot-eastus1 created
+....
+
+=== Step 4: Verify the Creation and Status
+
+Verify that the new machine set has been created and that the desired number of machines are provisioning or running.
+
+....
+oc get machineset -n openshift-machine-api
+....
+
+.Sample Output
+....
+NAME                                     DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-5t2dj-worker-eastus1         1         1         1       1           3d1h
+aro-cluster-5t2dj-worker-eastus2         1         1         1       1           3d1h
+aro-cluster-5t2dj-worker-eastus3         1         1         1       1           3d1h
+aro-cluster-5t2dj-spot-eastus1           1         1         1       1           2m
+....
+
+You can also list the nodes to confirm the new spot instance node has joined the cluster and has the expected labels (if you added any).
+
+....
+oc get nodes -l node-role.kubernetes.io/spot=
+....
+
+.Sample Output (if `node-role.kubernetes.io/spot` label was added)
+....
+NAME                                         STATUS   ROLES                         AGE   VERSION
+aro-cluster-5t2dj-spot-eastus1-xxxx-yyyy     Ready    worker,spot                   2m    v1.26.10+d7606e1
+....
+
+=== Step 5: Scaling Your Dedicated Machine Set
+
+You can scale your dedicated machine set up or down like any other machine set to adjust the number of dedicated nodes.
+
+To scale the `aro-cluster-5t2dj-spot-eastus1` machine set to 2 replicas:
+....
+oc scale machineset aro-cluster-5t2dj-spot-eastus1 --replicas=2 -n openshift-machine-api
+....
+
+This completes the creation of a dedicated machine set using Azure Spot Virtual Machines. You can now configure your applications to target these nodes using node selectors or tolerations based on the labels or taints you added.

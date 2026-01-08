@@ -1,0 +1,214 @@
+#  Explore Kubernetes Pod and Service Networks
+
+= Explore Kubernetes Pod and Service Networks
+
+Kubernetes, and by extension OpenShift, provides a robust and flexible networking model that allows applications to communicate with each other, both internally within the cluster and externally to the outside world. Understanding how Pods get their network identity and how Services provide stable access to them is fundamental to deploying and managing applications effectively on Azure Red Hat OpenShift (ARO).
+
+This module delves into the core concepts of Pod and Service networking, explaining the underlying mechanisms and how they are implemented in ARO.
+
+== Understanding Kubernetes Networking Fundamentals
+
+At its heart, Kubernetes networking is designed to be flat, meaning every Pod has a unique IP address and can communicate with every other Pod without NAT (Network Address Translation). This simplifies application design, as Pods can treat each other as if they were on the same flat network.
+
+=== Pod Networking
+
+In a Kubernetes cluster, each Pod is assigned its own IP address. This IP address is unique within the cluster's Pod network. When a Pod is created, it gets a network namespace, and an IP address is allocated to it. This design principle allows applications within Pods to use standard network ports without conflicts, as each Pod has its own IP.
+
+*   **IP-per-Pod Model**: Every Pod receives its own unique IP address. This is crucial because it allows applications to run in Pods without modification, treating the Pod as a virtual machine with a dedicated network interface.
+*   **Flat Network Space**: Pods can communicate directly with each other regardless of which node they are running on. The underlying Container Network Interface (CNI) plugin handles the routing and ensures connectivity across nodes.
+*   **CNI in OpenShift**: In Azure Red Hat OpenShift, the default CNI plugin is xref:../../modules/aro-architecture-overview.adoc[OVN-Kubernetes]. OVN-Kubernetes provides advanced networking capabilities, including software-defined networking, security policies, and load balancing, to facilitate Pod-to-Pod communication.
+*   **Ephemeral Nature**: Pod IPs are ephemeral. When a Pod is destroyed and recreated (e.g., due to scaling, updates, or node failures), it gets a new IP address. This is where Services become essential.
+
+=== Service Networking
+
+While Pods provide the compute and network identity for individual application instances, their ephemeral nature means their IP addresses are not stable. To provide a stable network endpoint for a set of Pods, Kubernetes introduces the concept of *Services*. A Service is an abstraction that defines a logical set of Pods and a policy by which to access them.
+
+*   **Stable Endpoint**: A Service provides a single, stable IP address and DNS name that always points to a group of Pods, even if the underlying Pods are recreated or scale up/down.
+*   **Selector-based**: Services use label selectors to identify the set of Pods they manage. Any Pod matching the Service's selector will have its traffic routed through that Service.
+*   **Load Balancing**: Services automatically load balance incoming connections across the healthy Pods that match its selector.
+*   **Service Types**: Kubernetes offers several Service types, each designed for different access patterns:
+    ** `ClusterIP`**: This is the default type. It exposes the Service on an internal IP address within the cluster. This Service is only reachable from within the cluster. It's ideal for backend services that only need to be accessed by other applications inside the cluster.
+    ** `NodePort`**: Exposes the Service on a static port on each Node's IP address. This makes the Service accessible from outside the cluster using `<NodeIP>:<NodePort>`.
+    ** `LoadBalancer`**: Exposes the Service externally using a cloud provider's load balancer. In ARO, this provision an Azure Load Balancer that routes external traffic to the Service's Pods. This is crucial for exposing applications to external users or systems.
+    ** `ExternalName`**: Maps a Service to an arbitrary DNS name, making it useful for services external to the cluster.
+
+*   **DNS for Services**: Kubernetes's internal DNS system (CoreDNS) automatically creates DNS records for Services. Pods can then resolve a Service by its name (e.g., `my-service`) within the same namespace, or by its fully qualified domain name (FQDN) across namespaces (e.g., `my-service.my-namespace.svc.cluster.local`).
+
+=== OpenShift Ingress for External Access
+
+While `LoadBalancer` Services can expose applications, for HTTP/S traffic, OpenShift leverages its Ingress Controller. The xref:../../modules/aro-architecture-overview.adoc[OpenShift Ingress cluster operator] manages the default IngressController, which handles external HTTP/S routing to Services based on hostnames and paths. This provides more advanced routing capabilities than a simple LoadBalancer Service.
+
+.OpenShift Networking Overview
+image::aro-networking-overview.png[OpenShift Networking Overview, 700, 700]
+_Figure: Simplified view of Pod, Service, and Ingress networking in OpenShift._
+
+== Hands-on Activity: Exploring Pod and Service Networks
+
+In this activity, you will deploy a simple web application and observe how Pods are networked and how a Service provides a stable internal endpoint.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI tool configured and logged in to your ARO cluster.
+*   A new project for this lab (e.g., `explore-networking`).
+
+=== Steps
+
+. **Log in to your OpenShift cluster and create a new project.**
++
+----
+oc login # Follow the prompts to log in
+oc new-project explore-networking
+----
+
+. **Deploy a simple Nginx application.**
++
+We'll create a `Deployment` that runs Nginx.
++
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+----
++
+Save the above content as `nginx-deployment.yaml` and apply it:
++
+----
+oc apply -f nginx-deployment.yaml
+----
++
+Verify the deployment and Pods are running:
++
+----
+oc get deployment nginx-deployment
+oc get pods -l app=nginx
+----
+
+. **Observe Pod IP addresses.**
++
+Each of your Nginx Pods will have a unique IP address. Use `oc get pods -o wide` to see the Pod IPs and which node they are running on.
++
+----
+oc get pods -l app=nginx -o wide
+----
++
+.Example Output (Pod IPs will vary)
+[source,bash]
+----
+NAME                              READY   STATUS    RESTARTS   AGE   IP             NODE                                          NOMINATED NODE   READINESS GATES
+nginx-deployment-7bb4599767-72v8s   1/1     Running   0          2m    10.128.2.147   aro-worker-0                                  <none>           <none>
+nginx-deployment-7bb4599767-t2j85   1/1     Running   0          2m    10.129.2.15    aro-worker-1                                  <none>           <none>
+----
++
+Notice the `IP` column. These are the Pod's internal IP addresses. You'll likely see different IPs and potentially different nodes, illustrating the distributed nature of Pod networking.
+
+. **Create a `ClusterIP` Service for the Nginx application.**
++
+This Service will provide a stable internal IP address for the Nginx Pods.
++
+[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+----
++
+Save the above content as `nginx-service.yaml` and apply it:
++
+----
+oc apply -f nginx-service.yaml
+----
+
+. **Observe the Service IP address.**
++
+Check the Service details to find its Cluster IP.
++
+----
+oc get service nginx-service
+----
++
+.Example Output (Service IP will vary)
+[source,bash]
+----
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+nginx-service   ClusterIP   172.30.222.138   <none>        80/TCP    1m
+----
++
+The `CLUSTER-IP` is the stable internal IP address for this Service. It will not change as long as the Service exists, even if the underlying Pods are replaced.
+
+. **Access the Nginx Service internally.**
++
+To demonstrate internal access, we'll create a temporary busybox Pod and use `wget` to access the Nginx Service by its Cluster IP and its DNS name.
++
+First, deploy a temporary busybox Pod:
++
+----
+oc run -it --rm --restart=Never busybox --image=busybox -- /bin/sh
+----
++
+Once inside the busybox Pod's shell, try the following:
++
+*   **Access by Service Cluster IP**: Replace `172.30.222.138` with your `nginx-service`'s `CLUSTER-IP`.
++
+----
+wget -O- 172.30.222.138
+----
++
+*   **Access by Service DNS name**:
++
+----
+wget -O- nginx-service
+----
++
+*   **Access by Service FQDN**:
++
+----
+wget -O- nginx-service.explore-networking.svc.cluster.local
+----
++
+In all cases, you should see the HTML content served by the Nginx web server, demonstrating that the Service is correctly routing traffic to one of the Nginx Pods.
++
+Type `exit` to leave the busybox Pod's shell.
+
+. **Clean up resources.**
++
+Delete the deployment and service you created.
++
+----
+oc delete deployment nginx-deployment
+oc delete service nginx-service
+----
++
+You can also delete the project if you are done:
++
+----
+oc delete project explore-networking
+----
+
+This exercise has shown you how Pods receive unique, ephemeral IP addresses and how Services provide a stable, load-balanced endpoint for those Pods within the cluster. This fundamental understanding is critical for designing and troubleshooting applications in Azure Red Hat OpenShift.

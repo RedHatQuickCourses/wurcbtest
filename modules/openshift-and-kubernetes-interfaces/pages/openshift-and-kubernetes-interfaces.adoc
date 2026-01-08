@@ -1,0 +1,9 @@
+#  OpenShift and Kubernetes Interfaces
+
+== OpenShift and Kubernetes Interfaces
+
+OpenShift and Kubernetes provide interfaces for managing clusters and applications. These include:
+
+*   **OpenShift Web Console**: A user-friendly graphical interface for visualizing and managing cluster resources.
+*   **OpenShift Command-line Interface (CLI)** (`oc`): A powerful tool for interacting with OpenShift clusters, offering advanced control and automation capabilities.
+*   **Kubernetes Command-line Interface (CLI)** (`kubectl`): The standard CLI for interacting with Kubernetes clusters, used for deploying, managing, and inspecting applications.

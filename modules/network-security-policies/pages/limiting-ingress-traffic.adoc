@@ -1,0 +1,309 @@
+#  Limiting ingress traffic
+
+= Limiting Ingress Traffic
+:navtitle: Limiting Ingress Traffic
+
+OpenShift clusters, including Azure Red Hat OpenShift (ARO), manage various types of network traffic. *Ingress traffic* refers to any network traffic attempting to enter a cluster, a specific namespace, or a particular pod from an external source or another part of the cluster. Effectively managing and limiting this traffic is a critical security measure to protect applications and data from unauthorized access or malicious activities.
+
+In ARO, limiting ingress traffic is primarily achieved through Kubernetes `NetworkPolicy` objects, which leverage OpenShift's Software Defined Networking (SDN) capabilities. Additionally, route annotations can provide basic IP-based ingress control for applications exposed via OpenShift Routes.
+
+== Understanding Ingress Traffic and Network Policies
+
+By default, without any explicit network policies, all pods within an OpenShift cluster can communicate with each other. This "flat network" model is convenient for development but often undesirable for production environments where strict security boundaries are required. `NetworkPolicy` objects allow you to define rules that control how pods communicate with each other and with external network endpoints, thereby enforcing these crucial security boundaries.
+
+All cluster ingress traffic, particularly for external exposure, traverses the defined load balancer. However, for internal pod-to-pod communication and fine-grained access control, `NetworkPolicy` objects are the primary mechanism.
+
+=== OpenShift NetworkPolicy Objects
+
+xref:ROOT:network-security-policies.adoc[NetworkPolicy objects] are a powerful and granular mechanism for controlling ingress (and egress) traffic at the pod level within an OpenShift cluster. They function by defining sets of rules that specify which connections are allowed or denied to a particular group of pods.
+
+Key characteristics of `NetworkPolicy` objects in ARO:
+
+*   **Granular Control**: `NetworkPolicy` objects allow for full control over ingress network policy down to the pod level, including between pods on the same cluster and even within the same namespace.
+*   **OpenShift SDN Integration**: `NetworkPolicy` objects utilize the `ovs-networkpolicy` plugin, which is part of OpenShift Software Defined Networking (SDN). OpenShift SDN uses Open vSwitch (OVS) to configure an overlay network, enabling these fine-grained policy enforcements.
+*   **V1 NetworkPolicy Compliant**: The ingress network policy in ARO is `V1 NetworkPolicy` compliant, aligning with standard Kubernetes `NetworkPolicy` specifications.
+*   **Enforcement**: The ingress network policy is enabled by default, and its enforcement is carried out by users through the creation and application of `NetworkPolicy` resources.
+*   **Limitations for Ingress Rules**: According to the provided context, for *ingress rules* defined within a `NetworkPolicy`, the `Egress` and `IPBlock` types are not supported. This means you cannot define egress rules as part of an ingress policy, and you cannot directly specify source IP CIDR blocks (`IPBlock`) for incoming traffic within the `ingress` section of a `NetworkPolicy` on an ARO cluster. Instead, you primarily rely on `podSelector` and `namespaceSelector` for source identification of incoming traffic.
+
+=== Route Annotations for IP Allow Lists
+
+For applications exposed via OpenShift Routes, project administrators can add route annotations to implement basic ingress control, such as defining an IP allow list. This method is typically used for broader access control at the route level rather than granular pod-level policy.
+
+[source,bash,subs="attributes+"]
+----
+oc annotate route <route-name> haproxy.router.openshift.io/ip_whitelist="<IP-address-or-CIDR>,<IP-address-or-CIDR>"
+----
+For example, to allow access only from `192.168.1.0/24`:
+[source,bash]
+----
+oc annotate route my-app-route haproxy.router.openshift.io/ip_whitelist="192.168.1.0/24"
+----
+
+While useful for initial filtering, `NetworkPolicy` objects provide a more comprehensive and robust solution for network segmentation and security within the cluster.
+
+== Hands-on Activity: Restricting Ingress with NetworkPolicy
+
+In this activity, you will deploy a simple web application and then apply a `NetworkPolicy` to restrict which pods can access it, demonstrating fine-grained ingress control.
+
+=== Scenario
+
+You will:
+
+.  Deploy an Nginx application (the "backend") in a dedicated namespace.
+.  Deploy a client pod (with `curl`) in another namespace.
+.  Verify that the client pod can initially access the Nginx application.
+.  Create and apply a `NetworkPolicy` to the Nginx application that denies all incoming traffic by default, then explicitly allows traffic *only* from pods within its own namespace.
+.  Verify that the client pod can no longer access the Nginx application, demonstrating the policy's effect.
+
+=== Prerequisites
+
+*   An active Azure Red Hat OpenShift cluster.
+*   `oc` CLI configured and logged into the cluster with administrative privileges.
+
+=== Procedure
+
+.  *Create namespaces*:
+    Create two new namespaces: one for the backend application and one for the client pod.
+
+    [source,bash]
+    ----
+    oc new-project backend-app
+    oc new-project client-tester
+    ----
+
+.  *Deploy the Nginx backend application*:
+    Deploy a simple Nginx web server in the `backend-app` namespace.
+
+    [source,yaml]
+    ----
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nginx-backend
+      labels:
+        app: nginx-backend
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: nginx-backend
+      template:
+        metadata:
+          labels:
+            app: nginx-backend
+        spec:
+          containers:
+          - name: nginx
+            image: quay.io/nginxinc/nginx-unprivileged:latest
+            ports:
+            - containerPort: 80
+    ----
+
+    Apply the deployment:
+
+    [source,bash]
+    ----
+    oc apply -f - <<EOF
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nginx-backend
+      labels:
+        app: nginx-backend
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: nginx-backend
+      template:
+        metadata:
+          labels:
+            app: nginx-backend
+        spec:
+          containers:
+          - name: nginx
+            image: quay.io/nginxinc/nginx-unprivileged:latest
+            ports:
+            - containerPort: 80
+    EOF
+    ----
+
+    Expose the Nginx application internally with a ClusterIP service:
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: nginx-backend-svc
+    spec:
+      selector:
+        app: nginx-backend
+      ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 80
+    ----
+
+    Apply the service:
+
+    [source,bash]
+    ----
+    oc apply -f - <<EOF
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: nginx-backend-svc
+    spec:
+      selector:
+        app: nginx-backend
+      ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 80
+    EOF
+    ----
+
+.  *Deploy the client pod*:
+    Deploy a `curl` client pod in the `client-tester` namespace. This pod will be used to test connectivity.
+
+    [source,yaml]
+    ----
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: client-pod
+    spec:
+      containers:
+      - name: client
+        image: quay.io/centos/centos:latest # Or any image with curl, e.g., busybox
+        command: ["sh", "-c", "sleep infinity"]
+      restartPolicy: Never
+    ----
+
+    Switch to the `client-tester` project and apply the pod:
+
+    [source,bash]
+    ----
+    oc project client-tester
+    oc apply -f - <<EOF
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: client-pod
+    spec:
+      containers:
+      - name: client
+        image: quay.io/centos/centos:latest
+        command: ["sh", "-c", "sleep infinity"]
+      restartPolicy: Never
+    EOF
+    ----
+
+    Wait for both `nginx-backend` deployment and `client-pod` to be running:
+
+    [source,bash]
+    ----
+    oc project backend-app
+    oc get pods
+    oc project client-tester
+    oc get pods
+    ----
+
+.  *Verify initial connectivity*:
+    From the `client-pod`, try to access the `nginx-backend-svc` in the `backend-app` namespace. You'll need the full service DNS name.
+
+    First, get the full DNS name for the backend service:
+
+    [source,bash]
+    ----
+    oc project client-tester
+    SERVICE_DNS_NAME=$(oc get service nginx-backend-svc -n backend-app -o jsonpath='{.metadata.name}.{.metadata.namespace}.svc.cluster.local')
+    echo "Attempting to reach: $SERVICE_DNS_NAME"
+    ----
+
+    Now, execute `curl` from the `client-pod`:
+
+    [source,bash]
+    ----
+    oc exec client-pod -- curl -s $SERVICE_DNS_NAME
+    ----
+    You should see Nginx's default welcome page (HTML content), indicating successful connection.
+
+.  *Apply the NetworkPolicy*:
+    Now, create a `NetworkPolicy` in the `backend-app` namespace that will deny all ingress traffic to `nginx-backend` pods unless it originates from a pod within the `backend-app` namespace itself.
+
+    [source,yaml]
+    ----
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: deny-ingress-from-other-namespaces
+      namespace: backend-app
+    spec:
+      podSelector:
+        matchLabels:
+          app: nginx-backend # This policy applies to pods with this label
+      policyTypes:
+        - Ingress
+      ingress:
+        # Allow ingress only from pods within the same namespace
+        - from:
+            - podSelector: {} # Selects all pods in the same namespace (backend-app)
+    ----
+
+    Switch to the `backend-app` project and apply the NetworkPolicy:
+
+    [source,bash]
+    ----
+    oc project backend-app
+    oc apply -f - <<EOF
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: deny-ingress-from-other-namespaces
+      namespace: backend-app
+    spec:
+      podSelector:
+        matchLabels:
+          app: nginx-backend
+      policyTypes:
+        - Ingress
+      ingress:
+        - from:
+            - podSelector: {}
+    EOF
+    ----
+
+    [NOTE]
+    ====
+    This `NetworkPolicy` works as follows:
+
+    *   `podSelector: matchLabels: app: nginx-backend`: This specifies that the policy applies to pods labeled `app: nginx-backend`.
+    *   `policyTypes: - Ingress`: This indicates that the policy defines rules for incoming traffic.
+    *   `ingress:`: This section contains the ingress rules. If this section is present and contains rules, only traffic matching those rules is allowed, and all other ingress is denied. If this section were present and empty, it would deny *all* ingress.
+    *   `from: - podSelector: {}`: This rule explicitly allows ingress from *any* pod within the *same namespace* (`backend-app`), because `podSelector: {}` selects all pods within the policy's namespace.
+    ====
+
+.  *Verify restricted connectivity*:
+    Try to access the Nginx application again from the `client-pod` in the `client-tester` namespace.
+
+    [source,bash]
+    ----
+    oc project client-tester
+    SERVICE_DNS_NAME=$(oc get service nginx-backend-svc -n backend-app -o jsonpath='{.metadata.name}.{.metadata.namespace}.svc.cluster.local')
+    oc exec client-pod -- curl -s --max-time 5 $SERVICE_DNS_NAME
+    ----
+
+    You should now see that the `curl` command hangs or fails to connect (e.g., "Connection timed out" or "Failed to connect"), indicating that the `NetworkPolicy` is successfully blocking traffic from `client-pod` to `nginx-backend`.
+
+.  *Clean up (Optional)*:
+    Remove the resources created during this activity.
+
+    [source,bash]
+    ----
+    oc delete project backend-app
+    oc delete project client-tester
+    ----
+
+This hands-on activity demonstrates how `NetworkPolicy` objects provide fine-grained control over ingress traffic within your Azure Red Hat OpenShift cluster, significantly enhancing the security posture of your applications.

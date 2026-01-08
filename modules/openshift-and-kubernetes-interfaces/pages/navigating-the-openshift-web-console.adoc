@@ -1,0 +1,159 @@
+#  Navigating the OpenShift Web Console
+
+[role="doc"]
+= Navigating the OpenShift Web Console
+
+This module will guide you through accessing and navigating the Azure Red Hat OpenShift (ARO) web console, a powerful graphical interface for managing your OpenShift clusters and applications.
+
+== Introduction to the OpenShift Web Console
+
+The OpenShift Web Console provides a robust, user-friendly, browser-based interface for interacting with your OpenShift cluster. It acts as a central hub for cluster administrators and developers, simplifying many complex technical tasks by offering visual representations of your cluster's resources, applications, and their operational status. From deploying and monitoring applications to managing cluster health, users, and projects, the web console streamlines the day-to-day operations of an OpenShift environment.
+
+== Accessing the OpenShift Web Console
+
+To begin managing your Azure Red Hat OpenShift (ARO) cluster, you first need to access its dedicated web console. The unique URL for your ARO cluster's web console can be programmatically retrieved using the Azure CLI.
+
+=== Retrieving the Console URL
+
+The Azure Red Hat OpenShift cluster's console URL is exposed as part of its `consoleProfile` properties. This information can be directly queried from your ARO cluster resource using the `az aro show` command, which provides a comprehensive view of your cluster's configuration and endpoints.
+
+.Hands-on Activity: Retrieve OpenShift Web Console URL
+====
+Ensure you are authenticated and logged into your Azure account via the Azure CLI on your local machine or through the Azure Cloud Shell.
+
+. **Define Environment Variables (if not already set):**
++
+For convenience and reusability, define the names of your resource group and ARO cluster as environment variables:
++
+[source,bash]
+----
+RESOURCEGROUP="<your-resource-group-name>" # e.g., aro-rg-dev
+CLUSTER="<your-cluster-name>"              # e.g., aro-cluster-prod
+----
++
+Replace `<your-resource-group-name>` and `<your-cluster-name>` with the actual names corresponding to your Azure Red Hat OpenShift deployment.
+
+. **Execute the `az aro show` command to obtain the console URL:**
++
+Run the following Azure CLI command to query your ARO cluster's details and extract the console URL:
++
+[source,bash]
+----
+az aro show \
+    --name $CLUSTER \
+    --resource-group $RESOURCEGROUP \
+    --query "consoleProfile.url" \
+    --output tsv
+----
++
+*   The `az aro show` command retrieves detailed information about your specified ARO cluster.
+*   The `--query "consoleProfile.url"` part is a JMESPath query that specifically extracts the URL from the `consoleProfile` object within the cluster's properties.
+*   The `--output tsv` flag formats the output as tab-separated values, ensuring that only the raw URL string is returned, making it easy to copy.
+
+. **Identify and Copy the Console URL:**
++
+The command's output will be a single line containing the console URL, which typically follows a pattern similar to this:
++
+[source]
+----
+https://console-openshift-console.apps.<random>.<region>.aroapp.io/
+----
++
+Carefully copy this URL. This is the entry point to your OpenShift Web Console.
+====
+
+=== Logging into the Console
+
+Once you have successfully retrieved the console URL, the next step is to open it in your web browser and log in. For initial access, or for administrative tasks, you typically use the `kubeadmin` credentials that were generated during the ARO cluster creation process.
+
+.Hands-on Activity: Log into the OpenShift Web Console
+====
+. **Open the Console URL in your browser:**
++
+Paste the copied OpenShift Web Console URL into the address bar of your preferred web browser and press Enter.
+
+. **Navigate to the Login Page:**
++
+You will be presented with the OpenShift login page. This page usually offers several login options. For initial administrative access, select the 'kubeadmin' option (often labeled 'Login with kubeadmin').
+
+. **Enter `kubeadmin` Credentials:**
++
+Input the `kubeadmin` username (which is usually `kubeadmin`) and the corresponding password.
++
+[NOTE]
+If you do not have the `kubeadmin` password readily available, you can retrieve it by running the `az aro get-kubeadmin-password --name $CLUSTER --resource-group $RESOURCEGROUP` command in your Azure CLI.
+
+. **Access the Console Dashboard:**
++
+Upon successful authentication, you will be directed to the OpenShift Web Console dashboard, which provides an overview of your projects, cluster status, and other key information.
+====
+
+== Navigating the OpenShift Web Console Interface
+
+The OpenShift Web Console is thoughtfully organized to provide quick and intuitive access to various cluster resources, management tools, and development functionalities. Understanding its key interface elements is crucial for efficient operation.
+
+=== Key Interface Elements
+
+*   **Left-hand Navigation Menu:** This primary, collapsible menu is positioned on the left side of the console. It categorizes and provides links to all major sections of the console, including:
+    *   *Home*: Dashboard views for both administrator and developer perspectives.
+    *   *Projects*: For creating, viewing, and managing Kubernetes namespaces.
+    *   *Operators*: To discover, install, and manage Operators for extending cluster capabilities.
+    *   *Workloads*: Management of Pods, Deployments, StatefulSets, DaemonSets, etc.
+    *   *Networking*: Configuration of Routes, Services, NetworkPolicies, and more.
+    *   *Storage*: Management of Persistent Volume Claims and StorageClasses.
+    *   *Builds*: Monitoring and managing application build processes.
+    *   *Administration*: Cluster settings, users, roles, and other administrative tasks.
+*   **Project Switcher:** Located prominently at the top of the left-hand navigation menu or within the console header, this dropdown allows you to effortlessly switch between different projects (Kubernetes namespaces) to which you have access.
+*   **User Menu:** Positioned in the top-right corner, typically displaying your logged-in username (e.g., `kubeadmin`), this menu provides options for user settings, viewing API tokens, and logging out of the console.
+*   **Help Menu (`?` icon):** Also found in the top-right corner next to the user menu, this icon offers a dropdown with quick links to OpenShift documentation, keyboard shortcuts, and a critical section for downloading command-line tools.
+
+=== Exploring Applications in Topology View
+
+The *Topology* view, primarily designed for developers, offers a dynamic and graphical representation of your applications and their constituent components within a selected project. It visually maps deployments, services, routes, builds, and their interconnections, providing an intuitive way to understand application architecture and status.
+
+.Hands-on Activity: Explore the Topology View and Application Details
+====
+. **Navigate to the Topology View:**
++
+In the left-hand navigation menu, ensure you are in the *Developer* perspective (switch using the dropdown at the top-left if necessary). Then, click on *Topology* under the *Developer* section.
+
+. **Observe Deployed Applications:**
++
+If you have any applications deployed in your current project (e.g., from previous lab activities or sample deployments), they will be represented as nodes or rings within the topology graph. The visual layout helps in understanding the relationships between different parts of your application.
+
+. **Access Application External URL:**
++
+For applications that are exposed to external traffic via an OpenShift `Route`, the Topology view provides a direct way to access their external URL.
+*   Click on an application's node or ring in the graph. This action will open a side panel displaying detailed information about the application.
+*   Look for an icon (often a small arrow pointing outwards or a globe icon) positioned in the top-right corner of the application's card or ring within the topology view.
+*   Clicking this icon will open the application's public URL in a new browser tab, allowing you to interact with the deployed application directly.
++
+[NOTE]
+When an application is deployed through the web console, OpenShift can automatically create a `Route` to expose it externally. The URL for this `Route` is readily available on the application's details page and, more conveniently, via the icon in the Topology view, as described above.
+====
+
+=== Downloading Command-Line Tools
+
+The OpenShift Web Console serves as a convenient central location for downloading the various command-line interface (CLI) tools necessary for interacting with your cluster from a terminal. This includes the essential `oc` (OpenShift CLI) and `kubectl` (Kubernetes CLI), and potentially other tools like `kn` (Knative CLI) or `tkn` (Tekton CLI) if their respective Operators are installed on your cluster.
+
+.Hands-on Activity: Locate and Explore Command Line Tools
+====
+. **Access the Help Menu:**
++
+In the top-right corner of the OpenShift Web Console, locate and click on the question mark icon (`?`). This icon opens a dropdown menu containing various help-related resources.
+
+. **Select "Command Line Tools":**
++
+From the dropdown menu that appears, select the *Command Line Tools* option.
+
+. **Review Available CLI Downloads:**
++
+You will be directed to a dedicated page that lists and provides download links for the various CLI clients compatible with your OpenShift cluster version. These typically include:
+*   **`oc` (OpenShift CLI):** The primary command-line tool for managing OpenShift clusters.
+*   **`kubectl` (Kubernetes CLI):** The standard command-line tool for interacting with Kubernetes clusters.
++
+You will find different releases appropriate for various operating systems (Linux, macOS, Windows). Choose the appropriate binary for your local machine's operating system and architecture.
++
+[TIP]
+If you are working from the Azure Cloud Shell, you would typically download the Linux `oc` client as instructed in the context, ensuring compatibility with the Cloud Shell's environment.
+====

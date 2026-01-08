@@ -1,0 +1,111 @@
+#  Joint engineering, operation, and support model
+
+= Joint Engineering, Operation, and Support Model for Azure Red Hat OpenShift
+
+Azure Red Hat OpenShift (ARO) stands out as a unique fully managed service on Azure, born from a deep collaboration between Microsoft and Red Hat. This joint engineering, operation, and support model is fundamental to ARO, providing customers with an enterprise-grade OpenShift experience while significantly reducing their operational burden. It defines a clear separation of responsibilities, ensuring that the underlying platform is robustly maintained by experts from both companies, allowing customers to focus on their applications.
+
+[[_joint-model-overview]]
+=== Overview of the Joint Model
+
+The core of the ARO joint model is a shared responsibility matrix that delineates who is responsible for what, from the physical infrastructure to the application layer. This collaboration ensures that Microsoft manages the Azure infrastructure, and Red Hat provides its OpenShift expertise, with both companies jointly operating and supporting the ARO cluster.
+
+.Key aspects of the joint model:
+*   **Unified Support:** A single point of contact for support issues, jointly handled by Microsoft and Red Hat.
+*   **Managed Control Plane:** The OpenShift control plane (master nodes) and core infrastructure services are fully managed and operated by Microsoft and Red Hat.
+*   **Joint Engineering:** Features and updates are developed and integrated collaboratively.
+*   **Shared Operations:** Proactive monitoring, maintenance, and incident response for the platform.
+
+[[_responsibilities-by-resource]]
+=== Responsibilities by Resource
+
+The following table provides a high-level overview of the primary operational responsibilities for different cluster components within the ARO environment.
+
+[cols="a,a",options="header"]
+|===
+|Resource
+|Microsoft and Red Hat Responsibilities
+|Control plane nodes
+|Full management, monitoring, and scaling of master nodes.
+|Worker nodes
+|Management of the underlying Azure VMs, ensuring OS health, and providing patching.
+|Cluster Version
+|Managing available OpenShift versions, scheduling upgrades, and publishing release notes.
+|Capacity Management
+|Monitoring and proactively scaling control plane resources (network, storage, compute).
+|Virtual Storage
+|Management of underlying persistent storage infrastructure.
+|Physical Infrastructure and Security
+|Management of the underlying Azure physical infrastructure and its security.
+|===
+
+[[_incident-and-operations-management]]
+=== Incident and Operations Management
+
+Incident and operations management responsibilities are shared to ensure the health and security of the ARO cluster, while allowing customers control over their applications and data.
+
+[cols="a,a",options="header"]
+|===
+|Area
+|Microsoft and Red Hat Responsibilities
+|Customer Responsibilities
+|Logging
+|Centrally aggregate and monitor platform audit logs.
+Provide documentation to enable application logging using Log Analytics through Azure Monitor for containers.
+Provide audit logs upon customer request.
+|Install and configure application-specific logging agents or frameworks.
+Monitor and manage application logs.
+|Platform Monitoring
+|Monitor control plane and infrastructure health, respond to alerts and potential issues or security threats.
+|Monitor customer applications, data, and custom networking configurations.
+Define and respond to alerts for application-level issues.
+|Incident Response
+|Handle incidents related to the underlying ARO platform, infrastructure, and core services.
+|Handle incidents related to customer applications, data, and custom networking.
+|===
+
+[[_change-management]]
+=== Change Management
+
+Managing changes, such as cluster upgrades or capacity adjustments, also involves a shared approach to ensure stability and compatibility.
+
+[cols="a,a",options="header"]
+|===
+|Area
+|Microsoft and Red Hat Responsibilities
+|Customer Responsibilities
+|Cluster Version Upgrades
+|Communicate schedule and status of upgrades for minor and maintenance versions.
+Publish changelogs and release notes for minor and maintenance upgrades.
+Maintain available versions for master nodes, infrastructure services, and worker nodes.
+|Initiate the upgrade of the cluster.
+Test customer applications on minor and maintenance versions to ensure compatibility before initiating upgrades.
+|Capacity Management
+|Monitor utilization of control plane (master nodes) resources including Network, Storage, and Compute capacity.
+Proactively scale and/or resize control plane nodes to maintain quality of service.
+|Add or remove additional worker nodes as required to meet application demands.
+Respond to Microsoft and Red Hat notifications regarding cluster resource requirements.
+Ensure ample Azure quota is available for larger control plane VMs in case of scaling operations.
+|Infrastructure Changes
+|Enable changes to the cluster infrastructure and services that the customer controls.
+|Initiate infrastructure changes (e.g., custom networking, optional services) and maintain their configurations on the cluster.
+|===
+
+[[_identity-and-access-management]]
+=== Identity and Access Management
+
+Identity and Access Management (IAM) is critical for securing the cluster and its resources. This includes ensuring that only authorized individuals and services have access to cluster, application, and infrastructure resources. While the underlying Azure IAM is managed by Microsoft, and OpenShift's internal IAM by Red Hat, the configuration of user access and integration with enterprise identity providers (like Azure AD) often involves customer responsibility.
+
+[[_customer-responsibilities-summary]]
+=== Customer Responsibilities Summary
+
+While Microsoft and Red Hat manage the ARO platform, the customer retains key responsibilities:
+
+*   **Application Management:** Deploying, configuring, and managing all customer applications running on the OpenShift cluster.
+*   **Data Management:** All customer data, including its backup, restore, and lifecycle within the applications.
+*   **Custom Networking:** Configuring and maintaining any custom networking, such as Virtual Networks, subnets, and network policies *within the customer-managed VNet*.
+*   **Worker Node Management:** Scaling worker nodes up or down to meet application demand.
+*   **Resource Quotas:** Ensuring sufficient Azure subscription quotas are available for cluster operations, especially for scaling events.
+*   **Initiating Changes:** Triggering cluster upgrades, and deploying or changing optional services and networking configurations.
+*   **Testing:** Validating application compatibility with new OpenShift versions before initiating cluster upgrades.
+
+By understanding this joint engineering, operation, and support model, customers can leverage the full benefits of ARO, offloading complex platform management tasks to the experts while maintaining control over their core business applications and data.

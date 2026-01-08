@@ -1,0 +1,4 @@
+* xref:openshift-and-kubernetes-interfaces.adoc[]
+** xref:navigating-the-openshift-web-console.adoc[]
+** xref:utilizing-the-kubernetes-command-line-interface-cli.adoc[]
+** xref:utilizing-the-openshift-command-line-interface-cli.adoc[]

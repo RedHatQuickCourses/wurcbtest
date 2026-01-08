@@ -1,0 +1,9 @@
+#  GitOps for Cluster Administration
+
+=== GitOps for Cluster Administration
+
+GitOps uses Git repositories as the single source of truth for defining and managing infrastructure and application configurations.
+
+*   It enables declarative cluster management, where desired states are stored in Git.
+*   *OpenShift GitOps* provides an operator to implement GitOps principles within OpenShift clusters.
+*   *ArgoCD* is a widely used declarative GitOps continuous delivery tool that automates the deployment and synchronization of applications and configurations to a cluster.

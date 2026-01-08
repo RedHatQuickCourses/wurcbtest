@@ -1,0 +1,110 @@
+#  Managing Kubernetes clusters with RHACM
+
+= Managing Kubernetes clusters with RHACM
+
+Red Hat Advanced Cluster Management for Kubernetes (RHACM) is a powerful platform designed to help organizations manage multiple Kubernetes clusters, whether they are running on-premises, in hybrid environments, or across various cloud providers like Azure Red Hat OpenShift (ARO). As Kubernetes deployments grow in scale and complexity, the need for a unified management solution becomes critical. RHACM addresses this by providing comprehensive visibility, control, and automation capabilities across your entire fleet of clusters.
+
+== Technical Explanation: Red Hat Advanced Cluster Management
+
+RHACM simplifies the operational challenges of managing a distributed Kubernetes infrastructure. It provides a single pane of glass for multi-cluster operations, enabling administrators to oversee, manage, and govern clusters, applications, and policies consistently.
+
+=== Key Capabilities of RHACM
+
+*   **Multi-cluster Observability:** Gain deep insights into the health, performance, and compliance of all your clusters from a centralized dashboard. This includes metrics, logs, events, and topology views.
+*   **Application Lifecycle Management:** Deploy, update, and manage applications consistently across multiple clusters using GitOps principles. RHACM integrates with tools like ArgoCD to provide declarative application management.
+*   **Governance and Risk Management:** Define and enforce security and configuration policies across your entire cluster fleet. This ensures compliance with organizational standards and regulatory requirements. Policies can range from ensuring specific security contexts are applied to mandating the presence of certain operators.
+*   **Infrastructure Management:** Provision new clusters, import existing ones, and manage the lifecycle of your Kubernetes infrastructure, including OpenShift clusters, bare-metal clusters, and managed services.
+*   **Backup and Restore:** While not its primary function, RHACM can be used to manage the deployment of backup solutions (like Velero) across multiple clusters, ensuring data protection strategies are uniformly applied.
+
+=== How RHACM Works
+
+RHACM operates on a hub-and-spoke model:
+
+*   **Hub Cluster:** This is a dedicated OpenShift cluster where RHACM is installed. It serves as the central control plane, providing the user interface, APIs, and the core components for managing other clusters.
+*   **Managed Clusters:** These are the Kubernetes clusters that are registered with and managed by the hub cluster. This can include ARO clusters, OpenShift clusters on other clouds, or even vanilla Kubernetes clusters.
+*   **Klusterlet Agent:** A lightweight agent, called Klusterlet, is deployed on each managed cluster. This agent establishes a secure connection with the hub cluster, allowing the hub to collect data (metrics, events, inventory) from the managed cluster and push configurations, policies, and application deployments to it.
+
+Data exchange between the hub and managed clusters is secured using mTLS, ensuring that sensitive management information remains protected.
+
+=== Benefits of Using RHACM
+
+*   **Centralized Control:** A single point of management for all your Kubernetes clusters, reducing operational overhead and complexity.
+*   **Consistency and Standardization:** Enforce uniform configurations, security policies, and application deployments across disparate clusters.
+*   **Enhanced Visibility:** Comprehensive dashboards and reporting provide a holistic view of your cluster environment, aiding in proactive issue identification and resolution.
+*   **Scalability:** Efficiently manage a growing number of clusters without proportional increases in administrative effort.
+*   **Automation:** Automate repetitive tasks like application deployment, policy enforcement, and cluster provisioning, freeing up valuable administrator time.
+
+== Hands-on Activity: Managing a Cluster with Red Hat Advanced Cluster Management
+
+In this activity, you will learn how to import an existing Azure Red Hat OpenShift (ARO) cluster into Red Hat Advanced Cluster Management (RHACM) and verify its status. This will demonstrate the basic capability of RHACM to bring disparate clusters under central management.
+
+NOTE: This lab assumes you have access to an existing RHACM hub cluster and an ARO cluster that you wish to manage. You will need `oc` CLI access to both the hub and the managed ARO cluster.
+
+=== Prerequisites
+
+*   An RHACM hub cluster is installed and accessible.
+*   An ARO cluster (the "managed cluster") is up and running.
+*   `oc` CLI configured for both the RHACM hub cluster and your ARO managed cluster.
+*   `kubectl` CLI configured for your ARO managed cluster (optional, `oc` can be used).
+
+=== Steps
+
+.  **Log in to the RHACM Hub Cluster Console**
+    Navigate to the OpenShift Web Console of your RHACM hub cluster. Log in with appropriate credentials.
+    Once logged in, locate and click the "Applications" menu item on the left navigation, then select "Red Hat Advanced Cluster Management for Kubernetes". This will open the RHACM console.
+
+.  **Prepare to Import a Managed Cluster**
+    In the RHACM console, navigate to the *Clusters* section.
+    Click the blue *Import cluster* button.
+    You will be presented with options to define your cluster. Provide a unique name for your ARO cluster, for example, `my-aro-cluster`.
+    Keep the default *Management mode* as `Managed`.
+    Click *Generate command*.
+
+.  **Copy the Import Command**
+    RHACM will generate a `curl` command to retrieve the cluster import manifest and pipeline it to `oc apply`. This command looks similar to the following (do NOT execute this exact command, use the one generated by your RHACM console):
+
+    [source,bash]
+    ----
+    curl --insecure -sL https://<HUB_CLUSTER_API_URL>:8443/cluster-management/api/v1/namespaces/my-aro-cluster/clusterimports/my-aro-cluster/import.yaml | oc apply -f -
+    ----
+
+    Copy this entire command to your clipboard.
+
+.  **Execute the Import Command on the Managed ARO Cluster**
+    Open a terminal where your `oc` CLI is configured to target your ARO cluster (the one you want to manage).
+    Paste the copied command into your terminal and execute it.
+
+    [source,bash]
+    ----
+    # Ensure you are logged into your ARO cluster context
+    oc login ...
+
+    # Paste and execute the command copied from RHACM console
+    curl --insecure -sL https://<HUB_CLUSTER_API_URL>:8443/cluster-management/api/v1/namespaces/my-aro-cluster/clusterimports/my-aro-cluster/import.yaml | oc apply -f -
+    ----
+
+    This command deploys the Klusterlet agent and other necessary resources onto your ARO cluster, which will establish communication with the RHACM hub. You should see output indicating that various resources (namespace, service account, clusterrole, etc.) were created.
+
+.  **Verify Cluster Import Status in RHACM**
+    Return to the RHACM console.
+    In the *Clusters* section, you should now see your `my-aro-cluster` (or whatever name you chose) listed.
+    Initially, its status might be `Pending`. It typically takes a few minutes for the Klusterlet agent to deploy and establish a connection.
+    Refresh the page periodically. Once the connection is established, the status should change to `Ready` or `Active`.
+
+    TIP: If the cluster status remains `Pending` for an extended period, you can check the `klusterlet` pods in the `open-cluster-management-agent` namespace on your ARO cluster for errors.
+
+    [source,bash]
+    ----
+    oc get pods -n open-cluster-management-agent
+    oc logs -f <klusterlet-pod-name> -n open-cluster-management-agent
+    ----
+
+.  **Explore the Managed Cluster Details**
+    Click on the name of your newly imported cluster (`my-aro-cluster`) in the RHACM console.
+    This will take you to the cluster overview page, where you can see:
+    *   Cluster status and health.
+    *   Inventory of nodes, namespaces, and other resources.
+    *   Observed metrics (CPU, memory usage).
+    *   Configuration details.
+
+    Congratulations! You have successfully imported an Azure Red Hat OpenShift cluster into Red Hat Advanced Cluster Management, bringing it under centralized control. From here, you can start applying policies, deploying applications, and monitoring your ARO cluster alongside any other managed clusters.

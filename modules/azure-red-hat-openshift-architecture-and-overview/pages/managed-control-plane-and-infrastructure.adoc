@@ -1,0 +1,119 @@
+#  Managed control plane and infrastructure
+
+= Managed Control Plane and Infrastructure
+
+[abstract]
+This module delves into the "managed" aspect of Azure Red Hat OpenShift (ARO), explaining how Microsoft and Red Hat jointly operate the Kubernetes control plane and underlying infrastructure. You'll learn about the benefits of this shared responsibility model, the specific roles of each party, and how customers gain visibility into the managed components through logging.
+
+== The ARO Managed Service Model
+
+Azure Red Hat OpenShift (ARO) stands out as a fully managed service, which fundamentally redefines the operational responsibilities typically associated with self-managing an OpenShift cluster on a cloud provider. In ARO, the complexity of maintaining the Kubernetes control plane and much of the underlying infrastructure is offloaded to a joint engineering, operation, and support team from Microsoft and Red Hat.
+
+=== Managed Control Plane
+
+The *control plane* (also known as the master nodes in OpenShift terminology) is the brain of your Kubernetes cluster. It orchestrates all operations, manages the cluster state, and ensures that your desired application state is maintained. In ARO, the control plane includes critical components such as:
+
+*   **kube-apiserver**: The front end for the Kubernetes control plane, exposing the Kubernetes API.
+*   **etcd**: A consistent and highly available key-value store used to store all cluster data.
+*   **kube-scheduler**: Watches for newly created Pods with no assigned node and selects a node for them to run on.
+*   **kube-controller-manager**: Runs various controller processes (e.g., node controller, replication controller, endpoints controller, service account controller, token controller).
+*   **cloud-controller-manager**: Integrates the cluster with the underlying Azure cloud platform (e.g., managing load balancers, persistent volumes, node lifecycle).
+
+With a managed control plane, Microsoft and Red Hat are responsible for:
+
+*   **Provisioning and lifecycle management**: Deploying, upgrading, patching, and maintaining the control plane nodes.
+*   **High availability**: Ensuring the control plane components are resilient to failures.
+*   **Security**: Applying security patches and hardening the control plane.
+*   **Monitoring and alerting**: Proactive monitoring of control plane health and performance.
+*   **Capacity management**: Monitoring utilization and scaling/resizing control plane nodes to maintain quality of service, as highlighted in the provided context under "Capacity Management" for "Control plane nodes" (Table 1 and Table 3).
+*   **Upgrades**: Communicating schedule and status of upgrades for minor and maintenance versions, initiating upgrades, and publishing changelogs (Table 3).
+
+This model significantly reduces the operational overhead for customers, allowing them to focus on application development and deployment rather than infrastructure management.
+
+=== Managed Infrastructure
+
+Beyond the control plane, ARO also manages a substantial portion of the underlying Azure infrastructure that supports the OpenShift cluster. This includes:
+
+*   **Virtual Machines**: The underlying Azure VMs for both control plane and worker nodes.
+*   **Networking**: Core networking components required for cluster operation.
+*   **Storage**: Virtual storage for the cluster's operational needs.
+*   **Physical Infrastructure and Security**: The foundational Azure data center infrastructure.
+
+As detailed in the provided context (Table 1. Responsibilities by resource), Microsoft and Red Hat share responsibility across these resources:
+
+*   **Control plane nodes**: Microsoft and Red Hat are jointly responsible.
+*   **Worker nodes**: Microsoft and Red Hat manage the underlying infrastructure. Customers are responsible for adding or removing worker nodes as required for application workloads and responding to resource notifications, while Microsoft and Red Hat ensure ample quota is available for scaling operations (Table 3).
+*   **Virtual Storage**: Managed by Microsoft and Red Hat.
+*   **Physical Infrastructure and Security**: Managed by Microsoft and Red Hat.
+
+The customer retains responsibility for incident and operations management of customer application data and any custom networking configurations they apply within the cluster (e.g., configuring network policies for their applications).
+
+The managed infrastructure model ensures that the platform is robust, secure, and always running on up-to-date and performant Azure resources, backed by the expertise of both cloud and OpenShift specialists.
+
+== Hands-on Lab: Enabling Control Plane Logging for Visibility
+
+While the control plane and much of the infrastructure are managed by Microsoft and Red Hat, as a customer, you still have crucial visibility into their operations through diagnostic logs. Enabling control plane logs is a vital step for troubleshooting cluster-level issues, understanding how your cluster is behaving, and auditing activities. These logs can be forwarded to Azure Log Analytics Workspace for comprehensive analysis.
+
+This activity demonstrates how to enable logging for various control plane components, allowing you to monitor their activities and diagnose potential problems.
+
+=== Prerequisites
+
+*   An existing Azure Red Hat OpenShift cluster.
+*   An Azure Log Analytics Workspace in the same subscription and resource group as your ARO cluster. If you don't have one, create it via the Azure portal or CLI.
+*   Azure CLI installed and configured with appropriate permissions to manage diagnostic settings for your ARO cluster.
+
+=== Steps
+
+.  **Identify your ARO Cluster and Log Analytics Workspace Details**
+    You'll need the Subscription ID, Resource Group Name, ARO Cluster Name, and Log Analytics Workspace Name. You can retrieve these using Azure CLI commands:
+
+    [source,bash]
+    ----
+    # Get your Subscription ID
+    az account show --query id --output tsv
+
+    # Get your ARO cluster details (replace <your-resource-group> and <your-aro-cluster-name>)
+    az aro show -g <your-resource-group> -n <your-aro-cluster-name> --query "{id: id, resourceGroup: resourceGroup}" -o json
+
+    # Get your Log Analytics Workspace ID (replace <your-log-analytics-resource-group> and <your-log-analytics-workspace-name>)
+    az monitor log-analytics workspace show -g <your-log-analytics-resource-group> -n <your-log-analytics-workspace-name> --query id --output tsv
+    ----
+
+.  **Enable Control Plane Logs**
+    Use the `az monitor diagnostic-settings create` command to create a diagnostic setting that forwards control plane logs to your Log Analytics Workspace. This command specifies a list of log categories to enable, including `kube-audit`, `kube-apiserver`, `kube-controller-manager`, and `kube-scheduler`, which are essential for monitoring the managed control plane.
+
+    [source,bash]
+    ----
+    az monitor diagnostic-settings create \
+        --name 'Collect-ARO-ControlPlane-Logs' \
+        --resource "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<ARO_RESOURCE_GROUP_NAME>/providers/Microsoft.ContainerService/managedClusters/<ARO_CLUSTER_NAME>" \
+        --workspace "/subscriptions/<LOG_ANALYTICS_SUBSCRIPTION_ID>/resourcegroups/<LOG_ANALYTICS_RESOURCE_GROUP_NAME>/providers/microsoft.operationalinsights/workspaces/<LOG_ANALYTICS_WORKSPACE_NAME>" \
+        --logs '[{"category": "karpenter-events","enabled": true},{"category": "kube-audit","enabled": true}, \
+                  {"category": "kube-apiserver","enabled": true},{"category": "kube-audit-admin","enabled": true}, \
+                  {"category": "kube-controller-manager","enabled": true},{"category": "kube-scheduler","enabled": true}, \
+                  {"category": "cluster-autoscaler","enabled": true},{"category": "cloud-controller-manager","enabled": true}]'
+    ----
+
+    Replace the placeholders (`<SUBSCRIPTION_ID>`, `<ARO_RESOURCE_GROUP_NAME>`, `<ARO_CLUSTER_NAME>`, `<LOG_ANALYTICS_SUBSCRIPTION_ID>`, `<LOG_ANALYTICS_RESOURCE_GROUP_NAME>`, `<LOG_ANALYTICS_WORKSPACE_NAME>`) with your specific details.
+
+.  **Verify Log Flow**
+    After a few minutes, control plane logs should start appearing in your Azure Log Analytics Workspace. You can query them using Kusto Query Language (KQL).
+
+    .  Navigate to your Log Analytics Workspace in the Azure portal.
+    .  Click on "Logs" under the "General" section.
+    .  Run a simple query to see if logs are being ingested, for example:
+
+        [source,kql]
+        ----
+        AzureDiagnostics
+        | where ResourceProvider == "MICROSOFT.CONTAINERSERVICE"
+        | where Category contains "kube"
+        | take 10
+        | project TimeGenerated, Category, log_s
+        ----
+
+        This query filters for logs from the `MICROSOFT.CONTAINERSERVICE` provider (which includes ARO) and categories related to Kubernetes control plane components.
+
+=== Expected Outcome
+
+You have successfully configured diagnostic settings to forward crucial control plane logs from your ARO cluster to an Azure Log Analytics Workspace. This provides you with the necessary visibility to monitor the health, activity, and security of the managed components, enabling more effective troubleshooting and operational insights into your ARO environment.

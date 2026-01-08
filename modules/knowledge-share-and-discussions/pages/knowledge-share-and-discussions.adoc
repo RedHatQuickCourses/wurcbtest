@@ -1,0 +1,11 @@
+#  Knowledge Share and Discussions
+
+=== Knowledge Share and Discussions
+
+This section covers advanced integration and conceptual topics for Azure Red Hat OpenShift:
+
+*   Integrating Azure AD with OpenShift OAuth for authentication.
+*   Integrating Azure Key Vault with ARO for secure secret management.
+*   Differentiating between Azure Availability Sets and Availability Zones for high availability.
+*   Understanding Azure Spot Instances for cost optimization.
+*   Exploring the concept of Hosted Control Planes.

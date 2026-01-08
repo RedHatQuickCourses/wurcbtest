@@ -1,0 +1,309 @@
+#  Manage applications using the Kubernetes Workload API
+
+Here's the detailed educational content for "Manage applications using the Kubernetes Workload API" in Antora AsciiDoc format, combining technical explanations with hands-on activities.
+
+[NOTE]
+This content assumes you have an Azure Red Hat OpenShift (ARO) cluster provisioned and have logged in using the `oc` CLI.
+
+ifndef::imagesdir[:imagesdir: ../assets/images]
+
+= Manage Applications Using the Kubernetes Workload API
+
+The Kubernetes Workload API is the cornerstone for managing and orchestrating applications within an OpenShift cluster. It provides a declarative model for defining, deploying, and maintaining the lifecycle of your applications, from simple stateless web servers to complex stateful databases and batch jobs. Understanding and effectively utilizing this API is crucial for efficient cluster administration and application delivery.
+
+== Understanding the Kubernetes Workload API
+
+At its core, the Kubernetes Workload API is a set of API objects that represent the desired state of your applications. Instead of imperatively telling the cluster *how* to do something, you declaratively state *what* you want the cluster to achieve. Kubernetes then works tirelessly to bring the current state of the cluster into alignment with your desired state.
+
+This declarative approach simplifies application management, enables automation, and makes your deployments more resilient and self-healing.
+
+=== Key Workload API Objects
+
+Let's explore the primary Workload API objects you'll use to manage applications in OpenShift:
+
+*   **xref:../kubernetes-networking/understanding-kubernetes-pod-and-service-networks.adoc[Pods]**:
+    *   The smallest, most fundamental deployable unit in Kubernetes.
+    *   A Pod represents a single instance of a running process in your cluster.
+    *   It typically encapsulates one or more containers (e.g., an application container and an accompanying sidecar container for logging).
+    *   Pods are ephemeral; they are not designed to be directly managed by users for long-running applications. Instead, higher-level controllers manage them.
+
+*   **ReplicaSets**:
+    *   Ensures a specified number of identical Pod replicas are running at all times.
+    *   If a Pod fails, the ReplicaSet automatically creates a new one to maintain the desired count.
+    *   While you can create ReplicaSets directly, they are usually managed by Deployments.
+
+*   **Deployments**:
+    *   The most common and recommended way to manage stateless applications.
+    *   Provides declarative updates for Pods and ReplicaSets.
+    *   Handles rolling updates, rollbacks, and scaling.
+    *   When you create a Deployment, it creates a ReplicaSet, which in turn creates Pods.
+
+*   **StatefulSets**:
+    *   Designed for managing stateful applications (e.g., databases like PostgreSQL, message queues like Kafka).
+    *   Provides stable, unique network identifiers and stable, persistent storage for each Pod.
+    *   Maintains ordinality and guaranteed ordering for Pod creation and deletion.
+
+*   **DaemonSets**:
+    *   Ensures that a copy of a specific Pod runs on *all* (or a selected subset of) nodes in the cluster.
+    *   Ideal for cluster-level background tasks like logging agents (e.g., Fluentd), monitoring agents (e.g., Prometheus Node Exporter), or storage daemons.
+
+*   **Jobs**:
+    *   Creates one or more Pods and ensures that a specified number of them successfully terminate.
+    *   Suitable for one-time, batch-oriented tasks (e.g., data processing, reporting).
+    *   Once a Job's Pods complete their work, the Job is considered finished.
+
+*   **CronJobs**:
+    *   Manages Jobs based on a schedule, similar to the `cron` utility in Linux.
+    *   Ideal for recurring tasks like backups, scheduled reports, or data synchronization.
+
+=== Interacting with the Workload API
+
+You interact with the Kubernetes Workload API primarily through:
+
+*   **`kubectl` (Kubernetes Command-Line Interface)**: The standard CLI for Kubernetes clusters.
+*   **`oc` (OpenShift Command-Line Interface)**: OpenShift's enhanced CLI, which is a superset of `kubectl` and provides additional OpenShift-specific functionalities. For the Workload API, `oc` commands often mirror `kubectl` commands.
+*   **YAML Manifests**: Declarative configuration files that define your desired application state. These are the preferred way for version control and automation.
+*   **OpenShift Web Console**: A user-friendly graphical interface for managing cluster resources, including applications.
+
+When managing applications, you'll often define your application's desired state in YAML files and then apply these files to the cluster using `oc apply -f <your-manifest.yaml>`.
+
+== Hands-on Activity: Managing Applications with the Workload API
+
+In this activity, you will perform common application management tasks using the `oc` CLI, focusing on Deployments and Jobs.
+
+=== Scenario: Deploying and Managing a Stateless Web Application
+
+You need to deploy a simple NGINX web server, scale it, update it, and then run a one-time clean-up job.
+
+==== Prerequisites
+
+*   An active ARO cluster.
+*   The `oc` CLI configured and authenticated to your cluster.
+*   A project (namespace) where you have deployment permissions. If you don't have one, create a new project:
+    ```bash
+    oc new-project my-app-project
+    ```
+    (Replace `my-app-project` with a name of your choice.)
+
+==== Activity 1: Deploying a Stateless Application (Deployment)
+
+In this step, you will create a Deployment for a basic NGINX web server.
+
+.  **Define the Deployment:**
+    Create a file named `nginx-deployment.yaml` with the following content:
+    ```yaml
+    # nginx-deployment.yaml
+    apiVersion: apps.openshift.io/v1
+    kind: Deployment
+    metadata:
+      name: my-nginx-app
+      labels:
+        app: nginx
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: nginx
+      template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - name: nginx
+            image: registry.access.redhat.com/nginx-118/nginx-rhel8:latest
+            ports:
+            - containerPort: 80
+              protocol: TCP
+            resources:
+              requests:
+                memory: "64Mi"
+                cpu: "250m"
+              limits:
+                memory: "128Mi"
+                cpu: "500m"
+    ```
+    *   `apiVersion: apps.openshift.io/v1`: Specifies the API version for OpenShift Deployments. (Note: For standard Kubernetes Deployments, it would be `apiVersion: apps/v1`).
+    *   `kind: Deployment`: Declares this object as a Deployment.
+    *   `metadata.name`: The name of our Deployment.
+    *   `spec.replicas: 2`: We want two instances (Pods) of our NGINX application.
+    *   `spec.selector`: How the Deployment finds and manages its Pods (based on labels).
+    *   `spec.template`: The Pod template used to create new Pods.
+    *   `spec.template.spec.containers[0].image`: The container image to use. We're using a Red Hat provided NGINX image.
+    *   `resources`: Defines resource requests and limits for the container.
+
+.  **Apply the Deployment:**
+    Use `oc apply` to create the Deployment in your cluster:
+    ```bash
+    oc apply -f nginx-deployment.yaml
+    ```
+    You should see output similar to:
+    ```
+    deployment.apps.openshift.io/my-nginx-app created
+    ```
+
+.  **Verify the Deployment and Pods:**
+    Check the status of your Deployment and the Pods it created:
+    ```bash
+    oc get deployment my-nginx-app
+    oc get pods -l app=nginx
+    ```
+    You should see `my-nginx-app` with 2 replicas ready, and two `nginx` Pods running.
+
+    Example output for `oc get deployment my-nginx-app`:
+    ```
+    NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+    my-nginx-app   2/2     2            2           1m
+    ```
+    Example output for `oc get pods -l app=nginx`:
+    ```
+    NAME                             READY   STATUS    RESTARTS   AGE
+    my-nginx-app-abcdefgh-12345      1/1     Running   0          1m
+    my-nginx-app-abcdefgh-67890      1/1     Running   0          1m
+    ```
+
+==== Activity 2: Scaling and Updating the Application
+
+Now, let's modify our running application.
+
+.  **Scale the Deployment:**
+    Increase the number of NGINX replicas to 4:
+    ```bash
+    oc scale deployment my-nginx-app --replicas=4
+    ```
+    You should see output like:
+    ```
+    deployment.apps.openshift.io/my-nginx-app scaled
+    ```
+
+.  **Verify Scaling:**
+    Observe new Pods being created and eventually becoming ready:
+    ```bash
+    oc get deployment my-nginx-app
+    oc get pods -l app=nginx
+    ```
+    The Deployment should now show `4/4` ready, and you should see four `nginx` Pods.
+
+.  **Update the Application Image (Rolling Update):**
+    Let's simulate an application update by changing the NGINX image version.
+    ```bash
+    oc set image deployment/my-nginx-app nginx=registry.access.redhat.com/nginx-120/nginx-rhel8:latest
+    ```
+    This command initiates a rolling update. Kubernetes gracefully replaces the old Pods with new ones running the updated image, ensuring service continuity.
+
+.  **Observe the Rolling Update:**
+    Watch the Pods for changes. You'll see new Pods with the updated image spinning up while old ones terminate.
+    ```bash
+    watch oc get pods -l app=nginx
+    ```
+    (Press `Ctrl+C` to exit the `watch` command.)
+
+.  **Verify the Updated Image:**
+    Check the image used by one of the new Pods:
+    ```bash
+    oc get pod $(oc get pods -l app=nginx -o jsonpath='{.items[0].metadata.name}') -o jsonpath='{.spec.containers[0].image}'
+    ```
+    The output should show `registry.access.redhat.com/nginx-120/nginx-rhel8:latest`.
+
+==== Activity 3: Running a One-Time Task (Job)
+
+Imagine you need to run a batch process, like generating a report or migrating data. A Job is perfect for this.
+
+.  **Define the Job:**
+    Create a file named `cleanup-job.yaml` with the following content. This Job will simply print a message and then exit.
+    ```yaml
+    # cleanup-job.yaml
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: my-cleanup-job
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleanup
+            image: registry.access.redhat.com/ubi8/ubi-minimal:latest
+            command: ["sh", "-c", "echo 'Running one-time cleanup task...' && sleep 10 && echo 'Cleanup task complete!'"]
+          restartPolicy: Never
+      backoffLimit: 4
+    ```
+    *   `apiVersion: batch/v1`: Specifies the API version for Jobs.
+    *   `kind: Job`: Declares this object as a Job.
+    *   `restartPolicy: Never`: Ensures the Pod associated with the Job will not be restarted if it fails or completes. For Jobs, this is a common and often required setting.
+    *   `backoffLimit`: Specifies the number of retries before marking a Job as failed.
+
+.  **Apply the Job:**
+    ```bash
+    oc apply -f cleanup-job.yaml
+    ```
+    You should see:
+    ```
+    job.batch/my-cleanup-job created
+    ```
+
+.  **Monitor the Job:**
+    Watch the Job's Pod status and logs:
+    ```bash
+    oc get job my-cleanup-job
+    ```
+    The Job should transition from `0/1` completions to `1/1` completions.
+
+    To view the logs of the Job's Pod:
+    ```bash
+    oc logs -f $(oc get pods -l job-name=my-cleanup-job -o jsonpath='{.items[0].metadata.name}')
+    ```
+    You should see the "Running one-time cleanup task..." and "Cleanup task complete!" messages.
+
+.  **Clean Up the Job:**
+    Once the Job is completed, you can delete it:
+    ```bash
+    oc delete job my-cleanup-job
+    ```
+    This will also delete the associated Pod.
+
+==== Activity 4: Clean Up Resources
+
+Delete the Deployment and its associated resources created during this lab.
+
+.  **Delete the Deployment:**
+    ```bash
+    oc delete deployment my-nginx-app
+    ```
+    You should see output similar to:
+    ```
+    deployment.apps.openshift.io "my-nginx-app" deleted
+    ```
+
+.  **Verify Deletion:**
+    Ensure no `nginx` Pods or the Deployment exist:
+    ```bash
+    oc get deployment my-nginx-app
+    oc get pods -l app=nginx
+    ```
+    You should receive "not found" messages or no resources listed.
+
+.  **Delete the Project (Optional):**
+    If you created a new project for this lab and no longer need it, you can delete it:
+    ```bash
+    oc delete project my-app-project
+    ```
+    This will delete all resources within that project.
+
+=== Expert-Level Insights and Troubleshooting Tips
+
+*   **Declarative vs. Imperative:** Always favor declarative management (YAML files applied with `oc apply`) over imperative commands (`oc create`, `oc run`) for production environments. Declarative files can be stored in version control (Git), enabling GitOps workflows for better auditing, rollbacks, and team collaboration.
+*   **Labels and Selectors:** Mastering labels and selectors is fundamental. They are used by Workload API objects to identify and manage their constituent Pods, and by Services to direct traffic to Pods. Consistent and meaningful labeling is key for effective cluster management.
+*   **Resource Requests and Limits:** Always define `resources.requests` and `resources.limits` for your containers. This helps the Kubernetes scheduler place your Pods efficiently and prevents one misbehaving application from consuming all node resources (noisy neighbor problem).
+*   **Events for Troubleshooting:** When a Deployment or Pod isn't behaving as expected, check the `Events` section using `oc describe`.
+    ```bash
+    oc describe deployment my-nginx-app
+    oc describe pod <pod-name>
+    ```
+    Events often provide crucial clues about scheduling issues, image pull failures, or container crashes.
+*   **OpenShift Web Console:** Don't forget the OpenShift Web Console provides a powerful visual interface for monitoring and managing your Workload API objects. It offers insights into Pod health, logs, events, and resource usage.
+*   **Health Checks (Probes):** For robust applications, integrate `livenessProbe` and `readinessProbe` into your Pod definitions.
+    *   `livenessProbe`: Tells Kubernetes when to restart a container.
+    *   `readinessProbe`: Tells Kubernetes when a container is ready to serve traffic.
+    These are critical for self-healing and maintaining application availability.
+
+By mastering the Kubernetes Workload API objects and their interactions, you gain full control over your applications' lifecycle in OpenShift, leading to more resilient, scalable, and manageable deployments.

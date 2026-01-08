@@ -1,0 +1,218 @@
+#  Create dedicated machine sets
+
+= Create Dedicated Machine Sets
+
+// tag::introduction[]
+== Introduction
+
+Azure Red Hat OpenShift (ARO) clusters leverage MachineSets to manage the worker nodes that run your applications. By default, ARO provisions MachineSets for general-purpose worker nodes. However, there are scenarios where you need dedicated machine sets for specific workloads, unique hardware requirements, or cost optimization strategies.
+
+Dedicated machine sets allow you to provision worker nodes with different characteristics (e.g., larger VM sizes, specific GPU configurations, or cost-effective options like Azure Spot Virtual Machines) tailored to distinct application needs. This flexibility enables fine-grained control over your cluster's compute resources and optimizes both performance and cost.
+
+In this module, you will learn how to create a dedicated machine set, focusing on integrating Azure Spot Virtual Machines as a practical example of a specialized node pool.
+
+// end::introduction[]
+
+// tag::understanding_machinesets[]
+== Understanding MachineSets in ARO
+
+In OpenShift, a *MachineSet* is a Kubernetes object that acts as a blueprint for creating and managing worker nodes (Machines). Each MachineSet is responsible for maintaining a specified number of identical Machines, ensuring high availability and scalability for your cluster's workloads. When you provision an ARO cluster, it automatically creates several MachineSets, typically one or more for worker nodes and often additional ones for infrastructure components.
+
+Key aspects of MachineSets:
+
+*   **Node Management**: MachineSets automate the lifecycle of worker nodes, including creation, updates, and deletion.
+*   **Scalability**: By adjusting the `replicas` field of a MachineSet, you can easily scale your worker node count up or down.
+*   **Configuration**: The MachineSet's manifest defines the underlying virtual machine properties, such as VM size, image, storage, and cloud provider-specific settings.
+*   **Provider Integration**: For ARO, MachineSets integrate with Azure to provision and manage Azure Virtual Machines that serve as OpenShift worker nodes.
+
+Creating a *dedicated* machine set means defining a new MachineSet with a distinct configuration from the default worker nodes. This could be to:
+
+*   **Utilize different VM sizes**: For workloads requiring more CPU, memory, or specific VM families.
+*   **Incorporate specialized hardware**: Such as GPU-enabled VMs for machine learning tasks.
+*   **Implement cost-saving strategies**: Like using Azure Spot Virtual Machines for fault-tolerant workloads that can tolerate interruptions.
+*   **Isolate workloads**: By combining dedicated MachineSets with Kubernetes node taints and tolerations, you can ensure specific applications run only on their intended nodes.
+
+This lab will demonstrate creating a dedicated MachineSet using Azure Spot Virtual Machines. Spot VMs are a cost-effective option for interruptible workloads, as they leverage unused Azure capacity at a significantly reduced price.
+
+// end::understanding_machinesets[]
+
+// tag::prerequisites[]
+== Prerequisites
+
+Before proceeding with the hands-on activity, ensure you have the following:
+
+*   An active Azure Red Hat OpenShift cluster.
+*   The `oc` (OpenShift Command-line Interface) installed and configured to connect to your ARO cluster.
+*   The `az` (Azure CLI) installed, authenticated, and configured for your Azure subscription.
+
+// end::prerequisites[]
+
+// tag::hands_on_creating_a_spot_vm_machineset[]
+== Hands-on: Creating a Spot VM MachineSet
+
+This activity guides you through creating a dedicated MachineSet that leverages Azure Spot Virtual Machines to optimize costs. Spot VMs are a prime example of a 'dedicated' MachineSet due to their specific characteristics and use cases.
+
+[#_step_1_identify_an_existing_machineset]
+=== Step 1: Identify an Existing MachineSet
+
+To create a new MachineSet, it's best practice to base it on an existing worker MachineSet from your cluster. This ensures that most of the Azure-specific and OpenShift-specific configurations are already correctly set up.
+
+.List the existing MachineSets in your cluster:
+[source, bash, role="execute"]
+----
+oc get machineset -n openshift-machine-api
+----
+
+.Sample output (your output will vary based on your cluster's name and region)
+[source, text]
+----
+NAME                            DESIRED     CURRENT  READY   AVAILABLE   AGE
+ok0608-vkxvw-infra-westus21     1           1        1       1           165M
+ok0608-vkxvw-worker-westus21    1           1        1       1           165M
+----
+From the output, identify one of your worker MachineSets. Worker MachineSets typically have `worker` in their name (e.g., `ok0608-vkxvw-worker-westus21`).
+
+.Describe the chosen worker MachineSet and save its YAML configuration to a file. Replace `<existing-worker-machineset-name>` with the name you identified.
+[source, bash, role="execute"]
+----
+oc describe machineset <existing-worker-machineset-name> -n openshift-machine-api -o yaml > spotmachineset.yaml
+----
+This command outputs the detailed YAML definition of the existing MachineSet into a file named `spotmachineset.yaml`. You will modify this file in the next step.
+
+[#_step_2_modify_the_machineset_yaml]
+=== Step 2: Modify the MachineSet YAML
+
+Now, you will edit the `spotmachineset.yaml` file to transform it into a definition for a new Spot VM MachineSet.
+
+.Open `spotmachineset.yaml` in your preferred text editor.
+
+.Make the following key changes to the file:
+*   Update `metadata.name`: Change the name of the MachineSet to a unique identifier for your new Spot VM MachineSet (e.g., `ok0608-vkxvw-spot-westus21`).
+*   Update `spec.selector.matchLabels.machine.openshift.io/cluster-api-machineset`: This label selector must match the new `metadata.name` of your MachineSet.
+*   Update `spec.template.metadata.labels.machine.openshift.io/cluster-api-machineset`: This label on the Machine template also needs to match the new `metadata.name`.
+*   Add `spotVMOptions: {}`: This crucial field within `spec.template.spec.providerSpec.value` enables the Azure Spot Virtual Machine functionality. Ensure it's placed correctly under `value`.
+
+[source, yaml]
+.Abridged Spot MachineSet YAML (highlighting key changes)
+----
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: <new-spot-machineset-name> # <1>
+  namespace: openshift-machine-api
+  labels:
+    machine.openshift.io/cluster-api-cluster: <cluster-id>
+spec:
+  replicas: 0 # Start with 0 replicas; scale up later if needed
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: <cluster-id>
+      machine.openshift.io/cluster-api-machineset: <new-spot-machineset-name> # <2>
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: <cluster-id>
+        machine.openshift.io/cluster-api-machineset: <new-spot-machineset-name> # <3>
+    spec:
+      providerSpec:
+        value:
+          apiVersion: azureprovider.openshift.io/v1beta1
+          cloudProviderConfig:
+            resourceGroup: <azure-resource-group>
+            subscriptionId: <azure-subscription-id>
+            tenantId: <azure-tenant-id>
+          credentialsSecret:
+            name: azure-cloud-credentials
+          location: <REGION> # e.g., eastus2
+          osDisk:
+            diskSizeGB: 128
+            managedDisk:
+              storageAccountType: Premium_LRS
+          spotVMOptions: {} # <4>
+          tags:
+            - name: kubernetes.io_cluster_<cluster-id>
+              value: owned
+            - name: Name
+              value: <new-spot-machineset-name>
+            # ... other tags ...
+          userDataSecret:
+            name: worker-user-data
+          vmSize: Standard_D4s_v3 # Adjust VM size as needed
+          zone: "1" # Or omit for no availability zone preference
+----
+<1> Update the `metadata.name` to a unique name for your new Spot MachineSet (e.g., `aro-cluster-mycluster-spot-eastus2`).
+<2> Update the `spec.selector.matchLabels.machine.openshift.io/cluster-api-machineset` to match the new `metadata.name`.
+<3> Update the `spec.template.metadata.labels.machine.openshift.io/cluster-api-machineset` to match the new `metadata.name`.
+<4> Add the `spotVMOptions: {}` field within `spec.template.spec.providerSpec.value` to enable Spot VM functionality.
+
+.Remember to replace any other placeholder values (e.g., `<cluster-id>`, `<azure-resource-group>`, `<azure-subscription-id>`, `<azure-tenant-id>`, `<REGION>`) with values specific to your ARO cluster environment. These values can typically be found in the existing MachineSet YAML you copied or from your Azure environment configuration.
+
+[#_step_3_create_the_new_machineset]
+=== Step 3: Create the New MachineSet
+
+Once you have modified the `spotmachineset.yaml` file, apply it to your cluster to create the new MachineSet.
+
+.Create the new MachineSet using `oc create`:
+[source, bash, role="execute"]
+----
+oc create -f spotmachineset.yaml
+----
+
+[#_step_4_verify_the_machineset_creation]
+=== Step 4: Verify the MachineSet Creation
+
+Verify that your new MachineSet has been successfully created.
+
+.List the MachineSets again:
+[source, bash, role="execute"]
+----
+oc get machinesets -n openshift-machine-api
+----
+
+.Sample verification output
+[source, text]
+----
+NAME                                    DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-5t2dj-worker-eastus1           1         1         1       1       3d1h
+aro-cluster-5t2dj-worker-eastus2           1         1         1       1       3d1h
+aro-cluster-mycluster-spot-eastus2         0         0         0       0       5s # <1>
+----
+<1> Initially, the `DESIRED`, `CURRENT`, `READY`, and `AVAILABLE` counts will be `0` for your new MachineSet, as you set `replicas: 0` in the YAML.
+
+[#_step_5_scale_and_verify_new_worker_nodes]
+=== Step 5: Scale and Verify New Worker Nodes (Optional)
+
+To see nodes provisioned by your new MachineSet, you need to scale up its replica count.
+
+.Scale your new Spot MachineSet to `1` replica (or your desired number):
+[source, bash, role="execute"]
+----
+oc scale machineset/aro-cluster-mycluster-spot-eastus2 --replicas=1 -n openshift-machine-api
+----
+Replace `aro-cluster-mycluster-spot-eastus2` with the actual name of your new Spot MachineSet.
+
+.Monitor the MachineSet and nodes until the new Spot VM node joins the cluster:
+[source, bash, role="execute"]
+----
+oc get machineset aro-cluster-mycluster-spot-eastus2 -n openshift-machine-api -w
+----
+Wait until `CURRENT`, `READY`, and `AVAILABLE` become `1`. You can then exit the watch command with `Ctrl+C`.
+
+.Verify that the new node is registered in OpenShift and is ready:
+[source, bash, role="execute"]
+----
+oc get nodes -l machine.openshift.io/cluster-api-machineset=aro-cluster-mycluster-spot-eastus2
+----
+You should see a new node with the `Ready` status. This node is now part of your cluster, dedicated to running workloads that can tolerate the characteristics of Azure Spot VMs.
+
+// end::hands_on_creating_a_spot_vm_machineset[]
+
+// tag::expert_insights_and_considerations[]
+== Expert Insights and Considerations
+
+*   **Spot VM Eviction Policy**: Azure Spot VMs can be evicted if Azure needs the capacity back. This makes them suitable for fault-tolerant, interruptible workloads (e.g., batch processing, development/testing environments). For critical applications, consider using standard VMs or combining Spot VMs with other node types.
+*   **Node Taints and Tolerations**: To ensure that specific workloads only run on your dedicated nodes (e.g., your Spot VMs), you can apply https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/[Kubernetes taints] to the MachineSet template. Workloads must then have corresponding https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/#tolerations[tolerations] to be scheduled on those nodes.
+*   **Autoscaling**: For dynamic scaling of your dedicated nodes, consider configuring https://docs.openshift.com/container-platform/4.14/machine_management/applying-autoscaling.html[cluster autoscaling] with your new MachineSet. This allows your cluster to automatically adjust the number of dedicated nodes based on workload demand.
+*   **Different VM SKUs**: The same process can be used to create dedicated MachineSets for other purposes, such as provisioning larger VM sizes (e.g., for data processing) or VMs with GPUs (e.g., for AI/ML workloads). Simply adjust the `vmSize` field in the `spec.template.spec.providerSpec.value` section of the MachineSet YAML.
+*   **Availability Zones**: When configuring your MachineSet, you can specify `zone` under `providerSpec.value` to ensure your dedicated nodes are provisioned in a specific Azure Availability Zone for improved resilience. If left unspecified, Azure might distribute nodes across zones or place them in a single zone.
+// end::expert_insights_and_considerations[]

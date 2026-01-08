@@ -1,0 +1,13 @@
+#  Hands-on Lab
+
+A hands-on lab provides practical experience covering key ARO administration tasks, including:
+
+* Creating and configuring ARO clusters (public and private).
+* Setting up core cluster configurations like storage classes, machine sets, node autoscaling, log forwarding, and custom DNS.
+* Implementing registry integrations (ACR, Quay, internal registry).
+* Performing application backup and restore with Velero.
+* Troubleshooting containers/pods and managing applications via the Kubernetes Workload API.
+* Exploring Kubernetes networking, scaling, and exposing applications.
+* Configuring network security policies.
+* Implementing GitOps for cluster administration.
+* Managing clusters using Red Hat Advanced Cluster Management.

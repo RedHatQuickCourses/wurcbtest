@@ -1,0 +1,164 @@
+#  Creating an Azure Red Hat OpenShift cluster
+
+= Creating an Azure Red Hat OpenShift Cluster
+
+This section guides you through the process of provisioning an Azure Red Hat OpenShift (ARO) cluster, a jointly engineered, operated, and supported managed OpenShift service on Azure. By the end of this module, you will understand the core architecture of ARO and be able to create a new cluster using the Azure command-line interface (CLI).
+
+== Azure Red Hat OpenShift Overview
+
+Azure Red Hat OpenShift is a fully managed OpenShift service that enables you to deploy and manage OpenShift clusters directly within Azure. This service simplifies the operational overhead associated with running Kubernetes, as Microsoft and Red Hat jointly manage the control plane and infrastructure components. This joint engineering, operation, and support model ensures a high level of reliability and a streamlined experience for developers and operators.
+
+Key capabilities of the ARO platform include:
+
+*   **Managed Control Plane and Infrastructure**: Microsoft and Red Hat handle the underlying infrastructure, including upgrades, patching, and scaling of the control plane and worker nodes, abstracting away much of the operational complexity.
+*   **Integrated Azure Services**: Seamless integration with various Azure services like Azure Active Directory (Azure AD), Azure Container Registry (ACR), Azure Key Vault, and more.
+*   **Enterprise-Grade Kubernetes**: Provides a robust, secure, and scalable OpenShift platform backed by Red Hat's enterprise Kubernetes distribution.
+
+When creating an ARO cluster, it's crucial to understand the shift towards using managed identities. Older clusters might have used service principals, but modern ARO deployments leverage managed identities for enhanced security and simplified credential management. Clusters created with service principals cannot be migrated to use managed identities; new clusters must be provisioned with managed identities from the outset.
+
+== Prerequisites for ARO Cluster Creation
+
+Before you begin creating your ARO cluster, ensure you meet the following requirements:
+
+.  **Azure CLI Version**: You must have Azure CLI version `2.67.0` or higher installed.
+    *   To check your current version, run:
+        ```bash
+        az --version
+        ```
+    *   If you need to install or upgrade, refer to the official Azure CLI documentation.
+.  **Azure Subscription Quota**: Azure Red Hat OpenShift clusters require significant compute resources. Ensure your Azure subscription has sufficient quota in the target region.
+    *   A minimum of 44 cores is required to create a basic OpenShift cluster.
+    *   For a typical setup with three worker nodes of D8sv5 SKU (8 cores each), a minimum of 52 cores is needed.
+    *   Your subscription must support at least one worker node of D8sv5 or higher SKU.
+.  **Resource Providers**: Ensure the `Microsoft.RedHatOpenShift` and `Microsoft.Compute` resource providers are registered in your Azure subscription. You can register them using the following commands:
+    ```bash
+    az provider register --namespace 'Microsoft.RedHatOpenShift' --wait
+    az provider register --namespace 'Microsoft.Compute' --wait
+    ```
+
+[NOTE]
+The context mentions "A running Azure Red Hat OpenShift cluster with at least version 4.18" as a prerequisite for installing OpenShift Virtualization. This is not a prerequisite for *creating* your initial ARO cluster but rather for subsequent advanced configurations or operator installations on an *existing* cluster.
+
+== Hands-on Activity: Creating an Azure Red Hat OpenShift Cluster
+
+In this activity, you will provision a new Azure Red Hat OpenShift 4 cluster using the Azure CLI.
+
+=== Step 1: Log in to Azure and Set Environment Variables
+
+First, log in to your Azure account and define some environment variables that will be used throughout the cluster creation process.
+
+.  **Log in to Azure**:
+    ```bash
+    az login
+    ```
+    Follow the prompts to complete the authentication process.
+
+.  **Set Environment Variables**:
+    Replace `<resource-group-name>`, `<aro-cluster-name>`, and `<location>` with your desired values.
+    ```bash
+    RESOURCEGROUP="<resource-group-name>" # e.g., aro-rg
+    AROCLUSTER="<aro-cluster-name>"       # e.g., myarocluster
+    LOCATION="<location>"                 # e.g., eastus, canadacentral
+    ```
+    [TIP]
+    Choose an Azure region that supports ARO and where you have sufficient compute quota.
+
+.  **Create an Azure Resource Group**:
+    ```bash
+    az group create --name $RESOURCEGROUP --location $LOCATION
+    ```
+
+=== Step 2: Obtain a Red Hat Pull Secret (Optional but Recommended)
+
+A Red Hat pull secret allows your ARO cluster to access Red Hat-provided container registries and content. This is highly recommended for full cluster functionality.
+
+.  **Navigate to Red Hat OpenShift Cluster Manager**:
+    Open a web browser and go to link:https://console.redhat.com/openshift/downloads#pull-secret[cloud.redhat.com/openshift/downloads#pull-secret].
+.  **Log in**:
+    Log in with your Red Hat account credentials.
+.  **Download Pull Secret**:
+    Click the *Download pull secret* button. This will download a JSON file (e.g., `pull-secret.txt`).
+.  **Save the file**:
+    Save this file in the directory where you will execute your Azure CLI commands, or note its full path. For this lab, assume it's named `pull-secret.txt` in your current working directory.
+
+=== Step 3: Create a Managed Identity for ARO Operators
+
+ARO operators, such as the `aro-operator`, require a managed identity to interact with Azure resources. You'll create a user-assigned managed identity and then assign its principal ID during cluster creation.
+
+.  **Create a user-assigned managed identity**:
+    ```bash
+    az identity create --resource-group $RESOURCEGROUP --name aro-operator
+    ```
+
+.  **Get the Principal ID of the managed identity**:
+    This principal ID will be used in the `az aro create` command.
+    ```bash
+    ARO_OPERATOR_PRINCIPAL_ID="$(az identity show --resource-group $RESOURCEGROUP --name aro-operator --query principalId -o tsv)"
+    echo "ARO Operator Principal ID: $ARO_OPERATOR_PRINCIPAL_ID"
+    ```
+
+=== Step 4: Create the Azure Red Hat OpenShift Cluster
+
+Now, use the `az aro create` command to provision your ARO cluster. This process can take approximately 30-45 minutes to complete.
+
+.  **Execute the `az aro create` command**:
+    Use the `RESOURCEGROUP`, `AROCLUSTER`, `LOCATION`, and `ARO_OPERATOR_PRINCIPAL_ID` variables defined earlier.
+    Include the `--pull-secret` argument, referencing the path to your `pull-secret.txt` file.
+
+    ```bash
+    az aro create \
+      --resource-group $RESOURCEGROUP \
+      --name $AROCLUSTER \
+      --location $LOCATION \
+      --cluster-resource-group $RESOURCEGROUP-aro-cluster \
+      --vnet aro-vnet \
+      --master-subnet master-subnet \
+      --worker-subnet worker-subnet \
+      --pull-secret @pull-secret.txt \
+      --assignee-object-id "$ARO_OPERATOR_PRINCIPAL_ID"
+    ```
+
+    [NOTE]
+    *   The `--cluster-resource-group` argument specifies a dedicated resource group for the cluster's infrastructure resources, distinct from the primary resource group containing the ARO resource itself.
+    *   The `--vnet`, `--master-subnet`, and `--worker-subnet` arguments will automatically create a new virtual network and subnets for your cluster if they don't already exist. For a private cluster or custom networking, you would pre-create these and specify their names.
+    *   The `--assignee-object-id` argument links the `aro-operator` managed identity to the cluster creation, ensuring necessary permissions for OpenShift operators.
+
+.  **Monitor Creation Progress**:
+    The command will output JSON describing the cluster creation request. You can monitor its progress in the Azure portal or by periodically running:
+    ```bash
+    az aro show --resource-group $RESOURCEGROUP --name $AROCLUSTER --query provisioningState -o tsv
+    ```
+    Wait for the `provisioningState` to change to `Succeeded`.
+
+=== Step 5: Verify Cluster Creation and Access Credentials
+
+Once the cluster provisioning is complete, retrieve the OpenShift console URL and `kubeadmin` credentials.
+
+.  **Get OpenShift Console URL**:
+    ```bash
+    az aro show --resource-group $RESOURCEGROUP --name $AROCLUSTER --query consoleProfile.url -o tsv
+    ```
+
+.  **Get Kubeadmin Username**:
+    ```bash
+    az aro show --resource-group $RESOURCEGROUP --name $AROCLUSTER --query kubeadminProfile.username -o tsv
+    ```
+
+.  **Get Kubeadmin Password**:
+    ```bash
+    az aro get-kubeadmin-password --resource-group $RESOURCEGROUP --name $AROCLUSTER --query kubeadminPassword -o tsv
+    ```
+    [IMPORTANT]
+    Securely store these credentials. The `kubeadmin` user has administrative access to your cluster.
+
+You have successfully created an Azure Red Hat OpenShift cluster! You can now navigate to the OpenShift Web Console using the URL and credentials obtained.
+
+== Expert Insights and Troubleshooting
+
+*   **Provisioning Time**: ARO cluster creation is an extensive process due to the deployment of a full OpenShift environment. Be prepared for it to take 30-45 minutes. Do not interrupt the process once initiated.
+*   **Quota Errors**: If you encounter errors related to `QuotaExceeded`, it means your Azure subscription lacks the necessary core count or VM SKU availability in the chosen region. Request a quota increase through the Azure portal support or choose a different region.
+*   **Permissions**: Ensure the Azure account or service principal used to execute the `az aro create` command has sufficient permissions (e.g., Contributor role on the resource group) to create resources like virtual networks, subnets, and managed identities.
+*   **CLI Version**: Always ensure your Azure CLI is up to date, as new ARO features and fixes are often tied to specific CLI versions.
+*   **Custom Domains**: If you wish to use a custom domain for your cluster, add the `--domain foo.example.com` argument to your `az aro create` command, replacing `foo.example.com` with your desired domain. You will need to configure DNS records post-creation.
+
+By following these steps, you lay the foundation for advanced administration tasks and application deployments on your managed OpenShift platform in Azure.

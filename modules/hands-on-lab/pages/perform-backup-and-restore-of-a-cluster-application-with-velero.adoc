@@ -1,0 +1,378 @@
+#  Perform backup and restore of a cluster application with Velero
+
+= Performing Backup and Restore of Cluster Applications with Velero
+
+This section guides you through the process of backing up and restoring applications deployed on an Azure Red Hat OpenShift (ARO) cluster using Velero. Velero is an open-source tool designed for safely backing up and restoring Kubernetes cluster resources and persistent volumes.
+
+== Introduction to Velero for ARO
+
+While Azure Red Hat OpenShift provides a fully managed control plane and infrastructure, the applications and data you deploy within your cluster are your responsibility. This means that while Red Hat and Microsoft manage the underlying OpenShift platform, you are responsible for backing up your application data. Velero bridges this gap by offering a robust solution for disaster recovery, data migration, and application portability across Kubernetes clusters, including ARO.
+
+Velero simplifies the process of:
+
+*   **Backing up your Kubernetes resources:** This includes deployments, services, ConfigMaps, Secrets, custom resource definitions (CRDs), and more.
+*   **Backing up persistent volumes:** Velero integrates with cloud provider APIs (like Azure's Disk Snapshots) to snapshot persistent volumes used by your applications.
+*   **Restoring resources:** You can restore an entire application, specific resources, or persistent volumes to the same or a different cluster.
+
+Velero operates by running as a deployment in your cluster and communicating with a cloud provider's object storage (e.g., Azure Blob Storage) to store backup artifacts. For Azure, Velero leverages Azure Blob Storage for storing backup metadata and `Azure Disk Snapshots` for persistent volume data.
+
+image::aro-velero-architecture.png[Velero Architecture for ARO, 800, 450]
+_Figure 1: High-level Velero architecture illustrating backup to Azure Blob Storage and disk snapshots._
+
+Velero is typically installed in its own dedicated project (namespace) within the OpenShift cluster, often named `velero`, to ensure isolation and proper management of its components.
+
+== Hands-on Lab: Backup and Restore an Application with Velero
+
+This lab will walk you through setting up Velero on your ARO cluster, deploying a sample application, backing it up, simulating a data loss event, and then restoring the application.
+
+=== Prerequisites
+
+Before you begin, ensure you have the following:
+
+*   An active Azure Red Hat OpenShift v4 cluster.
+*   Azure CLI version 2.6.0 or later installed and configured. To check your version, run `az --version`.
+*   The `oc` (OpenShift CLI) tool installed and configured to connect to your ARO cluster. You must be logged in as a user with `cluster-admin` privileges.
+*   A subscription with permissions to create resource groups, storage accounts, and grant role assignments.
+
+[NOTE]
+The `CONTEXT` explicitly mentions the requirement for Azure CLI version 2.6.0 or later for local CLI installations, and signing into an ARO v4 cluster.
+
+==== 1. Setup Azure Storage Account and Blob Container
+
+Velero requires an Azure Storage Account and a Blob container to store its backup metadata and objects. It's a best practice to create a dedicated Azure Resource Group for your Velero backups, separate from your ARO cluster's resource group. This ensures that your backups persist even if the cluster's resource group is deleted and allows for easier restoration to new clusters.
+
+. Define environment variables for your Azure resources:
++
+[source,bash]
+----
+export AZURE_BACKUP_RESOURCE_GROUP="VeleroBackups-ARO" # Name for your dedicated Velero backup resource group
+export AZURE_STORAGE_ACCOUNT="arovelerobackup$(head /dev/urandom | tr -dc a-z0-9 | head -c 8)" # Unique storage account name
+export AZURE_BLOB_CONTAINER="velero" # Name for the blob container
+export AZURE_LOCATION="$(az group show -n $AZURE_BACKUP_RESOURCE_GROUP --query location -o tsv || az group show -n $(oc get infrastructure cluster -o jsonpath='{.status.infrastructureName}')-rg --query location -o tsv)" # Use ARO cluster's location or create a new RG.
+----
++
+[NOTE]
+The `AZURE_BACKUP_RESOURCE_GROUP` is a best practice for managing Velero backups separately. The `CONTEXT` explicitly states: "This step creates a resource group outside of the cluster's resource group. This resource group allows the backups to persist and can restore applications to new clusters." We are leveraging this guidance.
+
+. Create the dedicated Azure Resource Group:
++
+[source,bash]
+----
+az group create --name $AZURE_BACKUP_RESOURCE_GROUP --location $AZURE_LOCATION
+----
+
+. Create the Azure Storage Account:
++
+[source,bash]
+----
+az storage account create \
+  --name $AZURE_STORAGE_ACCOUNT \
+  --resource-group $AZURE_BACKUP_RESOURCE_GROUP \
+  --sku Standard_GRS \
+  --encryption-services blob \
+  --https-only true \
+  --allow-blob-public-access false \
+  --min-tls-version TLS1_2
+----
+
+. Create the Blob Container within the storage account:
++
+[source,bash]
+----
+az storage container create \
+  --name $AZURE_BLOB_CONTAINER \
+  --account-name $AZURE_STORAGE_ACCOUNT
+----
+
+==== 2. Grant Permissions to ARO Managed Identity
+
+For Velero to access your Azure storage account, the ARO cluster's managed identity (specifically, the one associated with the control plane and worker nodes) needs appropriate permissions.
+
+. Get the Cluster's Managed Identity Principal ID:
++
+[source,bash]
+----
+export ARO_CLUSTER_NAME=$(oc get infrastructure cluster -o jsonpath='{.status.infrastructureName}')
+export ARO_RESOURCE_GROUP=$(az resource list --tagName "aro.cluster.azureredhatopenshift.io_cluster" --tagValue "$ARO_CLUSTER_NAME" --query "[0].resourceGroup" -o tsv)
+export CLUSTER_PRINCIPAL_ID=$(az aro show -n $ARO_CLUSTER_NAME -g $ARO_RESOURCE_GROUP --query masterProfile.apiProperties.privateProfile.identity.principalId -o tsv)
+----
+
+. Assign the `Storage Blob Data Contributor` role to the cluster's managed identity on your Velero storage account:
++
+[source,bash]
+----
+az role assignment create \
+  --role "Storage Blob Data Contributor" \
+  --assignee $CLUSTER_PRINCIPAL_ID \
+  --scope "/subscriptions/$(az account show --query id -o tsv)/resourceGroups/$AZURE_BACKUP_RESOURCE_GROUP/providers/Microsoft.Storage/storageAccounts/$AZURE_STORAGE_ACCOUNT"
+----
++
+[IMPORTANT]
+This role assignment allows Velero to read and write to the blob container. Without it, Velero will fail to create or restore backups.
+
+==== 3. Install Velero CLI and Server
+
+Velero consists of a client-side CLI (which you'll run locally) and a server-side component that runs within your ARO cluster.
+
+. Download and install the Velero CLI on your local machine.
++
+Navigate to the Velero releases page (e.g., `https://github.com/vmware-tanzu/velero/releases`) and download the appropriate client binary for your operating system. For example, for Linux:
++
+[source,bash]
+----
+VELERO_VERSION="v1.11.0" # Use the latest stable version
+wget https://github.com/vmware-tanzu/velero/releases/download/$VELERO_VERSION/velero-$VELERO_VERSION-linux-amd64.tar.gz
+tar -xvf velero-$VELERO_VERSION-linux-amd64.tar.gz
+sudo mv velero-$VELERO_VERSION-linux-amd64/velero /usr/local/bin
+velero help
+----
++
+[TIP]
+Ensure the `velero` executable is in your system's PATH.
+
+. Install the Velero server into your ARO cluster:
++
+[source,bash]
+----
+velero install \
+  --provider azure \
+  --plugins velero/velero-plugin-for-microsoft-azure:v1.6.0 \
+  --bucket $AZURE_BLOB_CONTAINER \
+  --secret-file <(printf "[default]\nresourceGroup = %s\nstorageAccount = %s\nsubscriptionId = %s\ntenantId = %s" \
+                         $AZURE_BACKUP_RESOURCE_GROUP \
+                         $AZURE_STORAGE_ACCOUNT \
+                         $(az account show --query id -o tsv) \
+                         $(az account show --query tenantId -o tsv)) \
+  --use-node-agent \
+  --snapshot-location-config apiTimeout=10m,resourceGroup=$AZURE_BACKUP_RESOURCE_GROUP,location=$AZURE_LOCATION \
+  --backup-location-config resourceGroup=$AZURE_BACKUP_RESOURCE_GROUP,storageAccount=$AZURE_STORAGE_ACCOUNT,container=$AZURE_BLOB_CONTAINER,subscriptionId=$(az account show --query id -o tsv) \
+  --namespace velero # Ensure Velero is installed in the 'velero' project
+----
++
+[NOTE]
+The `CONTEXT` provides the basic `velero install` command. We've expanded it to include specific Azure configuration details (`--secret-file`, `--snapshot-location-config`, `--backup-location-config`) which are crucial for Velero to interact with Azure storage and create disk snapshots in ARO. The `--use-node-agent` flag ensures that the `node-agent` daemonset is deployed, which is necessary for file system backups and `Restic` integration (though we are focusing on volume snapshots here). The `velero-plugin-for-microsoft-azure` version might need adjustment based on the latest stable releases.
+
+. Verify Velero installation:
++
+Check that the Velero pods are running in the `velero` namespace:
++
+[source,bash]
+----
+oc get pods -n velero
+----
++
+You should see pods like `velero-<id>` and `velero-node-agent-<id>` in a `Running` state.
++
+Verify the backup storage location is available:
++
+[source,bash]
+----
+velero backup-location get
+----
++
+The output should show `Available` as the phase for your configured backup location.
+
+==== 4. Deploy a Sample Application
+
+To demonstrate backup and restore, let's deploy a simple Nginx application with a Persistent Volume Claim (PVC).
+
+. Create a new project for the sample application:
++
+[source,bash]
+----
+oc new-project nginx-example
+----
+
+. Deploy Nginx with a PVC:
++
+[source,yaml]
+----
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps.openshift.io/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: registry.access.redhat.com/rhscl/nginx-116-rhel7
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: nginx-persistent-storage
+              mountPath: /var/www/html
+      volumes:
+        - name: nginx-persistent-storage
+          persistentVolumeClaim:
+            claimName: nginx-pvc
+----
++
+Save the above content to a file named `nginx-app.yaml` and deploy it:
++
+[source,bash]
+----
+oc apply -f nginx-app.yaml -n nginx-example
+----
+
+. Verify the application is running and write some data to the PVC:
++
+[source,bash]
+----
+oc get deployment,pvc,pod -n nginx-example
+POD_NAME=$(oc get pod -n nginx-example -l app=nginx -o jsonpath='{.items[0].metadata.name}')
+oc exec -it $POD_NAME -n nginx-example -- bash -c "echo 'Hello from Nginx backup!' > /var/www/html/index.html"
+oc exec -it $POD_NAME -n nginx-example -- cat /var/www/html/index.html
+----
++
+You should see "Hello from Nginx backup!" as the output.
+
+==== 5. Perform a Backup
+
+Now, let's back up the `nginx-example` application, including its persistent volume.
+
+. Create a backup of the `nginx-example` namespace, including persistent volume snapshots:
++
+[source,bash]
+----
+velero backup create nginx-example-backup \
+  --include-namespaces nginx-example \
+  --snapshot-volumes=true \
+  --wait
+----
++
+[NOTE]
+The `CONTEXT` mentions: "To create an application backup with Velero, you need to include the application's namespace. If you have a nginx-example namespace and want to include all the resources in that namespace in the backup, run the following command..." and also "To create an application backup with Velero to include the persistent volumes of your application, you need to include the application's namespace and include the snapshot-". We've combined these instructions by using `--include-namespaces` and `--snapshot-volumes=true`.
+
+. Check the status of the backup:
++
+[source,bash]
+----
+velero backup get
+oc get backups -n velero
+----
++
+The `CONTEXT` explicitly provides the `oc get backups -n velero` command.
++
+A successful backup will show `phase: Completed`. You can also get more detailed information about a specific backup:
++
+[source,bash]
+----
+velero backup describe nginx-example-backup
+----
++
+This output will confirm if persistent volumes were snapshotted successfully.
+
+==== 6. Simulate Application Deletion
+
+To test the restore functionality, let's simulate a disaster by deleting the `nginx-example` project.
+
+. Delete the `nginx-example` project:
++
+[source,bash]
+----
+oc delete project nginx-example
+----
++
+Wait for the project to be fully terminated. You can verify it's gone with `oc get projects`.
+
+==== 7. Perform a Restore
+
+Now, let's restore the `nginx-example` application from the backup you just created.
+
+. List available backups to confirm the name of the backup you want to restore:
++
+[source,bash]
+----
+oc get backups -n velero
+----
++
+This command is directly from the `CONTEXT`. Note the `NAME` of your backup (e.g., `nginx-example-backup`).
+
+. Create a restore from the `nginx-example-backup`:
++
+[source,bash]
+----
+velero restore create nginx-example-restore-1 \
+  --from-backup nginx-example-backup \
+  --wait
+----
++
+[NOTE]
+The `CONTEXT` provides the command: `velero restore create <name of restore> --from-backup <name of backup from above output list>`. We are using this directly.
+
+. Check the status of the restore:
++
+[source,bash]
+----
+velero restore get
+----
++
+A successful restore will show `phase: Completed`. You can get more details:
++
+[source,bash]
+----
+velero restore describe nginx-example-restore-1
+----
+
+. Verify the application is restored and its data is intact:
++
+[source,bash]
+----
+oc get deployment,pvc,pod -n nginx-example
+POD_NAME=$(oc get pod -n nginx-example -l app=nginx -o jsonpath='{.items[0].metadata.name}')
+oc exec -it $POD_NAME -n nginx-example -- cat /var/www/html/index.html
+----
++
+You should again see "Hello from Nginx backup!" as the output, confirming that the application and its data were successfully restored.
+
+==== 8. Cleanup
+
+To clean up the resources created during this lab:
+
+. Delete the `nginx-example` project:
++
+[source,bash]
+----
+oc delete project nginx-example
+----
+
+. Uninstall Velero from the cluster:
++
+[source,bash]
+----
+velero uninstall --force
+----
++
+This will remove the Velero deployment, service accounts, CRDs, and the `velero` namespace.
+
+. Delete the Azure Storage Account and Resource Group:
++
+[WARNING]
+This will permanently delete your Velero backups and all resources within the `VeleroBackups-ARO` resource group. Ensure you no longer need these backups.
+
++
+[source,bash]
+----
+az group delete --name $AZURE_BACKUP_RESOURCE_GROUP --yes --no-wait
+----
+
+This completes the hands-on lab for backing up and restoring ARO cluster applications with Velero. You've learned how to set up Velero, perform a backup including persistent volumes, simulate data loss, and successfully restore your application.
