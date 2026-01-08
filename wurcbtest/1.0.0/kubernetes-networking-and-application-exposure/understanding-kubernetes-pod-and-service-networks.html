@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Understanding Kubernetes Pod and Service Networks :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="kubernetes-networking-and-application-exposure.html">
+    <link rel="next" href="scaling-and-exposing-applications-to-external-access.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a></li>
+    <li><a href="understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Understanding Kubernetes Pod and Service Networks</h1>
+<h1 id="_understanding_kubernetes_pod_and_service_networks" class="sect0"><a class="anchor" href="#_understanding_kubernetes_pod_and_service_networks"></a>Understanding Kubernetes Pod and Service Networks</h1>
+<div class="paragraph">
+<p>In Azure Red Hat OpenShift (ARO), a robust and flexible networking model is fundamental for application communication, scalability, and external access. Kubernetes provides a sophisticated abstraction layer over the underlying network infrastructure, simplifying how containers discover and communicate with each other and with the outside world. This section delves into the core concepts of Pod and Service networks, which are the backbone of application connectivity within an ARO cluster.</p>
+</div>
+<div class="sect1">
+<h2 id="_the_foundation_addressing_container_networking_challenges"><a class="anchor" href="#_the_foundation_addressing_container_networking_challenges"></a>The Foundation: Addressing Container Networking Challenges</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Containers are designed to be agile and ephemeral, often starting, stopping, and relocating across different nodes within a cluster. This dynamic nature poses a significant challenge for traditional networking models, which typically rely on static IP addresses and rigid configurations. Kubernetes addresses these challenges by defining a clear and consistent networking model that ensures:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Every Pod gets its own unique IP address.</p>
+</li>
+<li>
+<p>Pods can communicate with each other regardless of which node they reside on.</p>
+</li>
+<li>
+<p>Applications can be reliably accessed through stable network endpoints, even as underlying Pods change.</p>
+</li>
+<li>
+<p>External traffic can be efficiently routed to applications running inside the cluster.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This model is critical for microservices architectures, where many independent services need to communicate seamlessly.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_kubernetes_pod_networks"><a class="anchor" href="#_kubernetes_pod_networks"></a>Kubernetes Pod Networks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>At its core, Kubernetes mandates that every Pod is assigned its own unique IP address within a flat, shared network space. This principle is crucial for simplicity and interoperability, as it means:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Unique IP per Pod</strong>: Just like a physical host or virtual machine, each Pod receives a distinct IP address. This IP is stable for the lifetime of the Pod, but changes if the Pod is restarted or rescheduled.</p>
+</li>
+<li>
+<p><strong>Flat Network</strong>: All Pods in the cluster can communicate with each other directly using their Pod IPs, without the need for Network Address Translation (NAT) between Pods. This allows applications to see the true IP address of their communicating peer.</p>
+</li>
+<li>
+<p><strong>Node-Agnostic Communication</strong>: Pods can communicate whether they are on the same worker node or on different worker nodes. The underlying Container Network Interface (CNI) plugin handles the routing and ensures seamless connectivity.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In Azure Red Hat OpenShift, the default CNI plugin is <a href="#../../cluster-configuration/ovn-kubernetes.adoc" class="xref unresolved">OVN-Kubernetes</a>. As mentioned in the <code>CONTEXT</code>, ARO "Install[s], configure[s], and maintain[s] the OVN-Kubernetes network plugin and related components for default internal pod traffic." OVN-Kubernetes manages the IP address allocation for Pods and sets up the necessary network overlays to allow Pods on different nodes to communicate directly.</p>
+</div>
+<div class="sect2">
+<h3 id="_how_pod_ips_are_allocated"><a class="anchor" href="#_how_pod_ips_are_allocated"></a>How Pod IPs Are Allocated</h3>
+<div class="paragraph">
+<p>When a Pod is scheduled onto a worker node, the CNI plugin on that node is responsible for allocating an IP address to the Pod. This IP address is drawn from a larger <strong>Pod CIDR</strong> range defined for the entire cluster (e.g., <code>10.128.0.0/14</code>). Each worker node is then allocated a smaller sub-range from this overall Pod CIDR (e.g., <code>/23</code>), and Pods on that specific node receive their IPs from its allocated sub-range.</p>
+</div>
+<div class="paragraph">
+<p>This design ensures that every Pod has a unique IP address across the entire cluster, making inter-Pod communication straightforward. While the core Pod networking is managed by ARO, you can <a href="#network-security-policies.adoc" class="xref unresolved">configure NetworkPolicy objects</a> to control ingress and egress traffic for specific Pods and projects, enforcing fine-grained security rules within this flat network.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In a managed service like ARO, the underlying network infrastructure components, including the <code>OVN-Kubernetes</code> plugin and core IP address ranges (<code>machine CIDR</code>, <code>service CIDR</code>, and <code>pod CIDR</code>), are expertly managed by the joint Microsoft and Red Hat operations team. While you can request optional non-default IP address ranges during cluster provisioning, the day-to-day configuration and maintenance of the core network fabric are handled for you.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_kubernetes_service_networks"><a class="anchor" href="#_kubernetes_service_networks"></a>Kubernetes Service Networks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While Pods are assigned unique IP addresses, these IPs are inherently ephemeral. Pods can be created, destroyed, or scaled up and down, leading to changing IP addresses. For other applications or external clients to reliably access a set of Pods, a stable and persistent network endpoint is required. This is where Kubernetes Services come into play.</p>
+</div>
+<div class="paragraph">
+<p>A Kubernetes Service is an abstract way to expose an application running on a set of Pods as a network service. It provides a stable IP address (known as a ClusterIP) and a DNS name that remains constant, even if the underlying Pods change, scale, or move to different nodes.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_characteristics_of_services"><a class="anchor" href="#_key_characteristics_of_services"></a>Key Characteristics of Services</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Stable IP and DNS</strong>: Services offer a persistent ClusterIP and a corresponding DNS name, decoupling client access from the ephemeral nature of Pod IPs.</p>
+</li>
+<li>
+<p><strong>Load Balancing</strong>: A Service acts as a load balancer, distributing incoming network traffic across the healthy Pods that match its selector.</p>
+</li>
+<li>
+<p><strong>Service Discovery</strong>: Other Pods or external entities can discover and communicate with an application simply by addressing its Service IP or DNS name.</p>
+</li>
+<li>
+<p><strong>Abstraction</strong>: Services abstract away the details of Pod lifecycle management, presenting a consistent interface to consumers.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_types_of_services"><a class="anchor" href="#_types_of_services"></a>Types of Services</h3>
+<div class="paragraph">
+<p>Kubernetes offers several types of Services to cater to different exposure requirements:</p>
+</div>
+<div class="ulist">
+<div class="title">Service Types</div>
+<ul>
+<li>
+<p><strong><code>ClusterIP</code> (Default)</strong>:</p>
+</li>
+<li>
+<p>Exposes the Service on an internal IP address within the cluster.</p>
+</li>
+<li>
+<p>This Service is only reachable from within the cluster, making it ideal for internal microservice communication.</p>
+</li>
+<li>
+<p>This is the most common Service type for internal application components.</p>
+</li>
+<li>
+<p><strong><code>NodePort</code></strong>:</p>
+</li>
+<li>
+<p>Exposes the Service on a static port on <strong>each</strong> worker node&#8217;s IP address.</p>
+</li>
+<li>
+<p>Any traffic sent to <code>NodeIP:NodePort</code> is routed to the Service.</p>
+</li>
+<li>
+<p>Primarily used for testing or in environments where a public cloud load balancer is not desired or easily provisioned.</p>
+</li>
+<li>
+<p><strong><code>LoadBalancer</code></strong>:</p>
+</li>
+<li>
+<p>Exposes the Service externally using a cloud provider&#8217;s load balancer.</p>
+</li>
+<li>
+<p>In ARO, this automatically provisions an Azure Load Balancer, which then routes external traffic to the Service&#8217;s NodePort on the worker nodes.</p>
+</li>
+<li>
+<p>This is essential for production applications that require public internet access, aligning with the `CONTEXT&#8217;s point "Set up public cloud load balancers" for applications.</p>
+</li>
+<li>
+<p><strong><code>ExternalName</code></strong>:</p>
+</li>
+<li>
+<p>Maps the Service to an arbitrary DNS name by returning a <code>CNAME</code> record.</p>
+</li>
+<li>
+<p>No proxying or load balancing is involved; it&#8217;s purely a DNS alias.</p>
+</li>
+<li>
+<p>Useful for integrating with services running outside your Kubernetes cluster (e.g., an external database).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_services_function"><a class="anchor" href="#_how_services_function"></a>How Services Function</h3>
+<div class="paragraph">
+<p>The <code>kube-proxy</code> component, which runs on every worker node, is responsible for implementing the Service networking model. It watches the Kubernetes API server for changes to Services and their associated Pods. When a Service is created, <code>kube-proxy</code> configures <code>iptables</code> rules (or IPVS) on the node to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Intercept traffic destined for the Service&#8217;s ClusterIP.</p>
+</li>
+<li>
+<p>Distribute this traffic to one of the healthy backend Pods that match the Service&#8217;s selector.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For <code>LoadBalancer</code> type Services, the cloud provider&#8217;s load balancer (e.g., Azure Load Balancer) is configured to direct external traffic to the <code>NodePort</code> of the Service on the worker nodes. <code>kube-proxy</code> then takes over, forwarding that traffic to the correct Pods.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_openshift_ingress_for_advanced_external_access"><a class="anchor" href="#_openshift_ingress_for_advanced_external_access"></a>OpenShift Ingress for Advanced External Access</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While <code>LoadBalancer</code> Services are suitable for direct external exposure, OpenShift provides a more advanced and flexible mechanism for HTTP/HTTPS access: the Ingress. The <code>CONTEXT</code> highlights that ARO "Set[s] up the OpenShift Ingress cluster operator and the default IngressController."</p>
+</div>
+<div class="paragraph">
+<p>An OpenShift <code>Route</code> (which builds upon Kubernetes <code>Ingress</code> resources) allows external clients to access services within the cluster via a DNS-resolvable hostname. Routes leverage the <code>IngressController</code>, which acts as a reverse proxy (e.g., based on HAProxy or NGINX) to efficiently manage incoming traffic. IngressControllers are often deployed on dedicated infrastructure nodes (as suggested by the <code>CONTEXT</code> for "high ingress resource requirements") to separate their workload from application Pods, thereby routing traffic to the appropriate Service and its backend Pods.</p>
+</div>
+<div class="ulist">
+<div class="title">Relationship between Pods, Services, and Ingress/Routes</div>
+<ul>
+<li>
+<p><strong>Pods</strong>: The actual running instances of your application, with ephemeral internal IPs.</p>
+</li>
+<li>
+<p><strong>Services</strong>: Provide stable internal IP endpoints and handle load balancing for a set of Pods.</p>
+</li>
+<li>
+<p><strong>Ingress/Routes</strong>: Offer external HTTP/HTTPS access, often with hostname-based routing, TLS termination, and advanced traffic management features, leveraging Load Balancers or NodePorts implicitly to expose the IngressController itself.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Understanding this hierarchy – from individual Pod IPs to stable Service endpoints and finally to external Ingress/Routes – is key to designing, deploying, and troubleshooting applications within your Azure Red Hat OpenShift environment.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_exploring_kubernetes_pod_and_service_networks"><a class="anchor" href="#_hands_on_activity_exploring_kubernetes_pod_and_service_networks"></a>Hands-on Activity: Exploring Kubernetes Pod and Service Networks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This guided activity will enable you to explore the foundational networking components within an Azure Red Hat OpenShift cluster. You will use the <code>oc</code> CLI to inspect Pod IPs, Service configurations, and observe how these elements contribute to application connectivity.</p>
+</div>
+<div class="sect2">
+<h3 id="_objectives"><a class="anchor" href="#_objectives"></a>Objectives</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Identify the unique IP addresses assigned to Pods.</p>
+</li>
+<li>
+<p>Examine various Service types and their configurations.</p>
+</li>
+<li>
+<p>Understand how Services abstract the ephemeral nature of Pods.</p>
+</li>
+<li>
+<p>Trace the flow of traffic from a Service to its backend Pods.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure Red Hat OpenShift cluster.</p>
+</li>
+<li>
+<p><code>oc</code> CLI configured and authenticated to your cluster.</p>
+</li>
+<li>
+<p>At least one application deployed in a project (e.g., a sample application or one of the default OpenShift components).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_steps"><a class="anchor" href="#_steps"></a>Steps</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Access your ARO Cluster</strong>
+Ensure you are logged into your ARO cluster using the <code>oc</code> CLI. Replace the placeholders with your actual token and API server URL.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc login --token=&lt;your_token&gt; --server=&lt;your_api_server_url&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Expected Output</strong>: A message confirming successful login to your cluster.</p>
+</div>
+</li>
+<li>
+<p><strong>List All Pods and Their IP Addresses</strong>
+Use the <code>oc get pods</code> command with the <code>-A</code> (all namespaces) and <code>-o wide</code> flags to display detailed information about all Pods, including their assigned IP addresses and the worker node they are running on.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -A -o wide</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Observe</strong>:
+*   Each Pod has a unique <code>IP</code> address.
+*   Pods running on the same <code>NODE</code> will have different <code>IP</code> addresses.
+*   Note the <code>IP</code> addresses of a few Pods; these are their internal Pod network IPs.</p>
+</div>
+</li>
+<li>
+<p><strong>Examine Services in a Project</strong>
+Choose a project where applications are deployed (e.g., <code>openshift-ingress</code>, <code>default</code>, or one of your custom application projects). List the Services within that project. For this example, we&#8217;ll look at the <code>openshift-ingress</code> project.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get svc -n openshift-ingress</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Observe</strong>:
+*   Identify the <code>CLUSTER-IP</code> for each Service. This is the stable, internal IP address for the Service.
+*   Note the <code>TYPE</code> column (e.g., <code>ClusterIP</code>, <code>LoadBalancer</code>).
+*   Pay attention to the <code>PORT(S)</code> column, showing which ports the Service is listening on.</p>
+</div>
+</li>
+<li>
+<p><strong>Inspect a Specific <code>ClusterIP</code> Service</strong>
+Pick a <code>ClusterIP</code> type Service from the <code>openshift-ingress</code> project (e.g., <code>router-default</code>) and describe it to see its detailed configuration, including its selector and endpoint Pods.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc describe svc router-default -n openshift-ingress</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Observe</strong>:
+*   <strong><code>Selector</code> field</strong>: This defines how the Service identifies its backend Pods (e.g., <code>router=default</code>).
+*   <strong><code>Endpoints</code> list</strong>: This shows the IP addresses and ports of the actual Pods that are currently backing this Service. These are the Pod IPs you observed in Step 2. Notice how the Service abstracts these ephemeral Pod IPs into a single, stable <code>CLUSTER-IP</code>.</p>
+</div>
+</li>
+<li>
+<p><strong>Explore a <code>LoadBalancer</code> Service (if available)</strong>
+If your cluster hosts an application exposed via a <code>LoadBalancer</code> Service, you can inspect it. First, find any <code>LoadBalancer</code> type Services:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get svc -A | grep LoadBalancer</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then, describe one of them. Replace <code>&lt;loadbalancer_service_name&gt;</code> and <code>&lt;project_name&gt;</code> with the appropriate values.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc describe svc &lt;loadbalancer_service_name&gt; -n &lt;project_name&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Observe</strong>:
+*   Note the <code>Load Balancer Ingress</code> field (often labeled <code>EXTERNAL-IP</code>). This is the public IP address assigned by Azure Load Balancer, through which your application is accessible from outside the cluster.
+*   Confirm that this Service also has <code>Endpoints</code> listed, pointing to the internal Pod IPs.</p>
+</div>
+</li>
+<li>
+<p><strong>Test Internal Application Access via Service</strong>
+To demonstrate internal communication through a Service, you can launch a temporary debug Pod and use <code>curl</code> to access another Service within the cluster.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Launch a temporary debug Pod in your current project.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc run debug-pod --image=registry.access.redhat.com/ubi8/ubi-minimal --command -- sleep infinity</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Get the name of your newly created debug Pod.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pod -l run=debug-pod -o jsonpath='{.items[0].metadata.name}'</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Execute <code>curl</code> inside the debug Pod to access a <code>ClusterIP</code> Service. For example, if you have a Service named <code>my-app-service</code> in the <code>my-project</code> project listening on port <code>8080</code>, you would use:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it &lt;debug-pod-name&gt; -- curl my-app-service.my-project.svc.cluster.local:8080</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Replace</strong>:
+*   <code>&lt;debug-pod-name&gt;</code> with the actual name of your debug Pod.
+*   <code>my-app-service</code> with the name of an actual <code>ClusterIP</code> Service in your cluster (e.g., <code>kubernetes</code> in the <code>default</code> namespace).
+*   <code>my-project</code> with the project name where the service resides.
+*   <code>8080</code> with the actual port of the service.</p>
+</div>
+<div class="paragraph">
+<p>+
+<strong>Observe</strong>: You should see the response from the targeted application, confirming that internal Pod-to-Service communication works using the stable DNS name provided by Kubernetes.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Clean up the debug Pod</strong>
+Once you&#8217;ve completed the activity, delete the temporary debug Pod.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete pod debug-pod</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This hands-on activity provides a practical demonstration of Kubernetes Pod and Service networks, reinforcing your understanding of how internal communication and external exposure are managed within an Azure Red Hat OpenShift environment.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a></span>
+  <span class="next"><a href="scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

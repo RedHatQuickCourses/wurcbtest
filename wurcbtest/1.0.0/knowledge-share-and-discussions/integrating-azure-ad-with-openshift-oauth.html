@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Integrating Azure AD with OpenShift OAuth :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="knowledge-share-and-discussions.html">
+    <link rel="next" href="integrating-azure-key-vault-with-aro.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a></li>
+    <li><a href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Integrating Azure AD with OpenShift OAuth</h1>
+<h1 id="_integrating_azure_ad_with_openshift_oauth" class="sect0"><a class="anchor" href="#_integrating_azure_ad_with_openshift_oauth"></a>Integrating Azure AD with OpenShift OAuth</h1>
+<div class="quoteblock abstract">
+<blockquote>
+This module guides you through integrating Azure Active Directory (Azure AD), now known as Microsoft Entra ID, as an identity provider for your Azure Red Hat OpenShift (ARO) cluster using OpenShift OAuth. This integration allows users to authenticate to the ARO cluster using their existing Azure AD credentials, streamlining user management, enhancing security through centralized identity management, and providing a seamless single sign-on experience.
+</blockquote>
+</div>
+<div class="sect1">
+<h2 id="_understanding_openshift_oauth_and_azure_ad_integration"><a class="anchor" href="#_understanding_openshift_oauth_and_azure_ad_integration"></a>Understanding OpenShift OAuth and Azure AD Integration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenShift Container Platform leverages an internal OAuth server to manage authentication and authorization for cluster users. This OAuth server can be configured to integrate with various external identity providers, including OpenID Connect (OIDC) compatible services. Azure Active Directory (Azure AD), now rebranded as Microsoft Entra ID, is a prominent cloud-based identity and access management service that fully supports the OpenID Connect protocol.</p>
+</div>
+<div class="paragraph">
+<p>Integrating Azure AD with your ARO cluster&#8217;s OpenShift OAuth offers several key benefits:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Centralized Identity Management:</strong> Users authenticate against Azure AD, which acts as the single source of truth for user identities. This simplifies user onboarding and offboarding.</p>
+</li>
+<li>
+<p><strong>Single Sign-On (SSO):</strong> Users who are already logged into Azure AD can access the OpenShift Web Console or CLI without needing to re-enter their credentials.</p>
+</li>
+<li>
+<p><strong>Enhanced Security:</strong> Leverage Azure AD&#8217;s robust security features, such as multi-factor authentication (MFA) and conditional access policies, for accessing your OpenShift cluster.</p>
+</li>
+<li>
+<p><strong>Simplified Administration:</strong> Cluster administrators can manage user access and group memberships within Azure AD, and these can be mapped to OpenShift roles for fine-grained authorization.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The integration process involves configuring an OpenID identity provider within OpenShift&#8217;s <code>OAuth</code> custom resource that points to your Azure AD tenant. This setup requires an Azure AD application registration to act as the client for OpenShift, providing the necessary <code>clientID</code> and <code>clientSecret</code> for secure communication. OpenShift will redirect authentication requests to Azure AD, and upon successful authentication, Azure AD redirects back to OpenShift with an ID token, which OpenShift then uses to establish a user session.</p>
+</div>
+<div class="paragraph">
+<p>A critical component in ARO, especially for clusters provisioned with managed identities, is the <code>pod-identity-webhook</code>. This mutating admission webhook plays a vital role in injecting authentication-related environment variables and projecting signed service account tokens to application pods. While its primary role isn&#8217;t directly in the OAuth flow, its correct operation is essential for various cluster services that might rely on identity projection, including those potentially involved in the initial setup or management of credentials.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before proceeding with the integration, ensure you have the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An existing Azure Red Hat OpenShift (ARO) cluster provisioned with a <a href="#../aro-cluster-provisioning/creating-an-aro-cluster.adoc#_managed_identity_aro_cluster" class="xref unresolved">managed identity</a>.</p>
+</li>
+<li>
+<p>The <code>oc</code> CLI configured to connect to your ARO cluster with <code>cluster-admin</code> privileges.</p>
+</li>
+<li>
+<p>Azure CLI (<code>az</code>) installed and configured with permissions to manage resources in your Azure subscription, including creating Azure AD App Registrations and managing secrets.</p>
+</li>
+<li>
+<p>A tenant administrator or equivalent role in Azure AD with permissions to create and manage application registrations and secrets.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verify_the_pod_identity_webhook"><a class="anchor" href="#_verify_the_pod_identity_webhook"></a>Verify the Pod Identity Webhook</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As noted in the provided context, the <code>pod-identity-webhook</code> deployment is an important component in ARO clusters, especially those using managed identities. It&#8217;s crucial to verify its correct configuration. This webhook injects authentication-related environment variables and projects signed service account tokens to application pods, ensuring that managed identities function as expected within the cluster.</p>
+</div>
+<div class="paragraph">
+<p>To verify the <code>pod-identity-webhook</code> deployment:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Describe the <code>pod-identity-webhook</code> deployment</strong>:</p>
+<div class="paragraph">
+<p>Open your terminal and run the following <code>oc</code> command to inspect the <code>pod-identity-webhook</code> deployment in the <code>openshift-cloud-credential-operator</code> namespace:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc describe deployment pod-identity-webhook -n openshift-cloud-credential-operator</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Check for the <code>target.workload.openshift.io/management</code> annotation</strong>:</p>
+<div class="paragraph">
+<p>In the output of the <code>oc describe</code> command, examine the <code>Annotations</code> section for the presence of <code>target.workload.openshift.io/management: true</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">...
+Annotations:        target.workload.openshift.io/management: true
+...</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You should see a response similar to the example above. If this annotation is missing from the <code>pod-identity-webhook</code> deployment, it might indicate an issue with your ARO cluster&#8217;s managed identity configuration. In such a scenario, it is recommended to open a support case with Red Hat and Microsoft for assistance.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_by_step_integration_guide_azure_ad_with_openshift_oauth"><a class="anchor" href="#_step_by_step_integration_guide_azure_ad_with_openshift_oauth"></a>Step-by-Step Integration Guide: Azure AD with OpenShift OAuth</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section walks you through the detailed steps to integrate Azure AD as an identity provider for your ARO cluster.</p>
+</div>
+<div class="sect2">
+<h3 id="_1_register_an_application_in_azure_ad_microsoft_entra_id"><a class="anchor" href="#_1_register_an_application_in_azure_ad_microsoft_entra_id"></a>1. Register an Application in Azure AD (Microsoft Entra ID)</h3>
+<div class="paragraph">
+<p>The first step is to register a new application in your Azure AD tenant. This application acts as the client for OpenShift, enabling it to authenticate users via OpenID Connect.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Navigate to Azure Active Directory</strong>:</p>
+<div class="paragraph">
+<p>Log in to the Azure portal (portal.azure.com) with an account that has permissions to manage Azure AD applications. Search for and select <strong>Azure Active Directory</strong> (or <strong>Microsoft Entra ID</strong>).</p>
+</div>
+</li>
+<li>
+<p><strong>Create a New Application Registration</strong>:</p>
+<div class="paragraph">
+<p>In the left-hand navigation pane, under <strong>Manage</strong>, select <strong>App registrations</strong>, then click <strong>New registration</strong>.</p>
+</div>
+</li>
+<li>
+<p><strong>Configure Application Registration Details</strong>:</p>
+<div class="paragraph">
+<p>Fill in the following details for your new application:
+<strong> <strong>Name:</strong> Provide a descriptive name, for example, <code>ARO-OpenShift-OAuth</code>.
+</strong> <strong>Supported account types:</strong> Select <strong>Accounts in this organizational directory only (Single tenant)</strong> or <strong>Accounts in any organizational directory (Any Azure AD directory - Multitenant)</strong>, depending on your organization&#8217;s requirements. For most ARO integrations, <strong>Single tenant</strong> is sufficient.
+<strong>* *Redirect URI (optional):</strong> Select <code>Web</code> as the platform. For the URI, enter the OAuth callback URL for your ARO cluster. This URL follows a specific format:</p>
+</div>
+<div class="paragraph">
+<p>+
+<code><a href="https://oauth-openshift.apps.&lt;cluster-domain&gt;.&lt;region&gt;.aroapp.io/oauth2callback/&lt;identity-provider-name&gt" class="bare">https://oauth-openshift.apps.&lt;cluster-domain&gt;.&lt;region&gt;.aroapp.io/oauth2callback/&lt;identity-provider-name&gt</a>;</code></p>
+</div>
+<div class="paragraph">
+<p>+
+Replace <code>&lt;cluster-domain&gt;</code> with your ARO cluster&#8217;s domain (e.g., <code>myaro.eastus.aroapp.io</code>), <code>&lt;region&gt;</code> with your cluster&#8217;s Azure region (e.g., <code>eastus</code>), and <code>&lt;identity-provider-name&gt;</code> with a unique name you will use for this identity provider in OpenShift (e.g., <code>entraID</code> or <code>azuread</code>).</p>
+</div>
+<div class="paragraph">
+<p>+
+<strong>Example Redirect URI:</strong>
+<code><a href="https://oauth-openshift.apps.myarocluster.eastus.aroapp.io/oauth2callback/entraID" class="bare">https://oauth-openshift.apps.myarocluster.eastus.aroapp.io/oauth2callback/entraID</a></code></p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The <code>identity-provider-name</code> must match the <code>name</code> field you will use in the <code>OAuth</code> custom resource definition in OpenShift (e.g., <code>entraID</code>). Ensure this URI is accurate to prevent <code>AADSTS50011</code> errors during authentication.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><strong>Register the application</strong>:</p>
+<div class="paragraph">
+<p>Click <strong>Register</strong>.</p>
+</div>
+</li>
+<li>
+<p><strong>Record the Client ID (Application ID)</strong>:</p>
+<div class="paragraph">
+<p>After the application is registered, you will be taken to its <strong>Overview</strong> page. Copy the <strong>Application (client) ID</strong>. This value will be used as the <code>clientID</code> in your OpenShift OAuth configuration.</p>
+</div>
+</li>
+<li>
+<p><strong>Create a Client Secret</strong>:</p>
+<div class="paragraph">
+<p>In the left-hand navigation pane, under <strong>Manage</strong>, select <strong>Certificates &amp; secrets</strong>. Click <strong>New client secret</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Description:</strong> Provide a description for the secret (e.g., <code>ARO OpenShift OAuth Client Secret</code>).</p>
+</li>
+<li>
+<p><strong>Expires:</strong> Choose an expiration period. Best practice is to select a shorter duration and plan for regular secret rotation.</p>
+<div class="paragraph">
+<p>Click <strong>Add</strong>. Immediately copy the <strong>Value</strong> of the client secret. This value is only shown once and will be used as the <code>clientSecret</code> in OpenShift. If you lose it, you&#8217;ll need to create a new one.</p>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Grant API Permissions</strong>:</p>
+<div class="paragraph">
+<p>In the left-hand navigation pane, under <strong>Manage</strong>, select <strong>API permissions</strong>. Click <strong>Add a permission</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Select <strong>Microsoft Graph</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Delegated permissions</strong>.</p>
+</li>
+<li>
+<p>Expand <strong>OpenId permissions</strong> and ensure <code>email</code>, <code>offline_access</code>, <code>openid</code>, and <code>profile</code> are selected.</p>
+</li>
+<li>
+<p>Expand <strong>User</strong> and ensure <code>User.Read</code> is selected.</p>
+</li>
+<li>
+<p>Click <strong>Add permissions</strong>.</p>
+<div class="paragraph">
+<p>After adding permissions, click <strong>Grant admin consent for &lt;your-tenant-name&gt;</strong> if available and required for your organization, to ensure all users can consent to the application.</p>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_create_an_openshift_secret_for_the_azure_ad_client_secret"><a class="anchor" href="#_2_create_an_openshift_secret_for_the_azure_ad_client_secret"></a>2. Create an OpenShift Secret for the Azure AD Client Secret</h3>
+<div class="paragraph">
+<p>To securely store the Azure AD client secret in OpenShift, you must create a Kubernetes Secret in the <code>openshift-config</code> namespace.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Retrieve your Azure AD Client Secret</strong>:</p>
+<div class="paragraph">
+<p>Ensure you have the <strong>Value</strong> of the client secret you generated in the previous step.</p>
+</div>
+</li>
+<li>
+<p><strong>Create the <code>openid-client-secret-azuread</code> Secret</strong>:</p>
+<div class="paragraph">
+<p>Replace <code>&lt;your-azuread-client-secret&gt;</code> with the actual secret value.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create secret generic openid-client-secret-azuread \
+  --from-literal=clientSecret=&lt;your-azuread-client-secret&gt; \
+  -n openshift-config</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The name of the secret, <code>openid-client-secret-azuread</code>, must exactly match what is referenced in the <code>OAuth</code> custom resource definition.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_configure_openshift_oauth_identity_provider"><a class="anchor" href="#_3_configure_openshift_oauth_identity_provider"></a>3. Configure OpenShift OAuth Identity Provider</h3>
+<div class="paragraph">
+<p>Now, you will configure OpenShift&#8217;s OAuth server to use Azure AD as an OpenID Connect identity provider.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Prepare the <code>OAuth</code> custom resource definition (CRD)</strong>:</p>
+<div class="paragraph">
+<p>Create a YAML file, for example, <code>azuread-oauth.yaml</code>, with the following content. Replace <code>$appId</code> with your Azure AD Application (client) ID and ensure the <code>name</code> under <code>identityProviders</code> matches the <code>&lt;identity-provider-name&gt;</code> you used for the redirect URI (e.g., <code>entraID</code>).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - name: entraID <i class="conum" data-value="1"></i><b>(1)</b>
+    mappingMethod: claim
+    type: OpenID
+    openID:
+      clientID: &lt;your-azuread-application-client-id&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+      clientSecret:
+        name: openid-client-secret-azuread <i class="conum" data-value="3"></i><b>(3)</b>
+      extraScopes:
+      - email
+      - profile</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The name of your identity provider in OpenShift. This must match the <code>identity-provider-name</code> in your Azure AD Redirect URI.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Replace with the <strong>Application (client) ID</strong> from your Azure AD App Registration.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This references the Kubernetes Secret you created in the previous step.</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><strong>Apply the OAuth configuration</strong>:</p>
+<div class="paragraph">
+<p>Apply the YAML file to your ARO cluster using <code>oc apply</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f azuread-oauth.yaml</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The OpenShift OAuth server will automatically reconfigure itself after you apply this change. It may take a few moments for the new identity provider to become available.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_test_azure_ad_authentication"><a class="anchor" href="#_4_test_azure_ad_authentication"></a>4. Test Azure AD Authentication</h3>
+<div class="paragraph">
+<p>After applying the configuration, it&#8217;s time to verify that the integration works as expected.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Log out from the OpenShift Web Console</strong>:</p>
+<div class="paragraph">
+<p>If you are currently logged into the OpenShift Web Console, log out to ensure you see the updated login screen.</p>
+</div>
+</li>
+<li>
+<p><strong>Access the OpenShift Web Console</strong>:</p>
+<div class="paragraph">
+<p>Navigate to your ARO cluster&#8217;s OpenShift Web Console URL (e.g., <code><a href="https://console-openshift-console.apps.myarocluster.eastus.aroapp.io" class="bare">https://console-openshift-console.apps.myarocluster.eastus.aroapp.io</a></code>).</p>
+</div>
+</li>
+<li>
+<p><strong>Select the Azure AD Identity Provider</strong>:</p>
+<div class="paragraph">
+<p>On the login page, you should now see a new option to log in with your configured identity provider (e.g., <strong>entraID</strong>). Click on this option.</p>
+</div>
+</li>
+<li>
+<p><strong>Authenticate with Azure AD</strong>:</p>
+<div class="paragraph">
+<p>You will be redirected to the Microsoft login page. Enter your Azure AD credentials. If prompted, grant consent for the application to access your profile.</p>
+</div>
+</li>
+<li>
+<p><strong>Verify Successful Login</strong>:</p>
+<div class="paragraph">
+<p>Upon successful authentication, you will be redirected back to the OpenShift Web Console, logged in with your Azure AD account. You can verify your user information by clicking on your username in the top-right corner of the console.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>Troubleshooting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here are common issues you might encounter during the integration and how to troubleshoot them.</p>
+</div>
+<div class="sect2">
+<h3 id="_error_aadsts50011_the_redirect_uri_specified_in_the_request_does_not_match"><a class="anchor" href="#_error_aadsts50011_the_redirect_uri_specified_in_the_request_does_not_match"></a>Error: AADSTS50011 - The redirect URI specified in the request does not match</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom</strong>: When attempting to log in with Azure AD, you receive an error message in the browser similar to <code>AADSTS50011: The redirect URI <a href="https://oauth-openshift.apps.&lt;domain&gt;.&lt;regions&gt;.aroapp.io/oauth2callback/&lt;identity&gt" class="bare">https://oauth-openshift.apps.&lt;domain&gt;.&lt;regions&gt;.aroapp.io/oauth2callback/&lt;identity&gt</a>; specified in the request doesn&#8217;t match the redirect URIs configured for the application&#8230;&#8203;</code>.</p>
+</li>
+<li>
+<p><strong>Explanation</strong>: This error indicates a mismatch between the redirect URI configured in your Azure AD Application Registration and the actual redirect URI OpenShift is sending during the OAuth flow. Azure AD strictly enforces that the callback URI must be pre-registered for security reasons.</p>
+</li>
+<li>
+<p><strong>Resolution</strong>:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Verify OpenShift&#8217;s expected Redirect URI</strong>:
++
+Ensure that the <code>Redirect URI</code> configured in your Azure AD application registration exactly matches the format <code><a href="https://oauth-openshift.apps.&lt;cluster-domain&gt;.&lt;region&gt;.aroapp.io/oauth2callback/&lt;identity-provider-name&gt" class="bare">https://oauth-openshift.apps.&lt;cluster-domain&gt;.&lt;region&gt;.aroapp.io/oauth2callback/&lt;identity-provider-name&gt</a>;</code>. Pay close attention to:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The cluster domain and region.</p>
+</li>
+<li>
+<p>The exact spelling and case of <code>oauth-openshift</code>.</p>
+</li>
+<li>
+<p>The <code>identity-provider-name</code> (e.g., <code>entraID</code>) must match what you specified in the OpenShift <code>OAuth</code> CR.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Update Azure AD App Registration</strong>:
++
+Go to the Azure portal, navigate to <strong>Azure Active Directory</strong> &#8594; <strong>App registrations</strong>, select your application, then go to <strong>Authentication</strong>. Under <strong>Web</strong> &#8594; <strong>Redirect URIs</strong>, add or update the URI to precisely match what OpenShift expects.</p>
+</li>
+<li>
+<p><strong>Check for Trailing Slashes or Typos</strong>: Even a single character difference, such as a trailing slash, can cause this error. Double-check for any typos.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_missing_target_workload_openshift_iomanagement_annotation_on_pod_identity_webhook"><a class="anchor" href="#_missing_target_workload_openshift_iomanagement_annotation_on_pod_identity_webhook"></a>Missing <code>target.workload.openshift.io/management</code> annotation on <code>pod-identity-webhook</code></h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom</strong>: As observed during the prerequisite checks, the <code>pod-identity-webhook</code> deployment in <code>openshift-cloud-credential-operator</code> namespace is missing the <code>target.workload.openshift.io/management: true</code> annotation.</p>
+</li>
+<li>
+<p><strong>Explanation</strong>: This annotation is crucial for the correct functioning of managed identities and related identity projection within an ARO cluster. Its absence suggests a potential misconfiguration or issue with the cluster&#8217;s managed identity setup, which might impact various cluster services, though not directly the OAuth flow for user authentication.</p>
+</li>
+<li>
+<p><strong>Resolution</strong>: If you encounter this, it&#8217;s a strong indicator of an underlying platform issue. You should immediately <a href="#../knowledge-share/support-cases.adoc" class="xref unresolved">open a support case</a> with Red Hat and Microsoft, providing them with the output of <code>oc describe deployment pod-identity-webhook -n openshift-cloud-credential-operator</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_general_authentication_failures_no_specific_error"><a class="anchor" href="#_general_authentication_failures_no_specific_error"></a>General Authentication Failures (No specific error)</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom</strong>: You click the identity provider, get redirected to Microsoft login, but after authentication, you&#8217;re either redirected back to OpenShift without logging in, or you get a generic error page.</p>
+</li>
+<li>
+<p><strong>Resolution</strong>:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Verify Client ID and Client Secret</strong>: Double-check that the <code>clientID</code> in your OpenShift <code>OAuth</code> CR and the <code>clientSecret</code> stored in the <code>openid-client-secret-azuread</code> Secret are correct and match your Azure AD App Registration. Ensure the secret value was copied correctly when it was first generated (as it&#8217;s only shown once).</p>
+</li>
+<li>
+<p><strong>Check Secret Expiration</strong>: Verify that your Azure AD client secret has not expired. If it has, generate a new one in Azure AD and update the <code>openid-client-secret-azuread</code> Secret in OpenShift.</p>
+</li>
+<li>
+<p><strong>Examine OpenShift OAuth Logs</strong>: Check the logs of the <code>oauth-apiserver</code> and <code>oauth-proxy</code> pods for more detailed error messages.
++
+[source,bash,subs="+attributes"]
+----
+oc logs -f &lt;oauth-apiserver-pod-name&gt; -n openshift-authentication
+oc logs -f &lt;oauth-proxy-pod-name&gt; -n openshift-authentication
+----</p>
+</li>
+<li>
+<p><strong>Verify API Permissions</strong>: Ensure that the Azure AD application has the necessary API permissions (<code>User.Read</code>, <code>email</code>, <code>profile</code>) and that admin consent has been granted if required.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_related_content"><a class="anchor" href="#_related_content"></a>Related Content</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.openshift.com/container-platform/latest/authentication/configuring-azure-active-directory.html">Configuring Azure Active Directory as an identity provider</a></p>
+</li>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/azure/openshift/howto-integrate-aad-with-aro">Integrate Azure Active Directory with Azure Red Hat OpenShift (Microsoft Docs)</a></p>
+</li>
+<li>
+<p><a href="https://learn.microsoft.com/en-us/azure/openshift/concepts-managed-identities">Managed identities with Azure Red Hat OpenShift</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a></span>
+  <span class="next"><a href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

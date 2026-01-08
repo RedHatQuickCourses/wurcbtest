@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Configure log forwarding :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="configure-node-autoscaling.html">
+    <link rel="next" href="create-a-private-azure-red-hat-openshift-cluster.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="configure-log-forwarding.html">Configure log forwarding</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Configure log forwarding</h1>
+<h1 id="_configure_log_forwarding_in_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_configure_log_forwarding_in_azure_red_hat_openshift"></a>Configure Log Forwarding in Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>Log forwarding is a critical component of any robust monitoring and troubleshooting strategy for applications and infrastructure. In Azure Red Hat OpenShift (ARO), where the control plane and underlying infrastructure are jointly managed by Microsoft and Red Hat, understanding how to effectively collect, filter, and forward logs to external systems is essential for gaining deep insights into your cluster&#8217;s health and application behavior.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_log_forwarding_in_aro"><a class="anchor" href="#_understanding_log_forwarding_in_aro"></a>Understanding Log Forwarding in ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ARO leverages the powerful logging capabilities inherent in OpenShift, primarily through the OpenShift Logging stack. This stack provides a centralized logging solution for collecting various types of logs generated within the cluster and can be configured to forward them to external destinations.</p>
+</div>
+<div class="sect2">
+<h3 id="_why_forward_logs"><a class="anchor" href="#_why_forward_logs"></a>Why Forward Logs?</h3>
+<div class="paragraph">
+<p>While ARO provides basic monitoring capabilities, forwarding logs to external systems offers several advantages:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Long-term Storage and Retention:</strong> External systems like Azure Log Analytics or dedicated SIEM solutions can offer more extensive and cost-effective log retention policies than internal cluster storage.</p>
+</li>
+<li>
+<p><strong>Advanced Analytics and Correlation:</strong> Integrating with external tools allows for sophisticated querying, dashboarding, alerting, and correlation of logs with other operational data.</p>
+</li>
+<li>
+<p><strong>Compliance and Auditing:</strong> Many compliance standards require logs to be stored securely and redundantly outside the primary application environment.</p>
+</li>
+<li>
+<p><strong>Separation of Concerns:</strong> Keeping operational logs separate from the cluster allows for easier troubleshooting even if the cluster itself is experiencing issues.</p>
+</li>
+<li>
+<p><strong>Unified Monitoring:</strong> For organizations with multiple clusters or hybrid cloud environments, forwarding logs to a central system provides a single pane of glass for all operational data.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_openshift_logging_stack_overview"><a class="anchor" href="#_openshift_logging_stack_overview"></a>OpenShift Logging Stack Overview</h3>
+<div class="paragraph">
+<p>The OpenShift Logging stack typically comprises the following components:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cluster Logging Operator:</strong> This operator manages the deployment and lifecycle of the logging components within the cluster.</p>
+</li>
+<li>
+<p><strong>Fluentd (Collector):</strong> Deployed as a DaemonSet on each node, Fluentd collects logs from various sources (application containers, OpenShift components, node system logs).</p>
+</li>
+<li>
+<p><strong>Elasticsearch (Aggregator/Storage):</strong> Historically used for storing collected logs. While <code>Elasticsearch</code> is often part of the traditional EFK stack, <code>Loki</code> (for Prometheus-style log querying) or external solutions are increasingly common for log storage in modern OpenShift deployments, especially when forwarding.</p>
+</li>
+<li>
+<p><strong>Kibana (UI):</strong> Provides a web interface for searching and visualizing logs stored in Elasticsearch.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In ARO, while the control plane is managed, you retain full control over configuring the logging stack for your application and infrastructure logs generated on the worker nodes.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_types_of_logs_collected"><a class="anchor" href="#_types_of_logs_collected"></a>Types of Logs Collected</h3>
+<div class="paragraph">
+<p>The OpenShift Logging stack can collect logs from three main sources:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Application Logs:</strong> Logs generated by your applications running in pods. These are typically read from <code>stdout</code> and <code>stderr</code> streams of containers.</p>
+</li>
+<li>
+<p><strong>Infrastructure Logs:</strong> Logs generated by OpenShift internal components, such as the API server, controller manager, scheduler, and other platform services.</p>
+</li>
+<li>
+<p><strong>Audit Logs:</strong> Logs detailing API requests and actions performed against the Kubernetes API, providing a crucial record for security and compliance.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_external_log_destinations"><a class="anchor" href="#_external_log_destinations"></a>External Log Destinations</h3>
+<div class="paragraph">
+<p>ARO supports forwarding logs to various external destinations. Common choices include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Azure Log Analytics:</strong> A powerful monitoring solution within Azure that can collect data from various sources, including OpenShift. It offers advanced query capabilities and integration with Azure Monitor.</p>
+</li>
+<li>
+<p><strong>Azure Event Hubs:</strong> A highly scalable data streaming platform that can be used as an intermediary to stream logs to other processing or storage systems.</p>
+</li>
+<li>
+<p><strong>Splunk:</strong> A widely used SIEM (Security Information and Event Management) platform for log aggregation, analysis, and security monitoring.</p>
+</li>
+<li>
+<p><strong>Syslog:</strong> A standard protocol for sending log messages to a central log server.</p>
+</li>
+<li>
+<p><strong>HTTP/HTTPS Endpoints:</strong> Generic endpoints for custom integrations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The choice of destination often depends on your organization&#8217;s existing logging infrastructure, compliance requirements, and desired analytics capabilities.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuring_log_forwarding_with_clusterlogforwarder"><a class="anchor" href="#_configuring_log_forwarding_with_clusterlogforwarder"></a>Configuring Log Forwarding with <code>ClusterLogForwarder</code></h3>
+<div class="paragraph">
+<p>The primary mechanism for configuring log forwarding in OpenShift (and thus ARO) is through the <code>ClusterLogForwarder</code> custom resource (CR). This CR allows you to define:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Inputs:</strong> Which types of logs to collect (application, infrastructure, audit).</p>
+</li>
+<li>
+<p><strong>Outputs:</strong> The external destinations where logs should be sent (e.g., Azure Log Analytics, Event Hubs, Syslog).</p>
+</li>
+<li>
+<p><strong>Pipelines:</strong> Rules that connect inputs to outputs, potentially with filtering or transformation steps in between.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This declarative approach ensures that your log forwarding configuration is managed as code and can be version-controlled.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Before configuring log forwarding, ensure you have an appropriate external log destination set up and accessible from your ARO cluster. This might involve setting up an Azure Log Analytics Workspace, an Azure Event Hub, or a syslog server, and configuring network egress rules if necessary. Refer to the ARO support policies documentation for information on outbound traffic and egress requirements.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_configuring_basic_log_forwarding_in_aro"><a class="anchor" href="#_hands_on_activity_configuring_basic_log_forwarding_in_aro"></a>Hands-on Activity: Configuring Basic Log Forwarding in ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This activity demonstrates how to deploy the OpenShift Logging Operator and configure a <code>ClusterLogForwarder</code> to send application logs to a hypothetical external HTTP endpoint. For a real-world scenario, you would replace the HTTP output with a configured Azure Log Analytics or Event Hub output.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An existing Azure Red Hat OpenShift cluster.</p>
+</li>
+<li>
+<p><code>oc</code> CLI tool configured and logged in to your ARO cluster with <code>cluster-admin</code> privileges.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_1_install_the_openshift_logging_operator"><a class="anchor" href="#_step_1_install_the_openshift_logging_operator"></a>Step 1: Install the OpenShift Logging Operator</h3>
+<div class="paragraph">
+<p>First, you need to install the OpenShift Logging Operator, which manages the logging components.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Log in to the OpenShift Web Console</strong> as a user with <code>cluster-admin</code> privileges.</p>
+</li>
+<li>
+<p>Navigate to <strong>Operators</strong> &#8594; <strong>OperatorHub</strong>.</p>
+</li>
+<li>
+<p>Search for <code>Red Hat OpenShift Logging</code> and select it.</p>
+</li>
+<li>
+<p>Click <strong>Install</strong>.</p>
+</li>
+<li>
+<p>On the "Install Operator" page:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Set the "Installation mode" to <code>All namespaces on the cluster (default)</code>.</p>
+</li>
+<li>
+<p>Set the "Installed Namespace" to <code>openshift-logging</code>.</p>
+</li>
+<li>
+<p>Set the "Update channel" to <code>stable</code>.</p>
+</li>
+<li>
+<p>Set the "Approval strategy" to <code>Automatic</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Click <strong>Install</strong>.</p>
+</li>
+<li>
+<p>Wait for the operator to become <code>Succeeded</code> in the <code>openshift-logging</code> namespace. You can monitor its status from <strong>Operators</strong> &#8594; <strong>Installed Operators</strong>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Alternatively, using the <code>oc</code> CLI:</p>
+</div>
+<div class="listingblock">
+<div class="title">Create the OperatorGroup:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt;EOF | oc apply -f -
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-logging-og
+  namespace: openshift-logging
+spec:
+  targetNamespaces:
+  - openshift-logging
+EOF</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Subscribe to the Logging Operator:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt;EOF | oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cluster-logging
+  namespace: openshift-logging
+spec:
+  channel: "stable"
+  name: cluster-logging
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+EOF</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Verify the Operator is running:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pod -n openshift-logging -l name=cluster-logging-operator</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait until the pod shows <code>Running</code> status.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_create_a_clusterlogging_instance"><a class="anchor" href="#_step_2_create_a_clusterlogging_instance"></a>Step 2: Create a <code>ClusterLogging</code> Instance</h3>
+<div class="paragraph">
+<p>The <code>ClusterLogging</code> custom resource defines the overall logging stack. For log forwarding, we primarily need the <code>logForwarding</code> component.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a <code>ClusterLogging</code> instance:</strong>
+[source,bash]
+----
+cat &lt;&lt;EOF | oc apply -f -
+apiVersion: "logging.openshift.io/v1"
+kind: "ClusterLogging"
+metadata:
+  name: "instance"
+  namespace: "openshift-logging"
+spec:
+  managementState: "Managed"
+  logStore:
+    type: "none" # We are only forwarding, not storing internally
+  collection:
+    logs:
+      type: "fluentd"
+EOF
+----</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>logStore: type: "none"</code>: This tells the operator not to deploy an internal log store (like Elasticsearch), as we are primarily interested in forwarding logs externally.</p>
+</li>
+<li>
+<p><code>collection: logs: type: "fluentd"</code>: This ensures Fluentd is deployed to collect logs.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Verify the <code>ClusterLogging</code> instance and Fluentd deployment:</strong>
+[source,bash]
+----
+oc get ClusterLogging -n openshift-logging
+oc get pod -n openshift-logging -l component=collector
+----
+You should see a <code>ClusterLogging</code> instance named <code>instance</code> and Fluentd collector pods running on your worker nodes.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_define_an_external_log_output_example_generic_http_endpoint"><a class="anchor" href="#_step_3_define_an_external_log_output_example_generic_http_endpoint"></a>Step 3: Define an External Log Output (Example: Generic HTTP Endpoint)</h3>
+<div class="paragraph">
+<p>For this example, we&#8217;ll simulate forwarding to a generic HTTP endpoint. In a real ARO scenario, you would configure an output for Azure Log Analytics or Event Hubs.</p>
+</div>
+<div class="paragraph">
+<p>First, let&#8217;s create a placeholder <code>Secret</code> for credentials if the output required them (e.g., an API key or shared secret for Azure Log Analytics). For a simple HTTP post, it might not be strictly needed, but it&#8217;s good practice.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a dummy secret (if needed for a real output):</strong>
+[source,bash]
+----
+oc create secret generic log-forwarding-secrets --from-literal=endpoint-url='http://my-dummy-log-receiver.example.com/api/logs' --from-literal=api-key='dummy-api-key' -n openshift-logging
+----
+NOTE: Replace <code><a href="http://my-dummy-log-receiver.example.com/api/logs" class="bare">http://my-dummy-log-receiver.example.com/api/logs</a></code> with your actual log receiver URL. For Azure Log Analytics, this would involve workspace ID and shared key.</p>
+</li>
+<li>
+<p><strong>Create a <code>ClusterLogForwarder</code> custom resource:</strong>
+This CR defines where logs should go. We&#8217;ll set up a pipeline to send application logs.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+cat &lt;&lt;EOF | oc apply -f -
+apiVersion: "logging.openshift.io/v1"
+kind: "ClusterLogForwarder"
+metadata:
+  name: "instance"
+  namespace: "openshift-logging"
+spec:
+  outputs:
+    - name: "my-external-http-endpoint"
+      type: "http"
+      url: "https://your-log-analytics-workspace-id.ods.opinsights.azure.com/api/logs?api-version=2016-04-01" # Replace with actual URL
+      secret:
+        name: "log-forwarding-secrets" # Refers to the secret created above
+        key: "endpoint-url"
+      headers:
+        - name: "Authorization"
+          value: "SharedKey YOUR_SHARED_KEY_BASE64_ENCODED" # Replace with actual auth header, typically generated for Azure Log Analytics
+        - name: "Content-Type"
+          value: "application/json"
+        - name: "x-ms-date"
+          value: "$(date -u +'%a, %d %b %Y %H:%M:%S GMT')" # Example dynamic header for Azure Log Analytics
+  pipelines:
+    - name: "forward-app-logs-to-external"
+      inputRefs:
+        - "application" # Collects all application logs
+      outputRefs:
+        - "my-external-http-endpoint"
+      # Optional: Add filters here
+      # filters:
+      #   - type: "k8s_container_selector"
+      #     k8sContainerSelector:
+      #       containerName: "my-app-container"
+      #       namespace: "my-app-namespace"
+EOF
+----</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>For Azure Log Analytics (Example <code>outputs</code> configuration):</strong></p>
+</li>
+<li>
+<p>You would need the Workspace ID and the Shared Key. The Shared Key needs to be base64 encoded.</p>
+</li>
+<li>
+<p>The <code>url</code> would be specific to your workspace.</p>
+</li>
+<li>
+<p>The <code>headers</code> would include <code>Authorization</code> (SharedKey) and <code>x-ms-date</code>.</p>
+</li>
+<li>
+<p>The <code>secret</code> would store the Workspace ID and Shared Key.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+# Example for Azure Log Analytics (Conceptual - details depend on specific integration method)
+# This might require a custom Fluentd plugin or more advanced configuration,
+# or using Azure Event Hubs as an intermediary.
+# Always consult official Azure/Red Hat documentation for definitive ARO Log Analytics integration.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># Outputs for Azure Log Analytics (conceptual)
+# This would typically involve a dedicated Fluentd plugin or integration via Event Hubs.
+# The direct HTTP output might not be robust enough for all Azure Log Analytics scenarios.
+outputs:
+  - name: "azure-log-analytics"
+    type: "syslog" # Or http, depending on plugin/method
+    # url: "..." # For HTTP
+    # syslog:
+    #   tag: "app"
+    #   hostname: "log-analytics-endpoint" # Specific Azure endpoint
+    #   port: 514
+    #   protocol: "tcp" # Or tls
+    # secret:
+    #   name: "azure-log-analytics-secret" # Secret containing Workspace ID, Shared Key
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>NOTE: The HTTP output shown above is a simplified example. Real-world integration with Azure Log Analytics typically involves specific authentication headers, payload formats, and potentially custom Fluentd configurations or using Azure Event Hubs as an intermediary for robust, scalable log ingestion. Always refer to the latest Azure Red Hat OpenShift and Azure Log Analytics documentation for the most accurate and secure integration patterns.</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_4_verify_log_forwarding"><a class="anchor" href="#_step_4_verify_log_forwarding"></a>Step 4: Verify Log Forwarding</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Check <code>ClusterLogForwarder</code> status:</strong>
+[source,bash]
+----
+oc get ClusterLogForwarder -n openshift-logging instance -o yaml
+----
+Look for <code>conditions</code> indicating <code>LogForwarding</code> is <code>True</code> and healthy.</p>
+</li>
+<li>
+<p><strong>Generate some application logs:</strong>
+Deploy a simple application that continuously generates logs.
+[source,bash]
+----
+oc new-project test-logging
+oc new-app --docker-image=centos/s2i-nodejs:14-ubi8~https://github.com/sclorg/nodejs-ex.git --name=log-generator
+----
+After the pod is running, it will generate "Hello world!" messages to <code>stdout</code>.</p>
+</li>
+<li>
+<p><strong>Monitor the Fluentd logs:</strong>
+You can check the Fluentd collector logs for indications that it&#8217;s processing and forwarding messages.
+[source,bash]
+----
+oc logs -f -n openshift-logging -l component=collector
+----
+You should see Fluentd processing application logs and attempting to send them to the configured output. If your external HTTP endpoint is functional, you should see the logs appear there.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This activity provides a foundational understanding of how to set up log forwarding in ARO. For production environments, further considerations include robust authentication, network security, log filtering, and data transformation to meet specific requirements for your chosen external logging solution.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="configure-node-autoscaling.html">Configure node autoscaling</a></span>
+  <span class="next"><a href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

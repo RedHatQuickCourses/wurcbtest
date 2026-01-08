@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Manage a cluster using Red Hat Advanced Cluster Management :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="implement-gitops-for-cluster-administration.html">
+    <link rel="next" href="../appendix/appendix.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Manage a cluster using Red Hat Advanced Cluster Management</h1>
+<h1 id="_managing_azure_red_hat_openshift_clusters_with_red_hat_advanced_cluster_management_rhacm" class="sect0"><a class="anchor" href="#_managing_azure_red_hat_openshift_clusters_with_red_hat_advanced_cluster_management_rhacm"></a>Managing Azure Red Hat OpenShift Clusters with Red Hat Advanced Cluster Management (RHACM)</h1>
+<div class="paragraph">
+<p>Red Hat Advanced Cluster Management for Kubernetes (RHACM) is a powerful platform designed to help organizations manage multiple Kubernetes clusters, whether they are on-premises, in the cloud, or at the edge. For Azure Red Hat OpenShift (ARO) users, RHACM provides a centralized control plane to oversee, govern, and deploy applications across all your ARO clusters, offering consistency and operational efficiency.</p>
+</div>
+<div class="sect1">
+<h2 id="_overview_of_red_hat_advanced_cluster_management_rhacm"><a class="anchor" href="#_overview_of_red_hat_advanced_cluster_management_rhacm"></a>Overview of Red Hat Advanced Cluster Management (RHACM)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In today&#8217;s distributed and hybrid cloud environments, managing individual Kubernetes clusters quickly becomes complex and prone to errors. RHACM addresses these challenges by offering a unified console and a set of tools that simplify the management of large-scale OpenShift deployments.</p>
+</div>
+<div class="sect2">
+<h3 id="_aro_platform_capabilities_enhanced_by_rhacm"><a class="anchor" href="#_aro_platform_capabilities_enhanced_by_rhacm"></a>ARO Platform Capabilities Enhanced by RHACM</h3>
+<div class="paragraph">
+<p>While ARO itself provides a fully managed OpenShift experience on Azure, RHACM extends its capabilities, especially for organizations running multiple ARO clusters or a mix of ARO and other OpenShift distributions.</p>
+</div>
+<div class="paragraph">
+<p>Key benefits of using RHACM with ARO include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Centralized Visibility:</strong> Get a single pane of glass to view the health, status, and inventory of all your ARO clusters, regardless of their Azure region or subscription.</p>
+</li>
+<li>
+<p><strong>Policy-driven Governance and Compliance:</strong> Define and enforce security, configuration, and operational policies across all managed ARO clusters. This ensures consistency and helps meet regulatory compliance requirements.</p>
+</li>
+<li>
+<p><strong>Multi-cluster Application Lifecycle Management:</strong> Deploy and manage applications consistently across multiple ARO clusters, using GitOps principles and advanced placement rules.</p>
+</li>
+<li>
+<p><strong>Consistent Observability:</strong> Gain consolidated insights into cluster performance, resource utilization, and events across your entire fleet of ARO clusters.</p>
+</li>
+<li>
+<p><strong>Automation and Day-2 Operations:</strong> Automate common operational tasks, reducing manual effort and potential for human error.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rhacm_architecture_hub_and_spoke"><a class="anchor" href="#_rhacm_architecture_hub_and_spoke"></a>RHACM Architecture: Hub and Spoke</h3>
+<div class="paragraph">
+<p>RHACM operates on a hub-and-spoke architecture:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hub Cluster:</strong> This is the central RHACM instance where you install the RHACM operator and associated components. It acts as the control plane for managing all other clusters.</p>
+</li>
+<li>
+<p><strong>Managed Clusters:</strong> These are the OpenShift clusters (including ARO clusters) that are registered with and managed by the hub cluster. Each managed cluster runs a lightweight agent called <code>klusterlet</code>, which communicates with the hub.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>klusterlet</code> agent is responsible for:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Reporting cluster status, inventory, and events to the hub.</p>
+</li>
+<li>
+<p>Receiving and applying policies, application deployments, and other management commands from the hub.</p>
+</li>
+<li>
+<p>Ensuring secure communication between the managed cluster and the hub.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This architecture allows for scalable and secure management, as the hub does not directly access your managed cluster&#8217;s kube-apiserver, but rather communicates through the <code>klusterlet</code> agent&#8217;s secure tunnel.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_lab_managing_aro_clusters_with_rhacm"><a class="anchor" href="#_hands_on_lab_managing_aro_clusters_with_rhacm"></a>Hands-on Lab: Managing ARO Clusters with RHACM</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This lab will guide you through the process of connecting an existing Azure Red Hat OpenShift cluster to Red Hat Advanced Cluster Management, deploying an application, and applying a simple policy.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This lab assumes you have access to an operational Red Hat Advanced Cluster Management hub cluster and an existing Azure Red Hat OpenShift cluster. The focus here is on integrating the ARO cluster with RHACM.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_activity_1_import_an_azure_red_hat_openshift_cluster_into_rhacm"><a class="anchor" href="#_activity_1_import_an_azure_red_hat_openshift_cluster_into_rhacm"></a>Activity 1: Import an Azure Red Hat OpenShift Cluster into RHACM</h3>
+<div class="paragraph">
+<p>In this activity, you will import an existing ARO cluster into your RHACM hub, making it a "managed cluster."</p>
+</div>
+<div class="paragraph">
+<p><strong>Prerequisites:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Access to an RHACM hub cluster&#8217;s web console.</p>
+</li>
+<li>
+<p><code>oc</code> CLI configured to access your ARO cluster.</p>
+</li>
+<li>
+<p>The <code>KUBECONFIG</code> environment variable for your ARO cluster is set.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps:</div>
+<ol class="arabic">
+<li>
+<p><strong>Access the RHACM Web Console</strong>
+Open your web browser and navigate to the URL of your RHACM hub cluster&#8217;s OpenShift console. Log in with appropriate credentials.</p>
+</li>
+<li>
+<p><strong>Navigate to the "Clusters" Section</strong>
+In the RHACM console, from the left-hand navigation pane, select <strong>Infrastructure</strong> &#8594; <strong>Clusters</strong>.</p>
+</li>
+<li>
+<p><strong>Initiate Cluster Import</strong>
+On the <strong>Clusters</strong> page, click the <strong>Add cluster</strong> button.
+You will be presented with options to <strong>Create cluster</strong> or <strong>Import cluster</strong>. Select <strong>Import cluster</strong>.</p>
+</li>
+<li>
+<p><strong>Define Cluster Name and Labels</strong>
+Provide a unique name for your ARO cluster (e.g., <code>my-aro-cluster</code>).
+You can add optional labels to help organize your clusters (e.g., <code>cloud=azure</code>, <code>environment=development</code>). These labels are useful later for policy enforcement and application placement.
+Click <strong>Next</strong>.</p>
+</li>
+<li>
+<p><strong>Generate and Copy the Import Command</strong>
+RHACM will generate a <code>curl</code> command that you need to run on your ARO cluster. This command downloads a YAML manifest containing the <code>klusterlet</code> agent definition and then applies it to your ARO cluster.</p>
+<div class="literalblock">
+<div class="content">
+<pre>Example command (will vary):
+```bash
+curl --insecure -fL https://&lt;RHACM_HUB_API_SERVER&gt;:8080/cluster/import/&lt;cluster-name&gt; | oc apply -f -
+```
+Copy this `curl` command to your clipboard.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Execute the Import Command on your ARO Cluster</strong>
+Open a terminal where your <code>oc</code> CLI is configured to connect to your ARO cluster.
+Paste and execute the copied <code>curl</code> command.</p>
+<div class="literalblock">
+<div class="content">
+<pre>```bash
+# Ensure your KUBECONFIG points to your ARO cluster
+# oc login ... (if not already logged in)
+curl --insecure -fL https://&lt;RHACM_HUB_API_SERVER&gt;:8080/cluster/import/my-aro-cluster | oc apply -f -
+```</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>This command will create a namespace (e.g., `open-cluster-management`), service accounts, roles, and the `klusterlet` deployment on your ARO cluster.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify Cluster Import in RHACM</strong>
+Return to the RHACM web console. Within a few moments (it might take 1-2 minutes), you should see your ARO cluster listed on the <strong>Clusters</strong> page.
+The cluster status will transition from <strong>Pending</strong> to <strong>Ready</strong> once the <code>klusterlet</code> agent successfully connects to the hub.
+Click on your ARO cluster&#8217;s name to view its details, including health, inventory, and network information.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_2_deploy_an_application_to_an_aro_cluster_using_rhacm"><a class="anchor" href="#_activity_2_deploy_an_application_to_an_aro_cluster_using_rhacm"></a>Activity 2: Deploy an Application to an ARO Cluster using RHACM</h3>
+<div class="paragraph">
+<p>Now that your ARO cluster is managed by RHACM, you can deploy applications to it using RHACM&#8217;s multi-cluster application management capabilities. We will deploy a simple Nginx application.</p>
+</div>
+<div class="paragraph">
+<p><strong>Prerequisites:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ARO cluster imported into RHACM (from Activity 1).</p>
+</li>
+<li>
+<p>A Git repository containing application deployment manifests (for this lab, we&#8217;ll use a public example).</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps:</div>
+<ol class="arabic">
+<li>
+<p><strong>Navigate to the "Applications" Section</strong>
+In the RHACM console, from the left-hand navigation pane, select <strong>Applications</strong>.</p>
+</li>
+<li>
+<p><strong>Create a New Application</strong>
+On the <strong>Applications</strong> page, click <strong>Create application</strong>.
+Select <strong>Git</strong> as the source for your application.</p>
+</li>
+<li>
+<p><strong>Configure Application Details</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> <code>nginx-app</code></p>
+</li>
+<li>
+<p><strong>Namespace:</strong> <code>nginx-app-ns</code> (This namespace will be created on the target cluster if it doesn&#8217;t exist).</p>
+</li>
+<li>
+<p><strong>Repository URL:</strong> <code><a href="https://github.com/openshift/kubernetes-helm.git" class="bare">https://github.com/openshift/kubernetes-helm.git</a></code> (We&#8217;ll use a subpath for a simple Nginx example).</p>
+</li>
+<li>
+<p><strong>Branch:</strong> <code>master</code></p>
+</li>
+<li>
+<p><strong>Path:</strong> <code>stable/nginx-ingress</code> (This points to the Nginx Helm chart example within the repo).</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Define Placement Rules</strong>
+This is where you specify <strong>where</strong> your application should be deployed.
+Under <strong>Placement</strong>, select <strong>Create placement rule</strong>.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> <code>aro-nginx-placement</code></p>
+</li>
+<li>
+<p>Under <strong>Cluster selectors</strong>, add a selector that matches your imported ARO cluster. For example: <code>cloud=azure</code> and <code>name=my-aro-cluster</code> (or whatever labels you used during import).</p>
+</li>
+<li>
+<p>Click <strong>Done</strong>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Review and Create Application</strong>
+Review the application configuration. RHACM will show you the YAML that defines the <code>Application</code>, <code>PlacementRule</code>, and <code>Subscription</code> resources.
+Click <strong>Create</strong>.</p>
+</li>
+<li>
+<p><strong>Monitor Application Deployment</strong>
+After creation, RHACM will start deploying the application.
+Go back to the <strong>Applications</strong> page and click on <code>nginx-app</code>. You will see its status and the clusters it&#8217;s targeting.
+Click on the <strong>Resources</strong> tab within the application details. You should see the deployment, service, and other resources being created on your ARO cluster.
+You can also verify directly on your ARO cluster:
+<code><code>bash
+oc get pods -n nginx-app-ns
+oc get svc -n nginx-app-ns
+</code></code>
+You should see Nginx pods running and a service exposed.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_3_apply_a_policy_to_an_aro_cluster"><a class="anchor" href="#_activity_3_apply_a_policy_to_an_aro_cluster"></a>Activity 3: Apply a Policy to an ARO Cluster</h3>
+<div class="paragraph">
+<p>RHACM&#8217;s policy engine allows you to define desired configurations and enforce them across your managed clusters. Let&#8217;s create a simple policy to ensure a specific label exists on all namespaces in our ARO cluster.</p>
+</div>
+<div class="paragraph">
+<p><strong>Prerequisites:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ARO cluster imported into RHACM (from Activity 1).</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps:</div>
+<ol class="arabic">
+<li>
+<p><strong>Navigate to the "Governance" Section</strong>
+In the RHACM console, from the left-hand navigation pane, select <strong>Governance</strong>.</p>
+</li>
+<li>
+<p><strong>Create a New Policy</strong>
+On the <strong>Policies</strong> page, click <strong>Create policy</strong>.</p>
+</li>
+<li>
+<p><strong>Define Policy Configuration</strong>
+You can either use the form or edit the YAML directly. Let&#8217;s edit the YAML for precision.
+Click <strong>Edit YAML</strong>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>Replace the default YAML with the following, which ensures all namespaces have the label `managed-by: rhacm`:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>```yaml
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: enforce-namespace-labels
+  namespace: default # Or another policy namespace
+spec:
+  remediationAction: enforce # Can be 'inform' or 'enforce'
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: namespace-label-policy
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - complianceType: musthave
+              object:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  labels:
+                    managed-by: rhacm
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-enforce-namespace-labels
+  namespace: default
+placementRef:
+  name: placement-enforce-namespace-labels
+  kind: PlacementRule
+  apiGroup: apps.open-cluster-management.io
+subjects:
+  - name: enforce-namespace-labels
+    kind: Policy
+    apiGroup: policy.open-cluster-management.io
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-enforce-namespace-labels
+  namespace: default
+spec:
+  clusterSelector:
+    matchLabels:
+      cloud: azure # Selects our ARO cluster
+      name: my-aro-cluster # Further refines selection
+```</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[NOTE]
+Replace `name: my-aro-cluster` with the actual name of your imported ARO cluster if it's different.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Create the Policy</strong>
+Click <strong>Create</strong>.</p>
+</li>
+<li>
+<p><strong>Monitor Policy Compliance</strong>
+Go back to the <strong>Policies</strong> page. You will see <code>enforce-namespace-labels</code> listed.
+Click on the policy name.
+Under the <strong>Cluster status</strong> tab, you should see your ARO cluster. Initially, it might show a violation for any namespace that does <strong>not</strong> have the <code>managed-by: rhacm</code> label.
+Since <code>remediationAction</code> is set to <code>enforce</code>, RHACM will attempt to apply the <code>managed-by: rhacm</code> label to existing namespaces. New namespaces created on the ARO cluster will also automatically get this label.
+Wait a few minutes and refresh. The status should eventually show <code>Compliant</code> for your ARO cluster as the policy takes effect.</p>
+<div class="literalblock">
+<div class="content">
+<pre>You can verify this directly on your ARO cluster:
+```bash
+oc get ns --show-labels
+```
+You should see `managed-by=rhacm` on most namespaces.</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This lab provides a foundational understanding of how RHACM can be used to manage and govern your Azure Red Hat OpenShift clusters effectively, enabling greater control, consistency, and automation in your cloud-native operations.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a></span>
+  <span class="next"><a href="../appendix/appendix.html">Appendix</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Navigating the OpenShift Web Console :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="openshift-and-kubernetes-interfaces.html">
+    <link rel="next" href="utilizing-the-kubernetes-command-line-interface-cli.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a></li>
+    <li><a href="navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Navigating the OpenShift Web Console</h1>
+<h1 id="_navigating_the_openshift_web_console" class="sect0 doc"><a class="anchor" href="#_navigating_the_openshift_web_console"></a>Navigating the OpenShift Web Console</h1>
+<div class="paragraph">
+<p>This module will guide you through accessing and navigating the Azure Red Hat OpenShift (ARO) web console, a powerful graphical interface for managing your OpenShift clusters and applications.</p>
+</div>
+<div class="sect1">
+<h2 id="_introduction_to_the_openshift_web_console"><a class="anchor" href="#_introduction_to_the_openshift_web_console"></a>Introduction to the OpenShift Web Console</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The OpenShift Web Console provides a robust, user-friendly, browser-based interface for interacting with your OpenShift cluster. It acts as a central hub for cluster administrators and developers, simplifying many complex technical tasks by offering visual representations of your cluster&#8217;s resources, applications, and their operational status. From deploying and monitoring applications to managing cluster health, users, and projects, the web console streamlines the day-to-day operations of an OpenShift environment.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_accessing_the_openshift_web_console"><a class="anchor" href="#_accessing_the_openshift_web_console"></a>Accessing the OpenShift Web Console</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To begin managing your Azure Red Hat OpenShift (ARO) cluster, you first need to access its dedicated web console. The unique URL for your ARO cluster&#8217;s web console can be programmatically retrieved using the Azure CLI.</p>
+</div>
+<div class="sect2">
+<h3 id="_retrieving_the_console_url"><a class="anchor" href="#_retrieving_the_console_url"></a>Retrieving the Console URL</h3>
+<div class="paragraph">
+<p>The Azure Red Hat OpenShift cluster&#8217;s console URL is exposed as part of its <code>consoleProfile</code> properties. This information can be directly queried from your ARO cluster resource using the <code>az aro show</code> command, which provides a comprehensive view of your cluster&#8217;s configuration and endpoints.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 1. Hands-on Activity: Retrieve OpenShift Web Console URL</div>
+<div class="content">
+<div class="paragraph">
+<p>Ensure you are authenticated and logged into your Azure account via the Azure CLI on your local machine or through the Azure Cloud Shell.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Define Environment Variables (if not already set):</strong></p>
+<div class="paragraph">
+<p>For convenience and reusability, define the names of your resource group and ARO cluster as environment variables:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">RESOURCEGROUP="&lt;your-resource-group-name&gt;" # e.g., aro-rg-dev
+CLUSTER="&lt;your-cluster-name&gt;"              # e.g., aro-cluster-prod</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace <code>&lt;your-resource-group-name&gt;</code> and <code>&lt;your-cluster-name&gt;</code> with the actual names corresponding to your Azure Red Hat OpenShift deployment.</p>
+</div>
+</li>
+<li>
+<p><strong>Execute the <code>az aro show</code> command to obtain the console URL:</strong></p>
+<div class="paragraph">
+<p>Run the following Azure CLI command to query your ARO cluster&#8217;s details and extract the console URL:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az aro show \
+    --name $CLUSTER \
+    --resource-group $RESOURCEGROUP \
+    --query "consoleProfile.url" \
+    --output tsv</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>az aro show</code> command retrieves detailed information about your specified ARO cluster.</p>
+</li>
+<li>
+<p>The <code>--query "consoleProfile.url"</code> part is a JMESPath query that specifically extracts the URL from the <code>consoleProfile</code> object within the cluster&#8217;s properties.</p>
+</li>
+<li>
+<p>The <code>--output tsv</code> flag formats the output as tab-separated values, ensuring that only the raw URL string is returned, making it easy to copy.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Identify and Copy the Console URL:</strong></p>
+<div class="paragraph">
+<p>The command&#8217;s output will be a single line containing the console URL, which typically follows a pattern similar to this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">https://console-openshift-console.apps.&lt;random&gt;.&lt;region&gt;.aroapp.io/</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Carefully copy this URL. This is the entry point to your OpenShift Web Console.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_logging_into_the_console"><a class="anchor" href="#_logging_into_the_console"></a>Logging into the Console</h3>
+<div class="paragraph">
+<p>Once you have successfully retrieved the console URL, the next step is to open it in your web browser and log in. For initial access, or for administrative tasks, you typically use the <code>kubeadmin</code> credentials that were generated during the ARO cluster creation process.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 2. Hands-on Activity: Log into the OpenShift Web Console</div>
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Open the Console URL in your browser:</strong></p>
+<div class="paragraph">
+<p>Paste the copied OpenShift Web Console URL into the address bar of your preferred web browser and press Enter.</p>
+</div>
+</li>
+<li>
+<p><strong>Navigate to the Login Page:</strong></p>
+<div class="paragraph">
+<p>You will be presented with the OpenShift login page. This page usually offers several login options. For initial administrative access, select the 'kubeadmin' option (often labeled 'Login with kubeadmin').</p>
+</div>
+</li>
+<li>
+<p><strong>Enter <code>kubeadmin</code> Credentials:</strong></p>
+<div class="paragraph">
+<p>Input the <code>kubeadmin</code> username (which is usually <code>kubeadmin</code>) and the corresponding password.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If you do not have the <code>kubeadmin</code> password readily available, you can retrieve it by running the <code>az aro get-kubeadmin-password --name $CLUSTER --resource-group $RESOURCEGROUP</code> command in your Azure CLI.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><strong>Access the Console Dashboard:</strong></p>
+<div class="paragraph">
+<p>Upon successful authentication, you will be directed to the OpenShift Web Console dashboard, which provides an overview of your projects, cluster status, and other key information.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_navigating_the_openshift_web_console_interface"><a class="anchor" href="#_navigating_the_openshift_web_console_interface"></a>Navigating the OpenShift Web Console Interface</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The OpenShift Web Console is thoughtfully organized to provide quick and intuitive access to various cluster resources, management tools, and development functionalities. Understanding its key interface elements is crucial for efficient operation.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_interface_elements"><a class="anchor" href="#_key_interface_elements"></a>Key Interface Elements</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Left-hand Navigation Menu:</strong> This primary, collapsible menu is positioned on the left side of the console. It categorizes and provides links to all major sections of the console, including:</p>
+</li>
+<li>
+<p><strong>Home</strong>: Dashboard views for both administrator and developer perspectives.</p>
+</li>
+<li>
+<p><strong>Projects</strong>: For creating, viewing, and managing Kubernetes namespaces.</p>
+</li>
+<li>
+<p><strong>Operators</strong>: To discover, install, and manage Operators for extending cluster capabilities.</p>
+</li>
+<li>
+<p><strong>Workloads</strong>: Management of Pods, Deployments, StatefulSets, DaemonSets, etc.</p>
+</li>
+<li>
+<p><strong>Networking</strong>: Configuration of Routes, Services, NetworkPolicies, and more.</p>
+</li>
+<li>
+<p><strong>Storage</strong>: Management of Persistent Volume Claims and StorageClasses.</p>
+</li>
+<li>
+<p><strong>Builds</strong>: Monitoring and managing application build processes.</p>
+</li>
+<li>
+<p><strong>Administration</strong>: Cluster settings, users, roles, and other administrative tasks.</p>
+</li>
+<li>
+<p><strong>Project Switcher:</strong> Located prominently at the top of the left-hand navigation menu or within the console header, this dropdown allows you to effortlessly switch between different projects (Kubernetes namespaces) to which you have access.</p>
+</li>
+<li>
+<p><strong>User Menu:</strong> Positioned in the top-right corner, typically displaying your logged-in username (e.g., <code>kubeadmin</code>), this menu provides options for user settings, viewing API tokens, and logging out of the console.</p>
+</li>
+<li>
+<p><strong>Help Menu (<code>?</code> icon):</strong> Also found in the top-right corner next to the user menu, this icon offers a dropdown with quick links to OpenShift documentation, keyboard shortcuts, and a critical section for downloading command-line tools.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_exploring_applications_in_topology_view"><a class="anchor" href="#_exploring_applications_in_topology_view"></a>Exploring Applications in Topology View</h3>
+<div class="paragraph">
+<p>The <strong>Topology</strong> view, primarily designed for developers, offers a dynamic and graphical representation of your applications and their constituent components within a selected project. It visually maps deployments, services, routes, builds, and their interconnections, providing an intuitive way to understand application architecture and status.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 3. Hands-on Activity: Explore the Topology View and Application Details</div>
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Navigate to the Topology View:</strong></p>
+<div class="paragraph">
+<p>In the left-hand navigation menu, ensure you are in the <strong>Developer</strong> perspective (switch using the dropdown at the top-left if necessary). Then, click on <strong>Topology</strong> under the <strong>Developer</strong> section.</p>
+</div>
+</li>
+<li>
+<p><strong>Observe Deployed Applications:</strong></p>
+<div class="paragraph">
+<p>If you have any applications deployed in your current project (e.g., from previous lab activities or sample deployments), they will be represented as nodes or rings within the topology graph. The visual layout helps in understanding the relationships between different parts of your application.</p>
+</div>
+</li>
+<li>
+<p><strong>Access Application External URL:</strong></p>
+<div class="paragraph">
+<p>For applications that are exposed to external traffic via an OpenShift <code>Route</code>, the Topology view provides a direct way to access their external URL.
+*   Click on an application&#8217;s node or ring in the graph. This action will open a side panel displaying detailed information about the application.
+*   Look for an icon (often a small arrow pointing outwards or a globe icon) positioned in the top-right corner of the application&#8217;s card or ring within the topology view.
+*   Clicking this icon will open the application&#8217;s public URL in a new browser tab, allowing you to interact with the deployed application directly.</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+When an application is deployed through the web console, OpenShift can automatically create a <code>Route</code> to expose it externally. The URL for this <code>Route</code> is readily available on the application&#8217;s details page and, more conveniently, via the icon in the Topology view, as described above.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_downloading_command_line_tools"><a class="anchor" href="#_downloading_command_line_tools"></a>Downloading Command-Line Tools</h3>
+<div class="paragraph">
+<p>The OpenShift Web Console serves as a convenient central location for downloading the various command-line interface (CLI) tools necessary for interacting with your cluster from a terminal. This includes the essential <code>oc</code> (OpenShift CLI) and <code>kubectl</code> (Kubernetes CLI), and potentially other tools like <code>kn</code> (Knative CLI) or <code>tkn</code> (Tekton CLI) if their respective Operators are installed on your cluster.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 4. Hands-on Activity: Locate and Explore Command Line Tools</div>
+<div class="content">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Access the Help Menu:</strong></p>
+<div class="paragraph">
+<p>In the top-right corner of the OpenShift Web Console, locate and click on the question mark icon (<code>?</code>). This icon opens a dropdown menu containing various help-related resources.</p>
+</div>
+</li>
+<li>
+<p><strong>Select "Command Line Tools":</strong></p>
+<div class="paragraph">
+<p>From the dropdown menu that appears, select the <strong>Command Line Tools</strong> option.</p>
+</div>
+</li>
+<li>
+<p><strong>Review Available CLI Downloads:</strong></p>
+<div class="paragraph">
+<p>You will be directed to a dedicated page that lists and provides download links for the various CLI clients compatible with your OpenShift cluster version. These typically include:
+*   <strong><code>oc</code> (OpenShift CLI):</strong> The primary command-line tool for managing OpenShift clusters.
+*   <strong><code>kubectl</code> (Kubernetes CLI):</strong> The standard command-line tool for interacting with Kubernetes clusters.</p>
+</div>
+<div class="paragraph">
+<p>+
+You will find different releases appropriate for various operating systems (Linux, macOS, Windows). Choose the appropriate binary for your local machine&#8217;s operating system and architecture.</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If you are working from the Azure Cloud Shell, you would typically download the Linux <code>oc</code> client as instructed in the context, ensuring compatibility with the Cloud Shell&#8217;s environment.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a></span>
+  <span class="next"><a href="utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

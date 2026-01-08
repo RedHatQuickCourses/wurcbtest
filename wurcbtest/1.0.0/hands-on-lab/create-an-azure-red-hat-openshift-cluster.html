@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Create an Azure Red Hat OpenShift Cluster :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="hands-on-lab.html">
+    <link rel="next" href="configure-additional-storage-classes.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Create an Azure Red Hat OpenShift Cluster</h1>
+<h1 id="_creating_an_azure_red_hat_openshift_cluster" class="sect0"><a class="anchor" href="#_creating_an_azure_red_hat_openshift_cluster"></a>Creating an Azure Red Hat OpenShift Cluster</h1>
+<div class="paragraph">
+<p>This document guides you through the process of provisioning an Azure Red Hat OpenShift (ARO) cluster, a jointly engineered, operated, and supported OpenShift service on Azure. We will cover the prerequisites, detailed technical explanations, and a hands-on lab to get your ARO cluster up and running using the Azure CLI.</p>
+</div>
+<div class="paragraph">
+<p>The ability to create an ARO cluster is a fundamental step in advanced administration, providing the foundation for deploying and managing containerized applications on a highly available, scalable, and fully managed OpenShift platform.</p>
+</div>
+<div class="sect1">
+<h2 id="aro-cluster-provisioning-overview"><a class="anchor" href="#aro-cluster-provisioning-overview"></a>ARO Cluster Provisioning Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Azure Red Hat OpenShift simplifies the deployment and management of OpenShift clusters on Azure. It provides a fully managed control plane and infrastructure, allowing you to focus on your applications rather than cluster operations.</p>
+</div>
+<div class="paragraph">
+<p>When you create an ARO cluster, Azure provisions all the necessary resources, including virtual machines for control plane and worker nodes, networking components, and integrates with Azure services.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites_for_aro_cluster_creation"><a class="anchor" href="#_prerequisites_for_aro_cluster_creation"></a>Prerequisites for ARO Cluster Creation</h3>
+<div class="paragraph">
+<p>Before you begin the cluster creation process, ensure you meet the following prerequisites:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Azure Subscription:</strong> An active Azure subscription.</p>
+</li>
+<li>
+<p><strong>Azure CLI:</strong></p>
+</li>
+<li>
+<p>You must have the Azure CLI installed.</p>
+</li>
+<li>
+<p>Ensure your Azure CLI version is <code>2.67.0</code> or higher. You can verify your version by running <code>az --version</code>. If needed, install or upgrade it as per official Azure documentation.</p>
+</li>
+<li>
+<p><strong>Sufficient Azure Quota:</strong></p>
+</li>
+<li>
+<p>Azure Red Hat OpenShift clusters require a minimum of 44 cores in your subscription.</p>
+</li>
+<li>
+<p>For a cluster with three worker nodes, each being a <code>D8sv5</code> SKU (8 cores per node), a minimum of 52 cores is required.</p>
+</li>
+<li>
+<p>Ensure you have sufficient quota for at least one <code>D8sv5</code> SKU (or higher) in the region where you plan to deploy your cluster.</p>
+</li>
+<li>
+<p><strong>Resource Group:</strong> A dedicated Azure resource group to host your ARO cluster resources.</p>
+</li>
+<li>
+<p><strong>Network (Optional but Recommended):</strong> A pre-existing virtual network (VNet) with two empty subnets (one for master nodes, one for worker nodes) if you plan to deploy a private cluster or customize network settings. For a quickstart, ARO can create a VNet for you.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="service-principal-vs-managed-identity"><a class="anchor" href="#service-principal-vs-managed-identity"></a>Service Principal vs. Managed Identity</h3>
+<div class="paragraph">
+<p>Historically, ARO clusters were created using a <strong>service principal</strong> to grant permissions to Azure resources. While this is still an option, <strong>managed identities</strong> are now the recommended and more secure approach for new clusters.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Service Principal:</strong> A cluster created with a service principal cannot be migrated to use a managed identity. If you need to use managed identities, you must create a new cluster.</p>
+</li>
+<li>
+<p><strong>Managed Identity:</strong> Offers enhanced security and simplified credential management by allowing Azure services to authenticate to other services without storing credentials in code. <strong>The provided context refers to a preview feature for creating clusters with managed identities.</strong> For this lab, we will use the common <code>az aro create</code> command which by default might leverage service principals or requires specific flags for managed identity which are outside the immediate scope of the provided <code>az aro create</code> example, but it&#8217;s important to be aware of this distinction for future deployments.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="hands-on-create-aro-cluster"><a class="anchor" href="#hands-on-create-aro-cluster"></a>Hands-on Lab: Create an Azure Red Hat OpenShift Cluster</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you will use the Azure CLI to create a basic Azure Red Hat OpenShift cluster. We will explore various configuration options during the creation process.</p>
+</div>
+<div class="sect2">
+<h3 id="_step_1_prepare_your_environment"><a class="anchor" href="#_step_1_prepare_your_environment"></a>Step 1: Prepare your Environment</h3>
+<div class="paragraph">
+<p>First, log in to Azure and set up environment variables.</p>
+</div>
+<div class="paragraph">
+<div class="title">Log in to Azure</div>
+<p>Perform a standard Azure CLI login.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az login</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Set Environment Variables</div>
+<p>Define variables for your resource group, cluster name, and location.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Define your resource group name
+RESOURCEGROUP="aro-rg"
+
+# Define your ARO cluster name
+AROCLUSTER="myarocluster"
+
+# Define the Azure region (e.g., eastus, westeurope)
+LOCATION="eastus"
+
+# Create the resource group if it doesn't exist
+az group create --name $RESOURCEGROUP --location $LOCATION
+
+# (Optional) If you plan to use a custom pull secret, create a dummy file for demonstration
+echo "{ \"auths\": { \"quay.io\": { \"auth\": \"c3VwZXIgc2VjcmV0\" } } }" &gt; pull-secret.txt
+
+# (Optional) If you plan to use platform workload identities, create a dummy identity for demonstration
+# In a real scenario, you'd create and use an identity for a specific operator, e.g., 'aro-operator'
+# For this lab, we will use a placeholder or create a simple user-assigned identity
+# to demonstrate the flag structure.
+# NOTE: The provided context refers to an existing 'aro-operator' identity.
+# We will simulate this by creating a user-assigned managed identity.
+az identity create --resource-group $RESOURCEGROUP --name aro-operator</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_create_the_aro_cluster"><a class="anchor" href="#_step_2_create_the_aro_cluster"></a>Step 2: Create the ARO Cluster</h3>
+<div class="paragraph">
+<p>Now, you will run the <code>az aro create</code> command to provision your cluster. We&#8217;ll include various optional arguments to illustrate their usage as per the provided context.</p>
+</div>
+<div class="paragraph">
+<div class="title">Run the <code>az aro create</code> command</div>
+<p>Execute the following command, modifying it as per your requirements.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az aro create \
+  --resource-group $RESOURCEGROUP \
+  --name $AROCLUSTER \
+  --vnet aro-vnet \
+  --master-subnet master-subnet \
+  --worker-subnet worker-subnet \
+  --pull-secret @pull-secret.txt \
+  --domain mycustomdomain.example.com \
+  --assign-platform-workload-identity key-openshift-operator="$(az identity show --resource-group $RESOURCEGROUP --name aro-operator --query principalId -o tsv)" \
+  --location $LOCATION</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>--vnet</code>, <code>--master-subnet</code>, and <code>--worker-subnet</code> arguments will instruct ARO to create a new virtual network and subnets for your cluster if they don&#8217;t already exist. If you wish to use pre-existing networks, replace these with the names of your existing resources.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The command includes the following optional arguments, as described in the context:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--pull-secret @pull-secret.txt</code>: This argument enables your cluster to access Red Hat container registries along with other content. In a production environment, <code>pull-secret.txt</code> would contain your actual Red Hat pull secret.</p>
+</li>
+<li>
+<p><code>--domain mycustomdomain.example.com</code>: This allows you to use a custom domain for your cluster. Replace <code>mycustomdomain.example.com</code> with your desired custom domain.</p>
+</li>
+<li>
+<p><code>--assign-platform-workload-identity key-openshift-operator="$(az identity show --resource-group $RESOURCEGROUP --name aro-operator --query principalId -o tsv)"</code>: This flag assigns a platform workload identity. The first argument (<code>key-openshift-operator</code>) represents the key, which tells the Azure Red Hat OpenShift resource provider which OpenShift operator to use for a given identity. The second argument refers to the identity itself, in this case, the <code>principalId</code> of the <code>aro-operator</code> managed identity we created. <strong>For a real-world scenario, you would need to identify the specific operator and its corresponding key.</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Wait for Cluster Creation</div>
+<p>The cluster creation process can take <strong>30-45 minutes</strong> to complete. The CLI will output status updates. Do not close your terminal.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_verify_cluster_creation"><a class="anchor" href="#_step_3_verify_cluster_creation"></a>Step 3: Verify Cluster Creation</h3>
+<div class="paragraph">
+<p>Once the command completes successfully, you can verify your cluster.</p>
+</div>
+<div class="paragraph">
+<div class="title">Get Cluster Credentials</div>
+<p>Retrieve the cluster credentials.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az aro list-credentials --name $AROCLUSTER --resource-group $RESOURCEGROUP</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command will output the <code>kubeadmin</code> username and password, as well as the console URL for your cluster.</p>
+</div>
+<div class="paragraph">
+<div class="title">Access the OpenShift Web Console</div>
+<p>Navigate to the <code>consoleUrl</code> provided in the output of the previous command. Log in using the <code>kubeadmin</code> credentials.</p>
+</div>
+<div class="paragraph">
+<div class="title">Verify Cluster Status</div>
+<p>Within the OpenShift Web Console, you can navigate to <code>Administration</code> &gt; <code>Cluster Settings</code> &gt; <code>Overview</code> to see the cluster&#8217;s health and status. You should see all nodes (master and worker) in a ready state.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+As mentioned in the context, ARO requires worker nodes of D8sv5 or higher. You can verify the machine types under <code>Compute</code> &gt; <code>Nodes</code> in the OpenShift Web Console. For more details on machine management, you can refer to OpenShift&#8217;s documentation.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Congratulations! You have successfully created an Azure Red Hat OpenShift cluster. You are now ready to explore its capabilities further and deploy your applications.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="hands-on-lab.html">Hands-on Lab</a></span>
+  <span class="next"><a href="configure-additional-storage-classes.html">Configure additional storage classes</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

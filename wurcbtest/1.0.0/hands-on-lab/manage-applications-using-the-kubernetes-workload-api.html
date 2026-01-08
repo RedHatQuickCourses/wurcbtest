@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Manage applications using the Kubernetes Workload API :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="troubleshoot-containers-and-pods.html">
+    <link rel="next" href="explore-kubernetes-pod-and-service-networks.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Manage applications using the Kubernetes Workload API</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here&#8217;s the detailed educational content for "Manage applications using the Kubernetes Workload API" in Antora AsciiDoc format, combining technical explanations with hands-on activities.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This content assumes you have an Azure Red Hat OpenShift (ARO) cluster provisioned and have logged in using the <code>oc</code> CLI.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<h1 id="_manage_applications_using_the_kubernetes_workload_api" class="sect0"><a class="anchor" href="#_manage_applications_using_the_kubernetes_workload_api"></a>Manage Applications Using the Kubernetes Workload API</h1>
+<div class="paragraph">
+<p>The Kubernetes Workload API is the cornerstone for managing and orchestrating applications within an OpenShift cluster. It provides a declarative model for defining, deploying, and maintaining the lifecycle of your applications, from simple stateless web servers to complex stateful databases and batch jobs. Understanding and effectively utilizing this API is crucial for efficient cluster administration and application delivery.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_the_kubernetes_workload_api"><a class="anchor" href="#_understanding_the_kubernetes_workload_api"></a>Understanding the Kubernetes Workload API</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>At its core, the Kubernetes Workload API is a set of API objects that represent the desired state of your applications. Instead of imperatively telling the cluster <strong>how</strong> to do something, you declaratively state <strong>what</strong> you want the cluster to achieve. Kubernetes then works tirelessly to bring the current state of the cluster into alignment with your desired state.</p>
+</div>
+<div class="paragraph">
+<p>This declarative approach simplifies application management, enables automation, and makes your deployments more resilient and self-healing.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_workload_api_objects"><a class="anchor" href="#_key_workload_api_objects"></a>Key Workload API Objects</h3>
+<div class="paragraph">
+<p>Let&#8217;s explore the primary Workload API objects you&#8217;ll use to manage applications in OpenShift:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><a href="#../kubernetes-networking/understanding-kubernetes-pod-and-service-networks.adoc" class="xref unresolved">Pods</a></strong>:</p>
+</li>
+<li>
+<p>The smallest, most fundamental deployable unit in Kubernetes.</p>
+</li>
+<li>
+<p>A Pod represents a single instance of a running process in your cluster.</p>
+</li>
+<li>
+<p>It typically encapsulates one or more containers (e.g., an application container and an accompanying sidecar container for logging).</p>
+</li>
+<li>
+<p>Pods are ephemeral; they are not designed to be directly managed by users for long-running applications. Instead, higher-level controllers manage them.</p>
+</li>
+<li>
+<p><strong>ReplicaSets</strong>:</p>
+</li>
+<li>
+<p>Ensures a specified number of identical Pod replicas are running at all times.</p>
+</li>
+<li>
+<p>If a Pod fails, the ReplicaSet automatically creates a new one to maintain the desired count.</p>
+</li>
+<li>
+<p>While you can create ReplicaSets directly, they are usually managed by Deployments.</p>
+</li>
+<li>
+<p><strong>Deployments</strong>:</p>
+</li>
+<li>
+<p>The most common and recommended way to manage stateless applications.</p>
+</li>
+<li>
+<p>Provides declarative updates for Pods and ReplicaSets.</p>
+</li>
+<li>
+<p>Handles rolling updates, rollbacks, and scaling.</p>
+</li>
+<li>
+<p>When you create a Deployment, it creates a ReplicaSet, which in turn creates Pods.</p>
+</li>
+<li>
+<p><strong>StatefulSets</strong>:</p>
+</li>
+<li>
+<p>Designed for managing stateful applications (e.g., databases like PostgreSQL, message queues like Kafka).</p>
+</li>
+<li>
+<p>Provides stable, unique network identifiers and stable, persistent storage for each Pod.</p>
+</li>
+<li>
+<p>Maintains ordinality and guaranteed ordering for Pod creation and deletion.</p>
+</li>
+<li>
+<p><strong>DaemonSets</strong>:</p>
+</li>
+<li>
+<p>Ensures that a copy of a specific Pod runs on <strong>all</strong> (or a selected subset of) nodes in the cluster.</p>
+</li>
+<li>
+<p>Ideal for cluster-level background tasks like logging agents (e.g., Fluentd), monitoring agents (e.g., Prometheus Node Exporter), or storage daemons.</p>
+</li>
+<li>
+<p><strong>Jobs</strong>:</p>
+</li>
+<li>
+<p>Creates one or more Pods and ensures that a specified number of them successfully terminate.</p>
+</li>
+<li>
+<p>Suitable for one-time, batch-oriented tasks (e.g., data processing, reporting).</p>
+</li>
+<li>
+<p>Once a Job&#8217;s Pods complete their work, the Job is considered finished.</p>
+</li>
+<li>
+<p><strong>CronJobs</strong>:</p>
+</li>
+<li>
+<p>Manages Jobs based on a schedule, similar to the <code>cron</code> utility in Linux.</p>
+</li>
+<li>
+<p>Ideal for recurring tasks like backups, scheduled reports, or data synchronization.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_interacting_with_the_workload_api"><a class="anchor" href="#_interacting_with_the_workload_api"></a>Interacting with the Workload API</h3>
+<div class="paragraph">
+<p>You interact with the Kubernetes Workload API primarily through:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>kubectl</code> (Kubernetes Command-Line Interface)</strong>: The standard CLI for Kubernetes clusters.</p>
+</li>
+<li>
+<p><strong><code>oc</code> (OpenShift Command-Line Interface)</strong>: OpenShift&#8217;s enhanced CLI, which is a superset of <code>kubectl</code> and provides additional OpenShift-specific functionalities. For the Workload API, <code>oc</code> commands often mirror <code>kubectl</code> commands.</p>
+</li>
+<li>
+<p><strong>YAML Manifests</strong>: Declarative configuration files that define your desired application state. These are the preferred way for version control and automation.</p>
+</li>
+<li>
+<p><strong>OpenShift Web Console</strong>: A user-friendly graphical interface for managing cluster resources, including applications.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When managing applications, you&#8217;ll often define your application&#8217;s desired state in YAML files and then apply these files to the cluster using <code>oc apply -f &lt;your-manifest.yaml&gt;</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_managing_applications_with_the_workload_api"><a class="anchor" href="#_hands_on_activity_managing_applications_with_the_workload_api"></a>Hands-on Activity: Managing Applications with the Workload API</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this activity, you will perform common application management tasks using the <code>oc</code> CLI, focusing on Deployments and Jobs.</p>
+</div>
+<div class="sect2">
+<h3 id="_scenario_deploying_and_managing_a_stateless_web_application"><a class="anchor" href="#_scenario_deploying_and_managing_a_stateless_web_application"></a>Scenario: Deploying and Managing a Stateless Web Application</h3>
+<div class="paragraph">
+<p>You need to deploy a simple NGINX web server, scale it, update it, and then run a one-time clean-up job.</p>
+</div>
+<div class="sect3">
+<h4 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>An active ARO cluster.</p>
+</li>
+<li>
+<p>The <code>oc</code> CLI configured and authenticated to your cluster.</p>
+</li>
+<li>
+<p>A project (namespace) where you have deployment permissions. If you don&#8217;t have one, create a new project:
+<code><code>bash
+oc new-project my-app-project
+</code></code>
+(Replace <code>my-app-project</code> with a name of your choice.)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_activity_1_deploying_a_stateless_application_deployment"><a class="anchor" href="#_activity_1_deploying_a_stateless_application_deployment"></a>Activity 1: Deploying a Stateless Application (Deployment)</h4>
+<div class="paragraph">
+<p>In this step, you will create a Deployment for a basic NGINX web server.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Define the Deployment:</strong>
+Create a file named <code>nginx-deployment.yaml</code> with the following content:
+```yaml
+# nginx-deployment.yaml
+apiVersion: apps.openshift.io/v1
+kind: Deployment
+metadata:
+  name: my-nginx-app
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name: nginx
+image: registry.access.redhat.com/nginx-118/nginx-rhel8:latest
+ports:</p>
+</li>
+<li>
+<p>containerPort: 80
+          protocol: TCP
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+<code>`</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>apiVersion: apps.openshift.io/v1</code>: Specifies the API version for OpenShift Deployments. (Note: For standard Kubernetes Deployments, it would be <code>apiVersion: apps/v1</code>).</p>
+</li>
+<li>
+<p><code>kind: Deployment</code>: Declares this object as a Deployment.</p>
+</li>
+<li>
+<p><code>metadata.name</code>: The name of our Deployment.</p>
+</li>
+<li>
+<p><code>spec.replicas: 2</code>: We want two instances (Pods) of our NGINX application.</p>
+</li>
+<li>
+<p><code>spec.selector</code>: How the Deployment finds and manages its Pods (based on labels).</p>
+</li>
+<li>
+<p><code>spec.template</code>: The Pod template used to create new Pods.</p>
+</li>
+<li>
+<p><code>spec.template.spec.containers[0].image</code>: The container image to use. We&#8217;re using a Red Hat provided NGINX image.</p>
+</li>
+<li>
+<p><code>resources</code>: Defines resource requests and limits for the container.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Apply the Deployment:</strong>
+Use <code>oc apply</code> to create the Deployment in your cluster:
+<code><code>bash
+oc apply -f nginx-deployment.yaml
+</code></code>
+You should see output similar to:
+<code>`
+deployment.apps.openshift.io/my-nginx-app created
+</code>`</p>
+</li>
+<li>
+<p><strong>Verify the Deployment and Pods:</strong>
+Check the status of your Deployment and the Pods it created:
+<code><code>bash
+oc get deployment my-nginx-app
+oc get pods -l app=nginx
+</code></code>
+You should see <code>my-nginx-app</code> with 2 replicas ready, and two <code>nginx</code> Pods running.</p>
+<div class="literalblock">
+<div class="content">
+<pre>Example output for `oc get deployment my-nginx-app`:
+```
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+my-nginx-app   2/2     2            2           1m
+```
+Example output for `oc get pods -l app=nginx`:
+```
+NAME                             READY   STATUS    RESTARTS   AGE
+my-nginx-app-abcdefgh-12345      1/1     Running   0          1m
+my-nginx-app-abcdefgh-67890      1/1     Running   0          1m
+```</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_activity_2_scaling_and_updating_the_application"><a class="anchor" href="#_activity_2_scaling_and_updating_the_application"></a>Activity 2: Scaling and Updating the Application</h4>
+<div class="paragraph">
+<p>Now, let&#8217;s modify our running application.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Scale the Deployment:</strong>
+Increase the number of NGINX replicas to 4:
+<code><code>bash
+oc scale deployment my-nginx-app --replicas=4
+</code></code>
+You should see output like:
+<code>`
+deployment.apps.openshift.io/my-nginx-app scaled
+</code>`</p>
+</li>
+<li>
+<p><strong>Verify Scaling:</strong>
+Observe new Pods being created and eventually becoming ready:
+<code><code>bash
+oc get deployment my-nginx-app
+oc get pods -l app=nginx
+</code></code>
+The Deployment should now show <code>4/4</code> ready, and you should see four <code>nginx</code> Pods.</p>
+</li>
+<li>
+<p><strong>Update the Application Image (Rolling Update):</strong>
+Let&#8217;s simulate an application update by changing the NGINX image version.
+<code><code>bash
+oc set image deployment/my-nginx-app nginx=registry.access.redhat.com/nginx-120/nginx-rhel8:latest
+</code></code>
+This command initiates a rolling update. Kubernetes gracefully replaces the old Pods with new ones running the updated image, ensuring service continuity.</p>
+</li>
+<li>
+<p><strong>Observe the Rolling Update:</strong>
+Watch the Pods for changes. You&#8217;ll see new Pods with the updated image spinning up while old ones terminate.
+<code><code>bash
+watch oc get pods -l app=nginx
+</code></code>
+(Press <code>Ctrl+C</code> to exit the <code>watch</code> command.)</p>
+</li>
+<li>
+<p><strong>Verify the Updated Image:</strong>
+Check the image used by one of the new Pods:
+<code><code>bash
+oc get pod $(oc get pods -l app=nginx -o jsonpath='{.items[0].metadata.name}') -o jsonpath='{.spec.containers[0].image}'
+</code></code>
+The output should show <code>registry.access.redhat.com/nginx-120/nginx-rhel8:latest</code>.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_activity_3_running_a_one_time_task_job"><a class="anchor" href="#_activity_3_running_a_one_time_task_job"></a>Activity 3: Running a One-Time Task (Job)</h4>
+<div class="paragraph">
+<p>Imagine you need to run a batch process, like generating a report or migrating data. A Job is perfect for this.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Define the Job:</strong>
+Create a file named <code>cleanup-job.yaml</code> with the following content. This Job will simply print a message and then exit.
+```yaml
+# cleanup-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: my-cleanup-job
+spec:
+  template:
+    spec:
+      containers:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name: cleanup
+        image: registry.access.redhat.com/ubi8/ubi-minimal:latest
+        command: ["sh", "-c", "echo 'Running one-time cleanup task&#8230;&#8203;' &amp;&amp; sleep 10 &amp;&amp; echo 'Cleanup task complete!'"]
+      restartPolicy: Never
+  backoffLimit: 4
+<code>`</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>apiVersion: batch/v1</code>: Specifies the API version for Jobs.</p>
+</li>
+<li>
+<p><code>kind: Job</code>: Declares this object as a Job.</p>
+</li>
+<li>
+<p><code>restartPolicy: Never</code>: Ensures the Pod associated with the Job will not be restarted if it fails or completes. For Jobs, this is a common and often required setting.</p>
+</li>
+<li>
+<p><code>backoffLimit</code>: Specifies the number of retries before marking a Job as failed.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Apply the Job:</strong>
+<code><code>bash
+oc apply -f cleanup-job.yaml
+</code></code>
+You should see:
+<code>`
+job.batch/my-cleanup-job created
+</code>`</p>
+</li>
+<li>
+<p><strong>Monitor the Job:</strong>
+Watch the Job&#8217;s Pod status and logs:
+<code><code>bash
+oc get job my-cleanup-job
+</code></code>
+The Job should transition from <code>0/1</code> completions to <code>1/1</code> completions.</p>
+<div class="literalblock">
+<div class="content">
+<pre>To view the logs of the Job's Pod:
+```bash
+oc logs -f $(oc get pods -l job-name=my-cleanup-job -o jsonpath='{.items[0].metadata.name}')
+```
+You should see the "Running one-time cleanup task..." and "Cleanup task complete!" messages.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean Up the Job:</strong>
+Once the Job is completed, you can delete it:
+<code><code>bash
+oc delete job my-cleanup-job
+</code></code>
+This will also delete the associated Pod.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_activity_4_clean_up_resources"><a class="anchor" href="#_activity_4_clean_up_resources"></a>Activity 4: Clean Up Resources</h4>
+<div class="paragraph">
+<p>Delete the Deployment and its associated resources created during this lab.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Delete the Deployment:</strong>
+<code><code>bash
+oc delete deployment my-nginx-app
+</code></code>
+You should see output similar to:
+<code>`
+deployment.apps.openshift.io "my-nginx-app" deleted
+</code>`</p>
+</li>
+<li>
+<p><strong>Verify Deletion:</strong>
+Ensure no <code>nginx</code> Pods or the Deployment exist:
+<code><code>bash
+oc get deployment my-nginx-app
+oc get pods -l app=nginx
+</code></code>
+You should receive "not found" messages or no resources listed.</p>
+</li>
+<li>
+<p><strong>Delete the Project (Optional):</strong>
+If you created a new project for this lab and no longer need it, you can delete it:
+<code><code>bash
+oc delete project my-app-project
+</code></code>
+This will delete all resources within that project.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_expert_level_insights_and_troubleshooting_tips"><a class="anchor" href="#_expert_level_insights_and_troubleshooting_tips"></a>Expert-Level Insights and Troubleshooting Tips</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Declarative vs. Imperative:</strong> Always favor declarative management (YAML files applied with <code>oc apply</code>) over imperative commands (<code>oc create</code>, <code>oc run</code>) for production environments. Declarative files can be stored in version control (Git), enabling GitOps workflows for better auditing, rollbacks, and team collaboration.</p>
+</li>
+<li>
+<p><strong>Labels and Selectors:</strong> Mastering labels and selectors is fundamental. They are used by Workload API objects to identify and manage their constituent Pods, and by Services to direct traffic to Pods. Consistent and meaningful labeling is key for effective cluster management.</p>
+</li>
+<li>
+<p><strong>Resource Requests and Limits:</strong> Always define <code>resources.requests</code> and <code>resources.limits</code> for your containers. This helps the Kubernetes scheduler place your Pods efficiently and prevents one misbehaving application from consuming all node resources (noisy neighbor problem).</p>
+</li>
+<li>
+<p><strong>Events for Troubleshooting:</strong> When a Deployment or Pod isn&#8217;t behaving as expected, check the <code>Events</code> section using <code>oc describe</code>.
+<code><code>bash
+oc describe deployment my-nginx-app
+oc describe pod &lt;pod-name&gt;
+</code></code>
+Events often provide crucial clues about scheduling issues, image pull failures, or container crashes.</p>
+</li>
+<li>
+<p><strong>OpenShift Web Console:</strong> Don&#8217;t forget the OpenShift Web Console provides a powerful visual interface for monitoring and managing your Workload API objects. It offers insights into Pod health, logs, events, and resource usage.</p>
+</li>
+<li>
+<p><strong>Health Checks (Probes):</strong> For robust applications, integrate <code>livenessProbe</code> and <code>readinessProbe</code> into your Pod definitions.</p>
+</li>
+<li>
+<p><code>livenessProbe</code>: Tells Kubernetes when to restart a container.</p>
+</li>
+<li>
+<p><code>readinessProbe</code>: Tells Kubernetes when a container is ready to serve traffic.
+These are critical for self-healing and maintaining application availability.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>By mastering the Kubernetes Workload API objects and their interactions, you gain full control over your applications' lifecycle in OpenShift, leading to more resilient, scalable, and manageable deployments.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a></span>
+  <span class="next"><a href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Scaling and exposing applications to external access :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="understanding-kubernetes-pod-and-service-networks.html">
+    <link rel="next" href="externalizing-application-configurations.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a></li>
+    <li><a href="scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Scaling and exposing applications to external access</h1>
+<h1 id="_scaling_and_exposing_applications_to_external_access" class="sect0"><a class="anchor" href="#_scaling_and_exposing_applications_to_external_access"></a>Scaling and Exposing Applications to External Access</h1>
+<div class="paragraph">
+<p>This module delves into the critical aspects of managing application availability and accessibility within Azure Red Hat OpenShift (ARO). We will explore how to efficiently scale applications to meet varying demands and securely expose them to external users.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_application_scaling"><a class="anchor" href="#_understanding_application_scaling"></a>Understanding Application Scaling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In a cloud-native environment, applications need to be resilient and capable of handling fluctuating workloads. Scaling refers to the ability to increase or decrease the computational resources allocated to an application based on demand. OpenShift, built on Kubernetes, provides robust mechanisms for both horizontal and vertical scaling.</p>
+</div>
+<div class="sect2">
+<h3 id="_horizontal_pod_autoscaling_hpa"><a class="anchor" href="#_horizontal_pod_autoscaling_hpa"></a>Horizontal Pod Autoscaling (HPA)</h3>
+<div class="paragraph">
+<p>Horizontal Pod Autoscaling (HPA) automatically adjusts the number of pod replicas in a deployment or replica set based on observed CPU utilization or other select metrics. This ensures that your application maintains performance during peak loads and scales down during quieter periods to optimize resource consumption.</p>
+</div>
+<div class="paragraph">
+<p>When enabled, HPA continuously monitors the specified metrics. If a target threshold is exceeded, HPA instructs the Kubernetes controller to create more pods. Conversely, if resource usage drops below the threshold, HPA scales down the number of pods.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Monitoring metrics for HPA often relies on the Kubernetes Metrics Server, which collects resource metrics from nodes and pods.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_openshift_serverless_knative_for_event_driven_scaling"><a class="anchor" href="#_openshift_serverless_knative_for_event_driven_scaling"></a>OpenShift Serverless (Knative) for Event-Driven Scaling</h3>
+<div class="paragraph">
+<p>For applications that experience infrequent usage or need to respond to specific events, OpenShift Serverless, powered by Knative, offers an advanced scaling model, including the ability to scale to zero.</p>
+</div>
+<div class="paragraph">
+<p>Knative Services are a type of deployment that enables OpenShift Serverless to scale applications down to zero pods when they are idle. When a request or event arrives for a service scaled to zero, Knative quickly provisions a new pod to handle it. This "scale-to-zero" capability is highly efficient for cost optimization and resource management, especially for microservices or event-driven functions.</p>
+</div>
+<div class="paragraph">
+<p>As observed in the provided context: "Scroll to Resources and confirm that Knative Service is selected as the resource type to generate. This creates a Knative Service, a type of deployment that enables OpenShift Serverless scaling to zero when idle." This highlights Knative&#8217;s role in ARO for specific scaling scenarios.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exposing_applications_to_external_access"><a class="anchor" href="#_exposing_applications_to_external_access"></a>Exposing Applications to External Access</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once an application is deployed and scaled, the next crucial step is to make it accessible to external users, often through a web browser or API clients. In OpenShift, this is primarily achieved using <strong>Routes</strong>.</p>
+</div>
+<div class="sect2">
+<h3 id="_openshift_routes"><a class="anchor" href="#_openshift_routes"></a>OpenShift Routes</h3>
+<div class="paragraph">
+<p>An OpenShift Route exposes a service at a host name, such as <code>www.example.com</code>, so that external clients can reach it. Routes provide a way to define how external traffic is routed to services running inside the cluster.</p>
+</div>
+<div class="paragraph">
+<p>Key features of OpenShift Routes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>DNS Resolution</strong>: Routes typically leverage DNS to map a human-readable hostname to the underlying network address of the OpenShift router.</p>
+</li>
+<li>
+<p><strong>Load Balancing</strong>: The OpenShift router acts as a reverse proxy and load balancer, distributing incoming traffic across the healthy pods associated with the service.</p>
+</li>
+<li>
+<p><strong>TLS Termination</strong>: Routes can handle TLS/SSL termination, allowing secure HTTPS connections from external clients to the application within the cluster, without requiring the application pods themselves to manage certificates.</p>
+</li>
+<li>
+<p><strong>Automatic Creation</strong>: As observed in the context, "When you created the application using the web console, a Route was automatically created for the application and it will be exposed outside of the cluster." This streamlines the process of making new applications accessible.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>While Kubernetes uses <code>Ingress</code> resources for exposing HTTP/HTTPS services externally, OpenShift extends this functionality with <code>Routes</code>, offering more integrated features and often simplifying the configuration.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The OpenShift router, which processes routes, typically runs on infrastructure nodes or dedicated router pods and uses technologies like HAProxy to manage traffic.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_accessing_the_application_url"><a class="anchor" href="#_accessing_the_application_url"></a>Accessing the Application URL</h3>
+<div class="paragraph">
+<p>The context explicitly guides on how to find the application&#8217;s URL: "From the topology view, you can get to the URL for the deployed application by clicking on the icon top right of the ring." This visual indicator in the OpenShift Web Console makes it easy to quickly access and test deployed applications.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_lab_scaling_and_exposing_applications"><a class="anchor" href="#_hands_on_lab_scaling_and_exposing_applications"></a>Hands-on Lab: Scaling and Exposing Applications</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you will deploy a simple web application, observe its initial state, manually scale it, and then access it externally using an OpenShift Route. We will also touch upon how Knative services behave when deployed.</p>
+</div>
+<div class="sect2">
+<h3 id="_activity_1_deploying_a_sample_application"><a class="anchor" href="#_activity_1_deploying_a_sample_application"></a>Activity 1: Deploying a Sample Application</h3>
+<div class="paragraph">
+<p>First, we&#8217;ll deploy a basic Python web application.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to your Azure Red Hat OpenShift cluster&#8217;s web console.</p>
+</li>
+<li>
+<p>Ensure you are in the developer perspective. If not, switch using the selector in the top-left corner.</p>
+</li>
+<li>
+<p>Navigate to <strong>+Add</strong> in the left-hand menu.</p>
+</li>
+<li>
+<p>Select <strong>From Git</strong>.</p>
+</li>
+<li>
+<p>In the <strong>Git Repo URL</strong> field, enter <code><a href="https://github.com/openshift-guides/s2i-python-sample" class="bare">https://github.com/openshift-guides/s2i-python-sample</a></code>.</p>
+</li>
+<li>
+<p>OpenShift detects this is a Python project and selects the appropriate builder image, as mentioned in the context: "OpenShift detects that this is a Python project and selects the appropriate builder image."</p>
+</li>
+<li>
+<p>Scroll down to the <strong>Advanced Options</strong> section.</p>
+</li>
+<li>
+<p>For <strong>Application Name</strong>, enter <code>my-scaled-app</code>.</p>
+</li>
+<li>
+<p>Ensure <strong>Create a Route to the Application</strong> is selected. This aligns with the context statement: "When you created the application using the web console, a Route was automatically created for the application and it will be exposed outside of the cluster."</p>
+</li>
+<li>
+<p>At the bottom of the page, click <strong>Create</strong>.</p>
+</li>
+<li>
+<p>You will be redirected to the topology overview. Wait for the build process to complete. You can monitor the build status by clicking on the application ring and then navigating to the <strong>Resources</strong> tab, or by going to <strong>Builds</strong> &#8594; <strong>Pipelines</strong> or <strong>Builds</strong> &#8594; <strong>Builds</strong>. The context mentions: "The build will have completed successfully when you see a final message of "Push successful"."</p>
+</li>
+<li>
+<p>Once the build completes and the pod is deployed, you should see a green checkmark on the application&#8217;s ring in the Topology view.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_2_accessing_the_application_via_route"><a class="anchor" href="#_activity_2_accessing_the_application_via_route"></a>Activity 2: Accessing the Application via Route</h3>
+<div class="paragraph">
+<p>Now, let&#8217;s confirm the application is externally accessible.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In the <strong>Topology</strong> view, click on the <code>my-scaled-app</code> ring to open its details panel.</p>
+</li>
+<li>
+<p>In the top-right corner of the application ring, you will see an icon resembling an external link (a square with an arrow pointing out). Click this icon.</p>
+<div class="paragraph">
+<p>This action opens the deployed application in a new browser tab, using the automatically generated OpenShift Route. The context guides this: "From the topology view, you can get to the URL for the deployed application by clicking on the icon top right of the ring."</p>
+</div>
+</li>
+<li>
+<p>Verify that you see the "Hello S2I Python Sample!" message.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_3_manually_scaling_the_application"><a class="anchor" href="#_activity_3_manually_scaling_the_application"></a>Activity 3: Manually Scaling the Application</h3>
+<div class="paragraph">
+<p>Next, we&#8217;ll manually scale the application to handle more requests.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Return to the OpenShift Web Console and ensure you are still in the <strong>Topology</strong> view.</p>
+</li>
+<li>
+<p>Click on the <code>my-scaled-app</code> ring to open its details panel if it&#8217;s not already open.</p>
+</li>
+<li>
+<p>In the details panel, navigate to the <strong>Resources</strong> tab.</p>
+</li>
+<li>
+<p>Locate the <code>Deployment</code> section. You will see controls to adjust the number of replicas.</p>
+</li>
+<li>
+<p>Increase the number of replicas from <code>1</code> to <code>3</code> by clicking the up arrow next to the current replica count.</p>
+</li>
+<li>
+<p>Observe the <strong>Topology</strong> view. You will see new pods being created and added to the <code>my-scaled-app</code> application ring. The <code>Pod Count</code> (if enabled in display options) will update to show <code>3</code> pods. The context mentions: "At the top of the Topology view, in the Display Options list, select Pod Count."</p>
+</li>
+<li>
+<p>To verify scaling, you can click on the <code>my-scaled-app</code> ring, go to the <strong>Pods</strong> tab, and confirm that three pods are now running.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+For production environments, consider configuring Horizontal Pod Autoscalers to automatically manage scaling based on CPU or memory usage, rather than manual scaling.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_4_exploring_knative_service_scaling_optional"><a class="anchor" href="#_activity_4_exploring_knative_service_scaling_optional"></a>Activity 4: Exploring Knative Service Scaling (Optional)</h3>
+<div class="paragraph">
+<p>This activity demonstrates the "scale-to-zero" capability using a Knative Service, if OpenShift Serverless is enabled in your cluster.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>+Add</strong> in the left-hand menu.</p>
+</li>
+<li>
+<p>Select <strong>From Git</strong>.</p>
+</li>
+<li>
+<p>In the <strong>Git Repo URL</strong> field, enter <code><a href="https://github.com/sclorg/s2i-go-sample.git" class="bare">https://github.com/sclorg/s2i-go-sample.git</a></code>.</p>
+</li>
+<li>
+<p>For <strong>Application Name</strong>, enter <code>my-knative-app</code>.</p>
+</li>
+<li>
+<p>Under <strong>Resources</strong>, select <strong>Knative Service</strong>. This aligns with the context: "Scroll to Resources and confirm that Knative Service is selected as the resource type to generate. This creates a Knative Service, a type of deployment that enables OpenShift Serverless scaling to zero when idle."</p>
+</li>
+<li>
+<p>At the bottom of the page, click <strong>Create</strong>.</p>
+</li>
+<li>
+<p>Wait for the build and deployment to complete in the <strong>Topology</strong> view.</p>
+</li>
+<li>
+<p>Once deployed, click on the <code>my-knative-app</code> ring.</p>
+</li>
+<li>
+<p>In the details panel, observe the pod count. It should initially be <code>1</code>.</p>
+</li>
+<li>
+<p>Wait for a few minutes without sending any traffic to the <code>my-knative-app</code>. The context states: "Wait for the Pod count to scale down to zero Pods. Scaling down might take a few minutes."</p>
+</li>
+<li>
+<p>You will observe that the pod count for <code>my-knative-app</code> scales down to <code>0</code>.</p>
+</li>
+<li>
+<p>Now, click the external link icon for <code>my-knative-app</code> to access it. You might experience a slight delay as Knative scales up a pod to serve the request.</p>
+</li>
+<li>
+<p>After accessing it, wait for another few minutes, and you will see it scale back down to <code>0</code> again when idle.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+OpenShift Serverless (Knative) capabilities might require specific operator installation in your ARO cluster. This activity assumes it&#8217;s available. If not, you can skip this part.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a></span>
+  <span class="next"><a href="externalizing-application-configurations.html">Externalizing application configurations</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

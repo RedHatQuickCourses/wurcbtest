@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Understanding Azure Spot Instances :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="differentiating-availability-sets-vs-availability-zones.html">
+    <link rel="next" href="exploring-hosted-control-planes.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a></li>
+    <li><a href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Understanding Azure Spot Instances</h1>
+<h1 id="_understanding_azure_spot_instances" class="sect0"><a class="anchor" href="#_understanding_azure_spot_instances"></a>Understanding Azure Spot Instances</h1>
+<div class="paragraph">
+<p>This module delves into Azure Spot Virtual Machines, explaining their benefits, considerations, and how to integrate them into an Azure Red Hat OpenShift (ARO) cluster. You will learn how to leverage Spot Instances for cost optimization while maintaining cluster stability.</p>
+</div>
+<div class="sect1">
+<h2 id="_what_are_azure_spot_instances"><a class="anchor" href="#_what_are_azure_spot_instances"></a>What are Azure Spot Instances?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Azure Spot Virtual Machines offer access to unused Azure compute capacity at a significant discount compared to pay-as-you-go prices. They are a cost-effective solution for workloads that can tolerate interruptions, such as batch processing jobs, development/test environments, or other stateless applications.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>While Spot Instances provide substantial cost savings, it&#8217;s crucial to understand their primary characteristic: <strong>eviction</strong>. As stated in the provided context, "At any point in time when Azure needs the capacity back, the Azure infrastructure will evict Azure Spot Virtual Machines." This means the VM will be stopped and deallocated.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_key_characteristics_and_benefits"><a class="anchor" href="#_key_characteristics_and_benefits"></a>Key Characteristics and Benefits</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cost Savings</strong>: Utilize Azure&#8217;s unused capacity at deeply discounted rates.</p>
+</li>
+<li>
+<p><strong>Interruptible Workloads</strong>: Ideal for fault-tolerant applications, flexible jobs, and development/testing environments that can handle potential interruptions.</p>
+</li>
+<li>
+<p><strong>Capacity Management</strong>: Azure infrastructure manages the eviction process when capacity is needed elsewhere. When a VM is no longer available, it goes into a <code>Deallocated</code> provisioning state.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_azure_spot_instances_in_azure_red_hat_openshift_aro"><a class="anchor" href="#_azure_spot_instances_in_azure_red_hat_openshift_aro"></a>Azure Spot Instances in Azure Red Hat OpenShift (ARO)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Integrating Azure Spot Virtual Machines into an ARO cluster requires careful consideration to maintain the stability and reliability of your OpenShift environment.</p>
+</div>
+<div class="sect2">
+<h3 id="_aro_specific_considerations"><a class="anchor" href="#_aro_specific_considerations"></a>ARO Specific Considerations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Control Plane Restriction</strong>: Azure Spot VMs <strong>cannot</strong> be used for ARO control plane nodes. The context explicitly states, "An ARO cluster can&#8217;t have any spot VM-based control nodes." The control plane must always run on standard, non-Spot VMs to ensure the stability and availability of the OpenShift cluster.</p>
+</li>
+<li>
+<p><strong>Worker Node Requirement</strong>: An ARO cluster <strong>should always have at least three worker nodes that are non-Spot VMs</strong>. This ensures a baseline of reliable compute capacity for core cluster operations and critical workloads. Spot VMs are used for additional, interruptible worker capacity.</p>
+</li>
+<li>
+<p><strong>MachineSets</strong>: In ARO, machine management, including the configuration of Spot VMs, is accomplished using <a href="#https://docs.openshift.com/container-platform/latest/machine_management/applying-autoscaling-to-machinesets.html" class="xref unresolved">MachineSet</a> resources. MachineSets function similarly to ReplicaSets for pods, allowing you to define and manage groups of machines. As per the context, "The use of Spot VMs is specified by adding the <code>spotVMOptions</code> field within the template spec of a MachineSet." This field is added within the <code>spec.template.spec.providerSpec.value</code> section of a MachineSet.</p>
+</li>
+<li>
+<p><strong>Eviction Handling</strong>: When an Azure Spot VM is evicted, it transitions to a <code>Deallocated</code> provisioning state. OpenShift&#8217;s MachineSet controller will typically attempt to replace the evicted machine based on the <code>replicas</code> defined in the MachineSet, but this is an interruptible event that needs to be planned for.</p>
+</li>
+<li>
+<p><strong>Taints for Spot Nodes</strong>: To ensure that interruptible workloads are scheduled on Spot VMs and critical workloads are not, Spot VM-based worker nodes are typically configured with taints. The context provides an example:</p>
+<div class="listingblock">
+<div class="content">
+<pre>taints:
+  - effect: NoExecute
+    key: spot
+    value: 'true'</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This <code>spot:NoExecute</code> taint prevents pods without a matching toleration from being scheduled on that node, effectively "scheduling interruptible workloads."</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Always ensure you have at least three non-Spot worker nodes and three control plane nodes in your ARO cluster. Spot VMs should only be used for additional worker capacity for workloads that can tolerate interruptions.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quota_considerations"><a class="anchor" href="#_quota_considerations"></a>Quota Considerations</h3>
+<div class="paragraph">
+<p>When planning to use Spot Instances, it&#8217;s important to adjust your Azure subscription quotas. The context advises, "it&#8217;s recommended to set quota for the machine type you&#8217;ll be using for Spot instances to be slightly higher than should be needed (maybe by 2*n, where n is the number of cores used by a machine)." This overhead helps prevent provisioning failures when Spot VMs are being created, especially if replacements are needed due to evictions, which can lead to multiple machines being in creation/deletion states concurrently.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_lab_configuring_azure_spot_instances_for_aro"><a class="anchor" href="#_hands_on_lab_configuring_azure_spot_instances_for_aro"></a>Hands-on Lab: Configuring Azure Spot Instances for ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you will configure your Azure Red Hat OpenShift cluster to utilize Azure Spot Virtual Machines by creating a new MachineSet. This will allow you to add cost-effective, interruptible worker capacity to your cluster.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An existing Azure Red Hat OpenShift (ARO) cluster.</p>
+</li>
+<li>
+<p><code>oc</code> CLI and <code>az</code> CLI installed and configured to connect to your ARO cluster and Azure subscription.</p>
+</li>
+<li>
+<p>Sufficient quota in your Azure subscription for the VM size you plan to use for Spot instances, as discussed in the "Quota Considerations" section.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_steps"><a class="anchor" href="#_activity_steps"></a>Activity Steps</h3>
+<div class="paragraph">
+<p>Perform the following steps to create a MachineSet for Azure Spot Virtual Machines in your ARO cluster:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Connect to your OpenShift cluster using the <code>oc</code> CLI.</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc login --token=&lt;your_token&gt; --server=&lt;your_api_server&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>List the existing MachineSets in your cluster. By default, an ARO cluster will have three MachineSets deployed for its worker nodes.</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc get machinesets -n openshift-machine-api</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You will see an output similar to this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>NAME                                       DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-5t2dj-worker-eastus3           1         1         1       1           3d1h
+aro-cluster-abcde-worker-westus2           1         1         1       1           3d1h
+aro-cluster-fghef-worker-southcentralus    1         1         1       1           3d1h</pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The names of your MachineSets will vary based on your cluster name and region.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Describe one of the existing worker MachineSets and output its configuration to a YAML file. This will serve as a template for your new Spot MachineSet. Replace <code>&lt;machineset-name&gt;</code> with one of the names from the previous step.</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc get machineset aro-cluster-5t2dj-worker-eastus3 -n openshift-machine-api -o yaml &gt; spot-machineset-template.yaml</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Open the <code>spot-machineset-template.yaml</code> file in a text editor and make the following critical changes, as outlined in the context:</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>a.</strong> Change the <code>metadata.name</code> field to a new, unique name for your Spot MachineSet (e.g., <code>aro-cluster-5t2dj-spot-worker</code>).</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># ...
+metadata:
+  name: aro-cluster-5t2dj-spot-worker <i class="conum" data-value="1"></i><b>(1)</b>
+# ...</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>A new, unique name for your Spot MachineSet.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>b.</strong> Update the <code>spec.selector.matchLabels.machine.openshift.io/cluster-api-machineset</code> field to match your new <code>metadata.name</code>.</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># ...
+spec:
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: aro-cluster-5t2dj
+      machine.openshift.io/cluster-api-machineset: aro-cluster-5t2dj-spot-worker <i class="conum" data-value="1"></i><b>(1)</b>
+# ...</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Must match the new <code>metadata.name</code> of this MachineSet.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>c.</strong> Update the <code>spec.template.metadata.labels.machine.openshift.io/cluster-api-machineset</code> field to also match your new <code>metadata.name</code>.</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># ...
+spec:
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: aro-cluster-5t2dj
+        machine.openshift.io/cluster-api-machineset: aro-cluster-5t2dj-spot-worker <i class="conum" data-value="1"></i><b>(1)</b>
+# ...</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Must match the new <code>metadata.name</code> of this MachineSet.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>d.</strong> <strong>Add</strong> the <code>spotVMOptions: {}</code> field within <code>spec.template.spec.providerSpec.value</code>. This is the crucial configuration that designates the machines created by this MachineSet as Azure Spot Virtual Machines. Ensure it&#8217;s placed correctly under <code>providerSpec.value</code>.</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># ...
+spec:
+  template:
+    spec:
+      providerSpec:
+        value:
+          # ... other provider-specific settings ...
+          spotVMOptions: {} <i class="conum" data-value="1"></i><b>(1)</b>
+          # ...</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This line tells Azure to provision Spot Virtual Machines.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>e.</strong> (Optional but Recommended) You might want to remove the <code>spec.replicas</code> field, or set it to <code>0</code> initially, and then scale it up after creation. For this lab, let&#8217;s set <code>spec.replicas</code> to <code>1</code> to immediately provision one Spot VM.</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># ...
+spec:
+  replicas: 1 <i class="conum" data-value="1"></i><b>(1)</b>
+# ...</pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Set the desired number of Spot worker nodes.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>f.</strong> (Optional) Add taints to your Spot MachineSet template to ensure that only tolerating workloads are scheduled on these nodes. Add the following under <code>spec.template.spec</code>:</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># ...
+spec:
+  template:
+    spec:
+      taints:
+        - effect: NoExecute
+          key: spot
+          value: 'true'
+      # ... other spec settings ...
+# ...</pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Save the modified YAML file (e.g., <code>spot-machineset.yaml</code>).</p>
+</li>
+<li>
+<p>Deploy the new Spot MachineSet to your cluster.</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc apply -f spot-machineset.yaml -n openshift-machine-api</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify that your new Spot MachineSet has been created and is provisioning a Spot VM.</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc get machinesets -n openshift-machine-api</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see your new <code>spot-worker</code> MachineSet, and after a few minutes, you should see a <code>READY</code> worker node associated with it.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>NAME                                       DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-5t2dj-worker-eastus3           1         1         1       1           3d1h
+aro-cluster-abcde-worker-westus2           1         1         1       1           3d1h
+aro-cluster-fghef-worker-southcentralus    1         1         1       1           3d1h
+aro-cluster-5t2dj-spot-worker              1         1         1       1           2m47s <i class="conum" data-value="1"></i><b>(1)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Your newly created Spot MachineSet and its associated node.</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>(Optional) Verify that the Spot node has the <code>spot</code> taint applied:</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc get nodes -l machine.openshift.io/cluster-api-machineset=aro-cluster-5t2dj-spot-worker -o jsonpath='{.items[*].spec.taints}'</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>[{"effect":"NoExecute","key":"spot","value":"true"}]</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This lab demonstrates the creation of a MachineSet for Azure Spot VMs. In a production environment, you would typically configure a separate MachineSet for your critical workloads that require guaranteed capacity, and use Spot MachineSets for workloads that can tolerate interruptions. You would then use node selectors and tolerations to ensure pods are scheduled appropriately.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lab_clean_up_optional"><a class="anchor" href="#_lab_clean_up_optional"></a>Lab Clean-up (Optional)</h3>
+<div class="paragraph">
+<p>To remove the Spot MachineSet and the associated Spot VM:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Delete the Spot MachineSet:</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc delete machineset aro-cluster-5t2dj-spot-worker -n openshift-machine-api</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify that the MachineSet and its associated machines are being terminated:</p>
+<div class="listingblock">
+<div class="content">
+<pre>oc get machinesets -n openshift-machine-api
+oc get machines -n openshift-machine-api</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Spot MachineSet and its machines should disappear after a few moments.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a></span>
+  <span class="next"><a href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

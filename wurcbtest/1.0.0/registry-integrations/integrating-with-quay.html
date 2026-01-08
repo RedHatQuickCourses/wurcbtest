@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Integrating with Quay :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="integrating-with-azure-container-registry-acr.html">
+    <link rel="next" href="using-the-internal-openshift-registry.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="registry-integrations.html">Registry Integrations</a></li>
+    <li><a href="integrating-with-quay.html">Integrating with Quay</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Integrating with Quay</h1>
+<h1 id="_integrating_with_quay" class="sect0"><a class="anchor" href="#_integrating_with_quay"></a>Integrating with Quay</h1>
+<div class="paragraph lead">
+<p>Learn how to integrate your Azure Red Hat OpenShift (ARO) cluster with Red Hat Quay for robust container image management and deployment. This guide covers both public and private repository integrations, ensuring your applications can securely access necessary images.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_red_hat_quay"><a class="anchor" href="#_understanding_red_hat_quay"></a>Understanding Red Hat Quay</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Red Hat Quay is an enterprise-grade, open-source container image registry that provides secure storage, distribution, and deployment of container images. It offers advanced features such as image vulnerability scanning, fine-grained access control, time machine capabilities (reverting to previous image versions), and seamless integration with CI/CD pipelines.</p>
+</div>
+<div class="paragraph">
+<p>In a cloud-native environment like Azure Red Hat OpenShift, a reliable and secure container registry is paramount for managing your application images. Quay serves as a central repository for your Docker and OCI-compliant images, ensuring that your ARO clusters can securely pull the necessary images for your applications.</p>
+</div>
+<div class="paragraph">
+<p>Key benefits of integrating ARO with Quay include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Centralized Image Management:</strong> Store all your application images in a single, secure, and highly available location.</p>
+</li>
+<li>
+<p><strong>Enhanced Security:</strong> Benefit from built-in security scanning, vulnerability reporting, and policy enforcement to maintain supply chain integrity.</p>
+</li>
+<li>
+<p><strong>Version Control:</strong> Utilize time machine features to manage image versions and facilitate rollbacks effectively, providing historical traceability.</p>
+</li>
+<li>
+<p><strong>Access Control:</strong> Implement granular access controls, including role-based access control (RBAC), to manage who can push and pull images.</p>
+</li>
+<li>
+<p><strong>Integration with CI/CD:</strong> Seamlessly integrate Quay into your automated build, test, and deployment workflows, streamlining your DevOps practices.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>OpenShift leverages <code>ImageStreams</code> to track images from external registries like Quay. When an application is deployed, OpenShift attempts to pull the specified image from the registry. This mechanism allows OpenShift to monitor changes in the upstream registry and automatically update deployments if new image versions are detected and configured.</p>
+</div>
+<div class="sect2">
+<h3 id="_public_vs_private_quay_repositories"><a class="anchor" href="#_public_vs_private_quay_repositories"></a>Public vs. Private Quay Repositories</h3>
+<div class="paragraph">
+<p>Quay.io hosts both public and private repositories, each with distinct access requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Public Repositories:</strong> Images in public repositories are freely accessible and can be pulled by any OpenShift cluster without explicit authentication credentials. Many Red Hat-provided images, certified operators, and community images are available publicly on <code>quay.io</code>. The provided context lists several <code>quay.io</code> endpoints, such as <code>cdn02.quay.io</code>, <code>cdn03.quay.io</code>, <code>access.redhat.com</code>, which are used for distributing public container images and operators from Red Hat and third-parties.</p>
+</li>
+<li>
+<p><strong>Private Repositories:</strong> Images in private repositories require authentication to be accessed. For ARO to pull images from a private Quay repository, you must provide valid credentials, typically in the form of an application password or token. This ensures that only authorized entities can access and deploy your proprietary or sensitive container images.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_deploying_an_application_from_quay"><a class="anchor" href="#_hands_on_activity_deploying_an_application_from_quay"></a>Hands-on Activity: Deploying an Application from Quay</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this activity, you will deploy a simple application to your ARO cluster using a container image hosted on <code>quay.io</code>. We will first demonstrate deploying from a public Quay repository, then provide guidance on how to adapt this process for private repositories.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure Red Hat OpenShift cluster.</p>
+</li>
+<li>
+<p>The <code>oc</code> CLI installed and configured to connect to your ARO cluster.</p>
+</li>
+<li>
+<p>You are logged in to your ARO cluster with an account that has permissions to create resources in a project.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_1_create_a_new_openshift_project"><a class="anchor" href="#_step_1_create_a_new_openshift_project"></a>Step 1: Create a new OpenShift Project</h3>
+<div class="paragraph">
+<p>First, create a dedicated project (namespace) for your application to ensure proper resource isolation.</p>
+</div>
+<div class="listingblock">
+<div class="title">Execute the following command in your terminal:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project quay-integration-demo</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">Now using project "quay-integration-demo" on server "https://api.yourcluster.azm.p.openshiftapps.com:6443".
+
+You can add applications to this project with the 'oc new-app' command. For example, try:
+
+    oc new-app rails-sample
+
+To see what objects are in this project, run:
+
+    oc get all</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_deploy_an_application_from_a_public_quay_repository"><a class="anchor" href="#_step_2_deploy_an_application_from_a_public_quay_repository"></a>Step 2: Deploy an Application from a Public Quay Repository</h3>
+<div class="paragraph">
+<p>We will deploy a simple "greeter" application using an image available publicly on <code>quay.io</code>. This image, <code>quay.io/rhdevelopers/knative-tutorial-greeter:quarkus</code>, is mentioned in the provided context for a Knative service deployment. For this activity, we will use a standard OpenShift deployment to illustrate the general process of pulling images from Quay.</p>
+</div>
+<div class="listingblock">
+<div class="title">Execute the following command to deploy the application:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-app quay.io/rhdevelopers/knative-tutorial-greeter:quarkus --name greeter-app</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>quay.io/rhdevelopers/knative-tutorial-greeter:quarkus</code> specifies the fully qualified image reference, including the registry, repository, and image tag.</p>
+</li>
+<li>
+<p><code>--name greeter-app</code> assigns a logical name to the application resources created by OpenShift, such as the Deployment and Service.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Expected Output (truncated):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">--&gt; Found image 'quay.io/rhdevelopers/knative-tutorial-greeter:quarkus' (id: ...) in registry quay.io
+    ...
+--&gt; Creating resources ...
+    deployment.apps/greeter-app created
+    service/greeter-app created
+--&gt; Success
+    Application is not exposed. You can expose it by running:
+        oc expose svc/greeter-app
+    Run 'oc status' to view your app.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>OpenShift automatically creates a Deployment, a Pod, and a Service for your application. Since <code>quay.io</code> is a publicly accessible registry for this image, OpenShift&#8217;s default service account can pull the image without any explicit authentication secrets.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_verify_the_deployment"><a class="anchor" href="#_step_3_verify_the_deployment"></a>Step 3: Verify the Deployment</h3>
+<div class="paragraph">
+<p>Check the status of your deployed application to ensure it&#8217;s running correctly.</p>
+</div>
+<div class="listingblock">
+<div class="title">Execute the following command to list the pods associated with your application:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -l app=greeter-app</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                           READY   STATUS    RESTARTS   AGE
+greeter-app-abcdefgh-ijklm     1/1     Running   0          XmYs</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ensure that the pod is in the <code>Running</code> state and <code>READY</code> column shows <code>1/1</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Optionally, expose the application to external access by creating an OpenShift Route:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc expose service greeter-app --port=8080 --name=greeter-route</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">route.route.openshift.io/greeter-route exposed</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Get the URL (hostname) of the exposed application:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get route greeter-route -o jsonpath='{.spec.host}'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can then open the provided URL in your web browser to interact with the "greeter" application and confirm its functionality.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_integrating_with_private_quay_repositories"><a class="anchor" href="#_integrating_with_private_quay_repositories"></a>Integrating with Private Quay Repositories</h3>
+<div class="paragraph">
+<p>When working with private Quay repositories, your ARO cluster needs specific credentials to authenticate and pull images. This is typically achieved by creating a <code>Secret</code> of type <code>kubernetes.io/dockerconfigjson</code> in OpenShift, which contains the authentication details for the registry.</p>
+</div>
+<div class="olist arabic">
+<div class="title">Overview of steps for private repository integration:</div>
+<ol class="arabic">
+<li>
+<p><strong>Obtain Quay Credentials:</strong> Generate an application-specific password or token from your Quay account. This is a best practice for automated systems rather than using your main account password. Navigate to your Quay account settings, then to "Applications" or "Access Tokens" to create one.</p>
+</li>
+<li>
+<p><strong>Create an Image Pull Secret:</strong> Use the <code>oc create secret docker-registry</code> command to create an OpenShift secret containing your Quay credentials. This secret securely stores the necessary <code>.docker/config.json</code> formatted data.
+<code><code>bash
+oc create secret docker-registry my-quay-secret \
+  --docker-server=quay.io \
+  --docker-username=&lt;your-quay-username&gt; \
+  --docker-password=&lt;your-quay-password-or-token&gt; \
+  --docker-email=&lt;your-email&gt; \
+  --namespace=quay-integration-demo
+</code></code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Replace <code>&lt;your-quay-username&gt;</code> with your Quay username or the username associated with your application token.</p>
+</li>
+<li>
+<p>Replace <code>&lt;your-quay-password-or-token&gt;</code> with your generated application password or token.</p>
+</li>
+<li>
+<p>Replace <code>&lt;your-email&gt;</code> with a valid email address.</p>
+</li>
+<li>
+<p><code>--namespace</code> specifies the project where the secret will be created.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Link the Secret to a Service Account:</strong> By default, OpenShift deployments use the <code>default</code> service account within a project. To allow deployments using this service account to pull from your private registry, you must link your new secret to it as an <code>imagePullSecret</code>.
+<code><code>bash
+oc secrets link default my-quay-secret --for=pull --namespace=quay-integration-demo
+</code></code>
+Alternatively, for more fine-grained control or when using a custom service account, you can explicitly specify <code>imagePullSecrets</code> within your Deployment or Pod manifest directly.</p>
+</li>
+<li>
+<p><strong>Deploy your Application:</strong> When deploying your application, ensure its definition is configured to use a service account that has the <code>imagePullSecret</code> linked, or include the <code>imagePullSecrets</code> in its YAML manifest.
+For example, in a <code>Deployment</code> YAML file, you would include the <code>imagePullSecrets</code> section within the <code>spec.template.spec</code>:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-private-app
+  namespace: quay-integration-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-private-app
+  template:
+    metadata:
+      labels:
+        app: my-private-app
+    spec:
+      containers:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name: my-container
+image: quay.io/your-private-org/your-private-image:latest # Specify your private image path here
+ports:</p>
+</li>
+<li>
+<p>containerPort: 8080
+imagePullSecrets:</p>
+</li>
+<li>
+<p>name: my-quay-secret # Reference the name of the secret created in step 2
+<code>`</code>
+To deploy this, save it as <code>private-app-deployment.yaml</code> and run <code>oc apply -f private-app-deployment.yaml</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>By following these steps, your ARO cluster will be able to securely authenticate with Red Hat Quay and pull images from private repositories, enabling you to manage and deploy your proprietary application images effectively within your OpenShift environment.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cleanup_optional"><a class="anchor" href="#_cleanup_optional"></a>Cleanup (Optional)</h3>
+<div class="paragraph">
+<p>To remove the resources created during this lab, delete the project.</p>
+</div>
+<div class="listingblock">
+<div class="title">Delete the project and all its contents:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete project quay-integration-demo</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Expected Output:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">project.project.openshift.io "quay-integration-demo" deleted</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a></span>
+  <span class="next"><a href="using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

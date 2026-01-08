@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Implement registry integrations with ARO :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="configure-custom-dns-and-dns-forwarding.html">
+    <link rel="next" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Implement registry integrations with ARO</h1>
+<h1 id="_registry_integrations_with_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_registry_integrations_with_azure_red_hat_openshift"></a>Registry Integrations with Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>This module delves into the critical aspect of managing and integrating various container registries with your Azure Red Hat OpenShift (ARO) cluster. Effective registry integration is fundamental for accessing official base images, deploying custom containerized applications, and streamlining internal image build processes.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_container_registries_in_aro"><a class="anchor" href="#_understanding_container_registries_in_aro"></a>Understanding Container Registries in ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Container registries serve as central repositories for storing, managing, and distributing container images. In an ARO environment, you will commonly interact with several types of registries, each serving specific purposes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Internal OpenShift Registry:</strong> A built-in, fully integrated registry within your ARO cluster. It&#8217;s the default location for images built by OpenShift&#8217;s S2I (Source-to-Image) or Dockerfile builds and is optimized for in-cluster access.</p>
+</li>
+<li>
+<p><strong>Azure Container Registry (ACR):</strong> A managed, private Docker container registry service in Azure. It offers deep integration with Azure services and is an excellent choice for hosting private images for applications deployed on ARO within the Azure ecosystem.</p>
+</li>
+<li>
+<p><strong>Quay.io:</strong> A popular external container registry known for its advanced security features, detailed audit logs, and enterprise-grade capabilities. It&#8217;s often chosen for robust image management across different environments.</p>
+</li>
+<li>
+<p><strong>Red Hat Container Registry (registry.redhat.io):</strong> Essential for accessing Red Hat certified container images, base images, and various OpenShift components. Accessing this registry often requires specific authentication.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Each registry offers distinct advantages, and understanding how to integrate them is key to a flexible and secure ARO deployment.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_the_internal_openshift_registry"><a class="anchor" href="#_using_the_internal_openshift_registry"></a>Using the Internal OpenShift Registry</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Every ARO cluster comes equipped with an integrated container image registry, also known as the OpenShift Image Registry. This registry is where images built within your cluster are stored by default, making it highly efficient for internal CI/CD pipelines.</p>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation_internal_access"><a class="anchor" href="#_technical_explanation_internal_access"></a>Technical Explanation: Internal Access</h3>
+<div class="paragraph">
+<p>The internal OpenShift registry is primarily optimized for image storage and retrieval <strong>from within</strong> the cluster. Any pod running in your ARO cluster can seamlessly access this registry using its internal ClusterIP service.</p>
+</div>
+<div class="paragraph">
+<p>The fully qualified domain name (FQDN) for the internal registry within the cluster is <code>image-registry.openshift-image-registry.svc.cluster.local:5000</code>. This design allows for straightforward integration with internal build processes and application deployments, as pods within the cluster do not require additional network configuration or authentication to pull images from it.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation_external_access"><a class="anchor" href="#_technical_explanation_external_access"></a>Technical Explanation: External Access</h3>
+<div class="paragraph">
+<p>While the internal registry is excellent for in-cluster operations, scenarios often arise where you need to access it from outside the ARO cluster. This could be from a developer&#8217;s local workstation, an external CI/CD platform, or even another Kubernetes cluster. To facilitate this external access, you must expose the internal registry through an OpenShift <code>Route</code>.</p>
+</div>
+<div class="paragraph">
+<p>Exposing the registry via a <code>Route</code> makes it accessible over the internet (or through a private network if configured appropriately) using an externally routable FQDN. This allows external clients to push and pull images using standard <code>docker</code> commands after successful authentication.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_exploring_and_exposing_the_internal_registry"><a class="anchor" href="#_hands_on_activity_exploring_and_exposing_the_internal_registry"></a>Hands-on Activity: Exploring and Exposing the Internal Registry</h3>
+<div class="paragraph">
+<p>In this activity, you will verify the existence and configuration of the internal OpenShift registry and then expose it for external access using an OpenShift Route.</p>
+</div>
+<div class="ulist">
+<div class="title">Prerequisites</div>
+<ul>
+<li>
+<p>You are logged into your ARO cluster as a <code>kubeadmin</code> user or a user with <code>cluster-admin</code> privileges.</p>
+</li>
+<li>
+<p>You have the <code>oc</code> (OpenShift CLI) and <code>docker</code> CLIs installed and configured.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps</div>
+<ol class="arabic">
+<li>
+<p><strong>Verify Internal Registry Service</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>First, confirm that the internal image registry service is running within your cluster.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get service -n openshift-image-registry image-registry</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should observe output similar to the following, confirming the existence of the ClusterIP service:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
+image-registry   ClusterIP   172.30.170.218   &lt;none&gt;        5000/TCP   7d</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Expose the Internal Registry Externally</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>To enable external access, you will configure the image registry operator to create a default <code>Route</code> for the <code>image-registry</code> service.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command instructs the image registry operator to automatically provision a standard HTTP/S route for the registry.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Find the External Registry FQDN</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Allow a few moments for the Route to be provisioned. You can then retrieve its externally routable FQDN using the following command:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command will output the full hostname (e.g., <code>default-route-openshift-image-registry.apps.your-cluster-domain.com</code>) that external clients will use to interact with the registry.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Authenticate for External Access</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>To push or pull images from the newly exposed external registry, you must authenticate. For users with a valid OpenShift token (like <code>kubeadmin</code>), you can perform a <code>docker login</code> using the obtained FQDN and your OpenShift token.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">TOKEN=$(oc whoami --show-token)
+REGISTRY_HOST=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')
+echo $TOKEN | docker login -u kubeadmin --password-stdin $REGISTRY_HOST</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you are not using the <code>kubeadmin</code> account, replace <code>kubeadmin</code> with your actual OpenShift username.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Upon successful login, you can now use standard <code>docker push</code> and <code>docker pull</code> commands, referencing the <code>REGISTRY_HOST</code> for your image operations.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integrating_with_red_hat_container_registry_registry_redhat_io"><a class="anchor" href="#_integrating_with_red_hat_container_registry_registry_redhat_io"></a>Integrating with Red Hat Container Registry (registry.redhat.io)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Accessing images from <code>registry.redhat.io</code> is often critical for leveraging Red Hat&#8217;s certified container content, essential OpenShift components, and official base images. To pull private or certified images from this registry, you typically need a service account from Red Hat&#8217;s Registry Service Account Management application.</p>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation"><a class="anchor" href="#_technical_explanation"></a>Technical Explanation</h3>
+<div class="paragraph">
+<p>The Red Hat Container Registry requires authentication for most of its valuable content. For programmatic access by an ARO cluster, using a dedicated <strong>service account</strong> is the recommended best practice, rather than your personal Red Hat account credentials. A service account provides a specific username and password suitable for automated systems to pull images.</p>
+</div>
+<div class="paragraph">
+<p>Once you obtain the service account credentials, they are typically stored within OpenShift as a Kubernetes <code>Secret</code> of type <code>kubernetes.io/dockerconfigjson</code>. This secret can then be linked to an OpenShift <code>ServiceAccount</code> or directly specified in your pod/deployment definitions using <code>imagePullSecrets</code>. For cluster-wide pull access, you might update the global pull secret configuration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_creating_a_red_hat_container_registry_service_account"><a class="anchor" href="#_hands_on_activity_creating_a_red_hat_container_registry_service_account"></a>Hands-on Activity: Creating a Red Hat Container Registry Service Account</h3>
+<div class="paragraph">
+<p>This activity guides you through the process of creating a service account for <code>registry.redhat.io</code>. This service account will provide the credentials necessary for your ARO cluster to pull images from Red Hat&#8217;s registry.</p>
+</div>
+<div class="ulist">
+<div class="title">Prerequisites</div>
+<ul>
+<li>
+<p>An active Red Hat account.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps</div>
+<ol class="arabic">
+<li>
+<p><strong>Sign in to Registry Service Account Management</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Use your Red Hat account to sign in to the <a href="https://access.redhat.com/management/systems/service-accounts" target="_blank" rel="noopener">Registry Service Account Management Application</a>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Create a New Service Account</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>On the <strong>Registry Service Accounts</strong> page, locate and select <strong>New Service Account</strong>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Provide Account Details</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Enter a descriptive name for your Service Account (e.g., <code>aro-registry-puller</code>). Note that Red Hat will prepend a fixed, random string to this name.</p>
+</li>
+<li>
+<p>Add a brief description for clarity.</p>
+</li>
+<li>
+<p>Select <strong>Create</strong>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Retrieve Credentials</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Navigate back to your list of <strong>Service Accounts</strong>.</p>
+</li>
+<li>
+<p>Select the Service Account you just created.</p>
+</li>
+<li>
+<p><strong>Carefully note down the username</strong>: This will include the prepended random string (e.g., <code>XXXXXXX|aro-registry-puller</code>). This is the full username to use when authenticating with <code>registry.redhat.io</code>.</p>
+</li>
+<li>
+<p><strong>Carefully note down the password</strong>: This is the system-generated password for the service account. Use this password when authenticating.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Prepare <code>config.json</code> (Conceptual)</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>While you&#8217;ve noted the credentials, typically, a <code>docker login</code> command would generate a <code>~/.docker/config.json</code> entry. For illustration:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">docker login registry.redhat.io -u "XXXXXXX|aro-registry-puller" -p "YOUR_SERVICE_ACCOUNT_PASSWORD"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command would add an entry to your <code>config.json</code> resembling the format shown in the context:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "auths": {
+    "registry.redhat.io": {
+      "auth": "xxxx...xxx", // Base64 encoded "username:password"
+      "email": "your-email@example.com"
+    }
+    // ... potentially other registry entries
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>auth</code> field contains the Base64-encoded <code>username:password</code> string.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Integrate with ARO (Conceptual)</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>With these credentials, you can create a <code>kubernetes.io/dockerconfigjson</code> secret in OpenShift. For example, in a specific project:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create secret docker-registry redhat-pull-secret \
+  --docker-server=registry.redhat.io \
+  --docker-username="XXXXXXX|aro-registry-puller" \
+  --docker-password="YOUR_SERVICE_ACCOUNT_PASSWORD" \
+  --docker-email="your-email@example.com" \
+  -n your-project</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>After creation, you would link this secret to your <code>ServiceAccount</code> or specify it in your Deployment/Pod manifests. For cluster-wide pull access for all projects, you can merge this secret into the cluster&#8217;s global <code>image.config</code> resource.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integrating_with_azure_container_registry_acr"><a class="anchor" href="#_integrating_with_azure_container_registry_acr"></a>Integrating with Azure Container Registry (ACR)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Azure Container Registry (ACR) is a fully managed, private Docker registry service provided by Azure. It&#8217;s an excellent choice for storing private images for your ARO applications due to its deep integration with Azure services and robust enterprise-grade features like geo-replication and content trust.</p>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation_2"><a class="anchor" href="#_technical_explanation_2"></a>Technical Explanation</h3>
+<div class="paragraph">
+<p>Integrating ARO with ACR primarily involves creating an <code>ImagePullSecret</code> in OpenShift that holds the necessary credentials to access your ACR instance. Several methods exist for authenticating with ACR:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Admin User Account:</strong> You can enable an admin user for your ACR and use its static username and password. While straightforward, this method is generally <strong>not recommended</strong> for production environments due to security considerations.</p>
+</li>
+<li>
+<p><strong>Azure Active Directory Service Principal:</strong> This is the recommended and most secure approach. You create an Azure Active Directory service principal, grant it <code>AcrPull</code> (or <code>AcrPush</code>) permissions to your ACR, and then use its <code>appId</code> (client ID) and <code>password</code> (client secret) as credentials.</p>
+</li>
+<li>
+<p><strong>Managed Identities:</strong> For advanced scenarios, if your ARO worker nodes utilize Managed Identities, you can grant the node&#8217;s identity permissions to pull from ACR. This eliminates the need for explicit secrets in OpenShift, enhancing security.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>For typical integration, we&#8217;ll focus on the <code>Service Principal</code> approach, which maps directly to a <code>kubernetes.io/dockerconfigjson</code> secret.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_configuring_aro_to_pull_images_from_acr"><a class="anchor" href="#_hands_on_activity_configuring_aro_to_pull_images_from_acr"></a>Hands-on Activity: Configuring ARO to Pull Images from ACR</h3>
+<div class="paragraph">
+<p>This activity outlines the steps to configure your ARO cluster to pull images from an Azure Container Registry (ACR) using an Azure Active Directory service principal.</p>
+</div>
+<div class="ulist">
+<div class="title">Prerequisites</div>
+<ul>
+<li>
+<p>An existing Azure Container Registry (ACR) instance.</p>
+</li>
+<li>
+<p>The <code>az</code> (Azure CLI) and <code>oc</code> (OpenShift CLI) tools installed and configured.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps</div>
+<ol class="arabic">
+<li>
+<p><strong>Log in to Azure CLI</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Ensure you are logged into Azure CLI with an account that has permissions to manage ACR and create service principals (if you need to create a new one).</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az login</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Create a Service Principal for ACR (if you don&#8217;t have one)</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>If you don&#8217;t already have a service principal with access to your ACR, create one. Replace <code>&lt;ACR_NAME&gt;</code> with the name of your ACR and <code>&lt;RESOURCE_GROUP&gt;</code> with the name of its resource group.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">ACR_ID=$(az acr show --name &lt;ACR_NAME&gt; --query id --output tsv)
+az ad sp create-for-rbac --name http://&lt;YOUR_SP_NAME&gt; --scopes $ACR_ID --role AcrPull --query "{ appID: appId, password: password }"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Carefully note down the <code>appID</code> (client ID) and <code>password</code> (client secret) from the output.</strong> These will be your username and password for the secret.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Create a <code>dockerconfigjson</code> Secret in OpenShift</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Use the service principal credentials to create a <code>kubernetes.io/dockerconfigjson</code> secret in your target OpenShift project. Replace <code>&lt;ACR_LOGIN_SERVER&gt;</code> (e.g., <code>myacr.azurecr.io</code>), <code>&lt;SP_APP_ID&gt;</code>, <code>&lt;SP_PASSWORD&gt;</code>, and <code>your-email@example.com</code> with your specific details.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create secret docker-registry acr-pull-secret \
+  --docker-server=&lt;ACR_LOGIN_SERVER&gt; \
+  --docker-username=&lt;SP_APP_ID&gt; \
+  --docker-password=&lt;SP_PASSWORD&gt; \
+  --docker-email=your-email@example.com \
+  -n your-project</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can find your ACR login server in the Azure portal under your ACR instance&#8217;s "Overview" blade (e.g., <code>myregistry.azurecr.io</code> or <code>myregistry.azurecr.io:8080</code> for private link setup).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Link the Secret to a ServiceAccount (or Deployment)</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>To allow pods in your <code>your-project</code> to automatically pull images from ACR, link this secret to the <code>default</code> ServiceAccount or a custom one you are using.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc secrets link default acr-pull-secret --for=pull -n your-project</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Alternatively, you can specify <code>imagePullSecrets</code> directly within your Deployment or Pod manifest:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># ... (in a Deployment or Pod spec)
+spec:
+  containers:
+  - name: my-app
+    image: &lt;ACR_LOGIN_SERVER&gt;/myrepo/myimage:latest
+    # ...
+  imagePullSecrets:
+  - name: acr-pull-secret</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Verify Image Pull</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Deploy a sample application that utilizes an image hosted in your ACR. OpenShift should now be able to pull the image successfully, demonstrating the successful integration.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integrating_with_quay"><a class="anchor" href="#_integrating_with_quay"></a>Integrating with Quay</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Quay.io is an open-source and enterprise container registry solution, widely recognized for its robust security features, detailed audit logs, and integrated build automation. Integrating your ARO cluster with Quay enables you to leverage images stored in private Quay repositories, maintaining a consistent and secure supply chain.</p>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation_3"><a class="anchor" href="#_technical_explanation_3"></a>Technical Explanation</h3>
+<div class="paragraph">
+<p>Similar to integrating with ACR or other private registries, the process of integrating ARO with Quay involves creating an <code>ImagePullSecret</code> that contains the necessary authentication token or credentials for your Quay repository. Quay supports several authentication methods suitable for different use cases:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Robot Accounts:</strong> These are programmatic accounts with granular permissions, ideal for CI/CD systems, automated deployments, and OpenShift integrations. You generate a unique token for each robot account.</p>
+</li>
+<li>
+<p><strong>User Credentials:</strong> While possible, using your personal Quay username and password for automated systems is generally less recommended due to security and manageability concerns.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The chosen credentials (typically a robot account username and token) are encoded into a <code>kubernetes.io/dockerconfigjson</code> secret. OpenShift then uses this secret to authenticate with Quay when attempting to pull images.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_configuring_aro_to_pull_images_from_quay"><a class="anchor" href="#_hands_on_activity_configuring_aro_to_pull_images_from_quay"></a>Hands-on Activity: Configuring ARO to Pull Images from Quay</h3>
+<div class="paragraph">
+<p>This activity guides you through the process of creating an OpenShift secret to enable your ARO cluster to pull images from a private Quay.io repository using a dedicated Robot Account.</p>
+</div>
+<div class="ulist">
+<div class="title">Prerequisites</div>
+<ul>
+<li>
+<p>A Quay.io account and a private repository.</p>
+</li>
+<li>
+<p>The <code>oc</code> (OpenShift CLI) tool installed and configured.</p>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Steps</div>
+<ol class="arabic">
+<li>
+<p><strong>Create a Quay.io Robot Account and Token (if you don&#8217;t have one)</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>In your Quay.io account, navigate to the specific private repository you wish to access.</p>
+</li>
+<li>
+<p>Go to <strong>Settings</strong> &#8594; <strong>Robot Accounts</strong>.</p>
+</li>
+<li>
+<p>Create a new Robot Account. Assign it a descriptive name (e.g., <code>aro-quay-puller</code>) and ensure it has at least <strong>Read</strong> (pull) permissions for the target repository.</p>
+</li>
+<li>
+<p><strong>Generate a token</strong> for the robot account. <strong>Copy this token immediately</strong>, as it will typically not be displayed again after creation.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Your Robot Account username will usually be in the format <code>namespace+robot_account_name</code> (e.g., <code>myorganization+aro-quay-puller</code>).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Create a <code>dockerconfigjson</code> Secret in OpenShift</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Use the Robot Account credentials (username and token) to create a <code>kubernetes.io/dockerconfigjson</code> secret in your target OpenShift project. Replace <code>&lt;QUAY_ROBOT_ACCOUNT_USERNAME&gt;</code>, <code>&lt;QUAY_ROBOT_ACCOUNT_TOKEN&gt;</code>, and <code>your-email@example.com</code> with your specific details.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create secret docker-registry quay-pull-secret \
+  --docker-server=quay.io \
+  --docker-username=&lt;QUAY_ROBOT_ACCOUNT_USERNAME&gt; \
+  --docker-password=&lt;QUAY_ROBOT_ACCOUNT_TOKEN&gt; \
+  --docker-email=your-email@example.com \
+  -n your-project</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Link the Secret to a ServiceAccount (or Deployment)</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Similar to ACR integration, link this newly created secret to the <code>default</code> ServiceAccount or a custom one in your <code>your-project</code> to automatically apply it to pods.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc secrets link default quay-pull-secret --for=pull -n your-project</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Alternatively, you can explicitly specify <code>imagePullSecrets</code> directly within your Deployment or Pod manifest:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># ... (in a Deployment or Pod spec)
+spec:
+  containers:
+  - name: my-app
+    image: quay.io/my-org/my-private-image:latest
+    # ...
+  imagePullSecrets:
+  - name: quay-pull-secret</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>Verify Image Pull</strong>:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Deploy a test application that uses an image from your private Quay.io repository. Observe that OpenShift successfully pulls the image, confirming the integration is working as expected.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a></span>
+  <span class="next"><a href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Configuring network policies :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="network-security-policies.html">
+    <link rel="next" href="limiting-ingress-traffic.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="network-security-policies.html">Network Security Policies</a></li>
+    <li><a href="configuring-network-policies.html">Configuring network policies</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Configuring network policies</h1>
+<h1 id="_configuring_network_policies_in_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_configuring_network_policies_in_azure_red_hat_openshift"></a>Configuring Network Policies in Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>This module delves into the critical aspect of network security within your Azure Red Hat OpenShift (ARO) clusters: configuring network policies. We will explore how to secure your applications by controlling both inbound (ingress) and outbound (egress) network traffic at a granular level, leveraging OpenShift&#8217;s robust networking capabilities.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_network_policies_in_aro"><a class="anchor" href="#_understanding_network_policies_in_aro"></a>Understanding Network Policies in ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In a Kubernetes and OpenShift environment, pods are often ephemeral and communicate dynamically. Without proper controls, any pod can potentially communicate with any other pod, or even external services, leading to potential security vulnerabilities. Network policies provide a mechanism to define how groups of pods are allowed to communicate with each other and with other network endpoints.</p>
+</div>
+<div class="paragraph">
+<p>Azure Red Hat OpenShift utilizes the powerful OpenShift Software Defined Networking (SDN) to implement and enforce these policies. For ARO 4.x clusters, this typically means the OVN-Kubernetes network plugin is active, providing advanced networking features including comprehensive network policy enforcement. The <code>NetworkPolicy</code> objects you create are interpreted and enforced by the SDN plugin, ensuring that traffic flows adhere to your defined security posture.</p>
+</div>
+<div class="paragraph">
+<p>The context states that "OpenShift Software Defined Networking (SDN) is used to configure an overlay network using Open vSwitch (OVS), an OpenFlow implementation based on Container Network Interface". This underlying infrastructure, combined with the <code>ovs-networkpolicy</code> plugin, ensures that granular network policies are effectively applied and enforced across your cluster.</p>
+</div>
+<div class="sect2">
+<h3 id="_capabilities_of_network_policies"><a class="anchor" href="#_capabilities_of_network_policies"></a>Capabilities of Network Policies</h3>
+<div class="paragraph">
+<p>Network policies in ARO enable you to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Isolate Pods:</strong> Restrict communication between pods, even within the same namespace.</p>
+</li>
+<li>
+<p><strong>Control Ingress Traffic:</strong> Define which external sources or other pods are allowed to connect to your applications.</p>
+</li>
+<li>
+<p><strong>Control Egress Traffic:</strong> Manage which external destinations your application pods can connect to.</p>
+</li>
+<li>
+<p><strong>Segment Networks:</strong> Create logical network segments within your cluster for different applications or teams.</p>
+</li>
+<li>
+<p><strong>Granular Control:</strong> "Using <code>NetworkPolicy</code> objects allows for full control over ingress network policy down to the pod level, including between pods on the same cluster and even in the same namespace."</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ingress_network_policies"><a class="anchor" href="#_ingress_network_policies"></a>Ingress Network Policies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Ingress network policies control incoming traffic to your pods. By default, if no network policies are applied in a namespace, all ingress traffic is allowed to pods within that namespace. Creating an ingress network policy in a namespace changes this default, effectively isolating the pods until specific rules are defined to allow traffic.</p>
+</div>
+<div class="paragraph">
+<p>OpenShift supports the Kubernetes v1 <code>NetworkPolicy</code> API for defining ingress rules. These policies allow project administrators to define allow lists based on pod selectors, namespace selectors, or even IP blocks. This provides fine-grained control over which traffic is permitted to reach your application pods. The context notes that "Ingress policies can be changed by using <code>NetworkPolicy</code> objects, which use the <code>ovs-networkpolicy</code> plugin."</p>
+</div>
+<div class="paragraph">
+<p>All cluster ingress traffic traverses the defined load balancer before reaching your application pods, and your ingress policies act as a further layer of defense at the pod level.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The context mentions: "While the ingress network policy is V1 NetworkPolicy compliant, the Egress and IPBlock Types aren&#8217;t supported." This refers to specific limitations within an <strong>ingress</strong> network policy definition, particularly concerning attempts to define egress rules using the <code>egress</code> field or certain advanced <code>ipBlock</code> configurations within a <code>NetworkPolicy</code> object when it&#8217;s primarily intended for ingress control by OpenShift SDN. For dedicated egress control, OpenShift provides a more robust and specific mechanism, as we will explore next.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_configuring_an_ingress_network_policy"><a class="anchor" href="#_hands_on_activity_configuring_an_ingress_network_policy"></a>Hands-on Activity: Configuring an Ingress Network Policy</h3>
+<div class="paragraph">
+<p>In this activity, you will deploy a simple web application and then create a network policy to restrict ingress access to it, demonstrating how to achieve pod isolation.</p>
+</div>
+<h4 id="_prerequisites" class="discrete">Prerequisites</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure Red Hat OpenShift cluster.</p>
+</li>
+<li>
+<p><code>oc</code> CLI configured and logged in to your cluster.</p>
+</li>
+</ul>
+</div>
+<h4 id="_1_create_a_project_for_the_application" class="discrete">1. Create a Project for the Application</h4>
+<div class="paragraph">
+<p>First, create a new OpenShift project (namespace) for your application.</p>
+</div>
+<div class="listingblock">
+<div class="title">Log in to your ARO cluster and create a new project:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project network-policy-test</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command creates a project named <code>network-policy-test</code>.</p>
+</div>
+<h4 id="_2_deploy_a_test_web_application" class="discrete">2. Deploy a Test Web Application</h4>
+<div class="paragraph">
+<p>Deploy a simple NGINX web server to serve as our target for ingress control.</p>
+</div>
+<div class="listingblock">
+<div class="title">Deploy the NGINX application:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create deployment nginx-app --image=nginx
+oc expose deployment nginx-app --port=80</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates an NGINX deployment and a service to expose it within the cluster.</p>
+</div>
+<div class="listingblock">
+<div class="title">Verify the application is running and accessible internally:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -l app=nginx-app
+oc get svc nginx-app</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see a running NGINX pod and its associated service.</p>
+</div>
+<h4 id="_3_test_initial_access" class="discrete">3. Test Initial Access</h4>
+<div class="paragraph">
+<p>Before applying any policies, let&#8217;s confirm that another pod can access the NGINX service.</p>
+</div>
+<div class="listingblock">
+<div class="title">Create a temporary debug pod in the same namespace:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc run --generator=run-pod/v1 curl-test --image=curlimages/curl --restart=Never --command -- sleep infinity
+oc exec -it curl-test -- curl nginx-app.network-policy-test.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see the default NGINX welcome page HTML output, confirming access.</p>
+</div>
+<h4 id="_4_apply_an_ingress_network_policy_to_deny_all_traffic" class="discrete">4. Apply an Ingress Network Policy to Deny All Traffic</h4>
+<div class="paragraph">
+<p>Now, create a <code>NetworkPolicy</code> that denies all ingress traffic to pods with the label <code>app=nginx-app</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Create a file named <code>deny-all-ingress.yaml</code> with the following content:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-nginx-ingress
+  namespace: network-policy-test
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-app
+  policyTypes:
+    - Ingress</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Apply the network policy:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f deny-all-ingress.yaml</code></pre>
+</div>
+</div>
+<h4 id="_5_test_restricted_access" class="discrete">5. Test Restricted Access</h4>
+<div class="paragraph">
+<p>After applying the policy, the <code>curl-test</code> pod should no longer be able to reach the NGINX application, even though it&#8217;s in the same namespace.</p>
+</div>
+<div class="listingblock">
+<div class="title">From the <code>curl-test</code> pod, try to access NGINX again:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-test -- curl --connect-timeout 5 nginx-app.network-policy-test.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command should now time out or fail, indicating that the <code>deny-all-nginx-ingress</code> policy is working and blocking the connection.</p>
+</div>
+<h4 id="_6_allow_ingress_from_specific_pods" class="discrete">6. Allow Ingress from Specific Pods</h4>
+<div class="paragraph">
+<p>Let&#8217;s modify the policy to allow ingress only from pods that have a specific label, for example, <code>access=allowed</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Delete the previous policy:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete -f deny-all-ingress.yaml</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Create a file named <code>allow-specific-ingress.yaml</code> with the following content:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-nginx-from-specific-pods
+  namespace: network-policy-test
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-app
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              access: allowed
+  policyTypes:
+    - Ingress</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This policy states that pods with <code>app: nginx-app</code> can only receive ingress traffic from pods within the same namespace that have the label <code>access: allowed</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Apply the new network policy:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f allow-specific-ingress.yaml</code></pre>
+</div>
+</div>
+<h4 id="_7_test_specific_access" class="discrete">7. Test Specific Access</h4>
+<div class="paragraph">
+<p>Now, try accessing NGINX again from the <code>curl-test</code> pod (which doesn&#8217;t have the <code>access=allowed</code> label). It should still fail. Then, add the label to the <code>curl-test</code> pod and try again.</p>
+</div>
+<div class="listingblock">
+<div class="title">Test from the unlabeled <code>curl-test</code> pod (should fail):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-test -- curl --connect-timeout 5 nginx-app.network-policy-test.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It should time out.</p>
+</div>
+<div class="listingblock">
+<div class="title">Add the <code>access=allowed</code> label to the <code>curl-test</code> pod:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc label pod curl-test access=allowed</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Test again from the <strong>labeled</strong> <code>curl-test</code> pod (should succeed):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-test -- curl nginx-app.network-policy-test.svc.cluster.local</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should now see the NGINX welcome page HTML output. This demonstrates how to allow ingress traffic based on pod labels.</p>
+</div>
+<h4 id="_cleanup" class="discrete">Cleanup</h4>
+<div class="listingblock">
+<div class="title">Delete the test resources:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete deployment nginx-app
+oc delete svc nginx-app
+oc delete pod curl-test
+oc delete networkpolicy allow-nginx-from-specific-pods
+oc delete project network-policy-test</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_egress_network_policies"><a class="anchor" href="#_egress_network_policies"></a>Egress Network Policies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Egress network policies control outbound traffic originating from your pods. While standard Kubernetes <code>NetworkPolicy</code> objects primarily focus on ingress, OpenShift provides a powerful <code>EgressNetworkPolicy</code> custom resource definition (CRD) to manage egress traffic. "Pod egress traffic control via <code>EgressNetworkPolicy</code> objects can be used to prevent or limit outbound traffic in Azure Red Hat OpenShift."</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The context states that "Currently all virtual machines must have outbound internet access." This is an important consideration when designing your egress policies for ARO, especially if you intend to block all external traffic, as the underlying VM infrastructure still requires outbound connectivity.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_key_characteristics_of_openshift_egress_policies"><a class="anchor" href="#_key_characteristics_of_openshift_egress_policies"></a>Key Characteristics of OpenShift Egress Policies:</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Egress Firewall Feature:</strong> "Egress network policies are supported by using the egress firewall feature in OpenShift." This feature provides granular control over outbound connections.</p>
+</li>
+<li>
+<p><strong>One Policy Per Namespace:</strong> "There&#8217;s only one egress policy per namespace/project." This simplifies management and ensures a single source of truth for egress rules within a project.</p>
+</li>
+<li>
+<p><strong>No Support on <code>default</code> Namespace:</strong> "Egress policies aren&#8217;t supported on the 'default' namespace." You must create and manage egress policies in custom namespaces.</p>
+</li>
+<li>
+<p><strong>Ordered Evaluation:</strong> "Egress policies are evaluated in order (first to last)." The first rule that matches the traffic flow is applied. Therefore, the order of your rules is critical.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_configuring_an_egress_network_policy"><a class="anchor" href="#_hands_on_activity_configuring_an_egress_network_policy"></a>Hands-on Activity: Configuring an Egress Network Policy</h3>
+<div class="paragraph">
+<p>In this activity, you will deploy a test pod and then create an <code>EgressNetworkPolicy</code> to restrict its outbound internet access.</p>
+</div>
+<h4 id="_prerequisites_2" class="discrete">Prerequisites</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure Red Hat OpenShift cluster.</p>
+</li>
+<li>
+<p><code>oc</code> CLI configured and logged in to your cluster.</p>
+</li>
+</ul>
+</div>
+<h4 id="_1_create_a_project_for_the_egress_test" class="discrete">1. Create a Project for the Egress Test</h4>
+<div class="paragraph">
+<p>Create a new OpenShift project (namespace) for your egress testing. Remember that egress policies are not supported in the <code>default</code> namespace.</p>
+</div>
+<div class="listingblock">
+<div class="title">Log in to your ARO cluster and create a new project:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project egress-policy-test</code></pre>
+</div>
+</div>
+<h4 id="_2_deploy_a_test_pod" class="discrete">2. Deploy a Test Pod</h4>
+<div class="paragraph">
+<p>Deploy a pod with <code>curl</code> to test outbound connectivity.</p>
+</div>
+<div class="listingblock">
+<div class="title">Deploy the <code>curl-egress-test</code> pod:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc run --generator=run-pod/v1 curl-egress-test --image=curlimages/curl --restart=Never --command -- sleep infinity</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Verify the pod is running:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -l run=curl-egress-test</code></pre>
+</div>
+</div>
+<h4 id="_3_test_initial_egress_access" class="discrete">3. Test Initial Egress Access</h4>
+<div class="paragraph">
+<p>Confirm that the pod can access external resources before applying any egress policies.</p>
+</div>
+<div class="listingblock">
+<div class="title">From the <code>curl-egress-test</code> pod, try to access <code>google.com</code>:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-egress-test -- curl https://google.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see HTML output from <code>google.com</code>, confirming successful outbound access.</p>
+</div>
+<h4 id="_4_apply_an_egress_network_policy_to_deny_all_external_traffic" class="discrete">4. Apply an Egress Network Policy to Deny All External Traffic</h4>
+<div class="paragraph">
+<p>Now, create an <code>EgressNetworkPolicy</code> to block all external traffic from the <code>egress-policy-test</code> namespace.</p>
+</div>
+<div class="listingblock">
+<div class="title">Create a file named <code>deny-all-egress.yaml</code> with the following content:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: network.openshift.io/v1
+kind: EgressNetworkPolicy
+metadata:
+  name: deny-external-egress
+  namespace: egress-policy-test
+spec:
+  egress:
+  - type: Deny
+    to:
+      cidrSelector: 0.0.0.0/0 # Deny all IPv4 traffic</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This policy defines a single rule of type <code>Deny</code> for all IPv4 addresses (<code>0.0.0.0/0</code>), effectively blocking all external outbound traffic from this namespace.</p>
+</div>
+<div class="listingblock">
+<div class="title">Apply the egress network policy:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f deny-all-egress.yaml</code></pre>
+</div>
+</div>
+<h4 id="_5_test_restricted_egress_access" class="discrete">5. Test Restricted Egress Access</h4>
+<div class="paragraph">
+<p>After applying the policy, the <code>curl-egress-test</code> pod should no longer be able to reach <code>google.com</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">From the <code>curl-egress-test</code> pod, try to access <code>google.com</code> again:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-egress-test -- curl --connect-timeout 5 https://google.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command should now time out or fail, indicating that the <code>deny-external-egress</code> policy is working and blocking external connections.</p>
+</div>
+<h4 id="_6_allow_specific_external_egress" class="discrete">6. Allow Specific External Egress</h4>
+<div class="paragraph">
+<p>Let&#8217;s modify the policy to allow egress only to a specific domain or IP address, for instance, <code>example.com</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Delete the previous policy:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete -f deny-all-egress.yaml</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Remember that <code>EgressNetworkPolicy</code> rules are evaluated in order. If you want to allow <strong>only</strong> specific traffic, you typically list <code>Allow</code> rules first, followed by a general <code>Deny</code> rule at the end.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Create a file named <code>allow-example-egress.yaml</code> with the following content:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: network.openshift.io/v1
+kind: EgressNetworkPolicy
+metadata:
+  name: allow-example-egress
+  namespace: egress-policy-test
+spec:
+  egress:
+  - type: Allow
+    to:
+      dnsName: www.example.com
+  - type: Deny
+    to:
+      cidrSelector: 0.0.0.0/0</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This policy first <strong>allows</strong> traffic to <code>www.example.com</code> and then <strong>denies</strong> all other IPv4 outbound traffic.</p>
+</div>
+<div class="listingblock">
+<div class="title">Apply the new egress network policy:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f allow-example-egress.yaml</code></pre>
+</div>
+</div>
+<h4 id="_7_test_specific_egress_access" class="discrete">7. Test Specific Egress Access</h4>
+<div class="paragraph">
+<p>Now, test access to <code>www.example.com</code> (should succeed) and then <code>google.com</code> (should fail).</p>
+</div>
+<div class="listingblock">
+<div class="title">Test access to <code>www.example.com</code> (should succeed):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-egress-test -- curl https://www.example.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see HTML output from <code>example.com</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Test access to <code>google.com</code> (should fail):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc exec -it curl-egress-test -- curl --connect-timeout 5 https://google.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command should now time out or fail, as it&#8217;s not <code>www.example.com</code>.</p>
+</div>
+<h4 id="_cleanup_2" class="discrete">Cleanup</h4>
+<div class="listingblock">
+<div class="title">Delete the test resources:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete pod curl-egress-test
+oc delete egressnetworkpolicy allow-example-egress
+oc delete project egress-policy-test</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_advanced_considerations_and_best_practices"><a class="anchor" href="#_advanced_considerations_and_best_practices"></a>Advanced Considerations and Best Practices</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Least Privilege Principle:</strong> Always apply network policies using the principle of least privilege. Only allow the traffic that is absolutely necessary for your applications to function.</p>
+</li>
+<li>
+<p><strong>Default Deny:</strong> It&#8217;s a common security practice to implement a "default deny" approach by first denying all traffic and then explicitly allowing required communication paths. This reduces the attack surface.</p>
+</li>
+<li>
+<p><strong>Impact Assessment:</strong> Carefully plan and test your network policies, as misconfigured policies can inadvertently disrupt application functionality. Start with a smaller scope and progressively expand.</p>
+</li>
+<li>
+<p><strong>Monitoring and Logging:</strong> Utilize OpenShift&#8217;s logging and monitoring capabilities to observe traffic patterns and troubleshoot any connectivity issues that arise from network policy enforcement.</p>
+</li>
+<li>
+<p><strong>Namespace Strategy:</strong> Design your namespaces with network segmentation in mind. Policies are typically scoped to a namespace, making it easier to manage security boundaries between different applications or teams.</p>
+</li>
+<li>
+<p><strong>Inter-Namespace Communication:</strong> When pods in different namespaces need to communicate, you&#8217;ll need to define <code>NetworkPolicy</code> objects that allow this cross-namespace traffic (e.g., using <code>namespaceSelector</code>).</p>
+</li>
+<li>
+<p><strong>External Access (Routes/Services):</strong> Remember that <code>NetworkPolicy</code> objects control traffic <strong>to and from pods</strong>. External access to your applications is typically managed via OpenShift Routes (for HTTP/HTTPS) or Kubernetes Services of <code>type: LoadBalancer</code> (for other protocols). Network policies complement these by adding a layer of granular control at the pod level.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>By mastering the configuration of both ingress and egress network policies, you can significantly enhance the security posture of your applications running on Azure Red Hat OpenShift, ensuring that only authorized traffic flows within and out of your clusters.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="network-security-policies.html">Network Security Policies</a></span>
+  <span class="next"><a href="limiting-ingress-traffic.html">Limiting ingress traffic</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

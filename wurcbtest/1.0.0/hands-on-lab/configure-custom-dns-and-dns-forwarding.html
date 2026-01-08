@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Configure custom DNS and DNS forwarding :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="create-a-private-azure-red-hat-openshift-cluster.html">
+    <link rel="next" href="implement-registry-integrations-with-aro.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Configure custom DNS and DNS forwarding</h1>
+<h1 id="_configure_custom_dns_and_dns_forwarding_for_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_configure_custom_dns_and_dns_forwarding_for_azure_red_hat_openshift"></a>Configure Custom DNS and DNS Forwarding for Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>This module explains how to configure custom DNS servers and DNS forwarding for your Azure Red Hat OpenShift (ARO) cluster. Properly configured DNS is crucial for cluster operations and application resolution, especially when integrating with enterprise-specific services and ensuring your ARO cluster can resolve internal corporate resources.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_custom_dns_in_aro"><a class="anchor" href="#_understanding_custom_dns_in_aro"></a>Understanding Custom DNS in ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Azure Red Hat OpenShift clusters operate within an Azure Virtual Network (VNet) and, by default, rely on Azure-provided DNS services for resolving hostnames. This default configuration allows ARO nodes to resolve internal Azure resource names and public internet hostnames efficiently.</p>
+</div>
+<div class="paragraph">
+<p>However, in many enterprise environments, it&#8217;s essential for the ARO cluster to resolve hostnames managed by internal corporate DNS servers. This is where configuring custom DNS for the VNet hosting your ARO cluster becomes necessary. When you configure custom DNS at the Virtual Network level, all resources within that VNet, including your ARO master and worker nodes, are instructed to use your specified DNS servers.</p>
+</div>
+<div class="paragraph">
+<p>As each node in the Azure Red Hat OpenShift cluster powers on and joins the network, DHCP configures the virtual machine with information such as its IP address and the DNS server it should use. By updating the VNet&#8217;s DNS settings, you ensure that nodes will pick up your custom DNS servers during their next DHCP lease renewal, which is triggered by a reboot.</p>
+</div>
+<div class="sect2">
+<h3 id="_why_configure_custom_dns_and_dns_forwarding"><a class="anchor" href="#_why_configure_custom_dns_and_dns_forwarding"></a>Why Configure Custom DNS and DNS Forwarding?</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Resolve Internal Corporate Hostnames</strong>: Enables applications running within your ARO cluster to resolve names of internal enterprise resources like databases, APIs, identity providers, and other services that are only accessible via your corporate DNS infrastructure.</p>
+</li>
+<li>
+<p><strong>Centralized DNS Management</strong>: Aligns ARO&#8217;s name resolution capabilities with your organization&#8217;s existing DNS policies and infrastructure, simplifying network management and security.</p>
+</li>
+<li>
+<p><strong>Enhanced Control and Security</strong>: Allows you to direct specific DNS queries through your corporate security infrastructure or to internal authoritative servers.</p>
+</li>
+<li>
+<p><strong>DNS Forwarding</strong>: Your custom DNS servers can be configured to forward specific domains to other DNS resolvers (e.g., forwarding public internet queries to Azure DNS or other public DNS servers), providing a robust and flexible resolution strategy.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_important_considerations_and_trade_offs"><a class="anchor" href="#_important_considerations_and_trade_offs"></a>Important Considerations and Trade-offs</h3>
+<div class="paragraph">
+<p>While configuring custom DNS is often a requirement, it introduces important considerations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Loss of Azure-Provided VNet DNS Resolution</strong>:
+IMPORTANT: If you choose to specify a custom DNS server, you will no longer be able to resolve node names in the virtual network via DNS. Nodes will only be reachable via IP address. This means internal Azure-specific FQDNs for services (like internal load balancers or certain Azure PaaS services) might not resolve unless your custom DNS servers are explicitly configured to handle or forward queries for these specific zones.
+The virtual machine names will no longer resolve through DNS on the network directly via Azure&#8217;s default VNet DNS.</p>
+</li>
+<li>
+<p><strong>Impact on Existing Resources</strong>: Any other virtual machines or resources within the same virtual network will also begin using the custom DNS servers. Ensure this change is compatible with their existing configurations.</p>
+</li>
+<li>
+<p><strong>Restart Requirement</strong>: Changes to VNet DNS settings do not automatically propagate to already running virtual machines. ARO cluster nodes (both master and worker) must be rebooted for them to pick up the new DNS configuration and renew their DHCP leases.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_process_overview"><a class="anchor" href="#_process_overview"></a>Process Overview</h3>
+<div class="paragraph">
+<p>Configuring a custom DNS server for your ARO cluster is a two-step process:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Modifying the Virtual Network DNS Servers configuration setting</strong>: This step updates the DNS server information for the entire virtual network where your ARO cluster resides.</p>
+</li>
+<li>
+<p><strong>Restarting nodes in the cluster to take changes</strong>: ARO cluster nodes must be rebooted to acquire the new DNS configuration from the updated virtual network settings.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This procedure applies both when initially setting up custom DNS and when modifying an existing custom DNS configuration. While these steps can also be performed through the Azure CLI, this guide will walk through using the Azure portal web interface for VNet DNS updates and the OpenShift CLI (<code>oc</code>) for node reboots.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_configure_custom_dns_and_dns_forwarding"><a class="anchor" href="#_hands_on_activity_configure_custom_dns_and_dns_forwarding"></a>Hands-on Activity: Configure Custom DNS and DNS Forwarding</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this hands-on activity, you will configure a custom DNS server for the virtual network hosting your ARO cluster and then trigger a reboot of the cluster nodes to ensure they pick up these new settings.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This activity assumes you have an existing Azure Red Hat OpenShift cluster deployed within an Azure Virtual Network.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_step_1_update_virtual_network_dns_configuration"><a class="anchor" href="#_step_1_update_virtual_network_dns_configuration"></a>Step 1: Update Virtual Network DNS Configuration</h3>
+<div class="paragraph">
+<p>First, you will configure your Azure Virtual Network to use your desired custom DNS servers. This change impacts all resources within that virtual network.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log into the Azure portal.</p>
+</li>
+<li>
+<p>Navigate to the desired virtual network that hosts your ARO cluster. You can typically find this by searching for "Virtual networks" in the Azure portal&#8217;s global search bar and selecting the appropriate VNet.</p>
+</li>
+<li>
+<p>From the virtual network&#8217;s settings menu on the left, select <strong>DNS servers</strong>.</p>
+<div class="imageblock unresolved">
+<div class="content">
+<img src="images/vnet-dns-settings.png" alt="vnet dns settings" width="400">
+</div>
+</div>
+</li>
+<li>
+<p>On the DNS configuration screen, select <strong>Custom</strong> from the radial button configuration.</p>
+</li>
+<li>
+<p>Enter the IP addresses for your primary and secondary DNS servers in the provided fields. You can add multiple IP addresses for redundancy.</p>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+As noted in the considerations above, if you choose to specify a custom DNS server, you will no longer be able to resolve node names in the virtual network via DNS. Nodes will only be reachable via IP address. Ensure your custom DNS servers can resolve necessary internal and external hostnames.
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock unresolved">
+<div class="content">
+<img src="images/vnet-custom-dns.png" alt="vnet custom dns" width="600">
+</div>
+</div>
+</li>
+<li>
+<p>Click <strong>Save</strong> to apply the changes to the virtual network.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_restart_aro_cluster_nodes_to_apply_dns_changes"><a class="anchor" href="#_step_2_restart_aro_cluster_nodes_to_apply_dns_changes"></a>Step 2: Restart ARO Cluster Nodes to Apply DNS Changes</h3>
+<div class="paragraph">
+<p>After updating the VNet&#8217;s DNS configuration, the ARO cluster nodes need to be restarted to pick up the new settings. This is typically achieved by temporarily deleting special <code>MachineConfig</code> objects, which triggers a node reboot orchestrated by the Machine Config Operator.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Deleting <code>MachineConfig</code> objects will cause your cluster nodes to reboot. Plan this activity during a maintenance window or when you can tolerate temporary cluster disruption. This process can take some time (e.g., 20-30 minutes per set of nodes) as nodes drain existing pods, reboot, and rejoin the cluster.
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Access your OpenShift cluster using the <code>oc</code> CLI. Ensure you are logged in as a cluster administrator (e.g., <code>kubeadmin</code>).</p>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If you need to log in, you can find the <code>kubeadmin</code> credentials in the Azure portal for your ARO cluster under the "kubeadmin password" section.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc login {your_api_server_url} --username=kubeadmin --password={your_kubeadmin_password}</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>To initiate a reboot of the worker nodes, delete the <code>MachineConfig</code> object responsible for triggering worker reboots.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete machineconfig 25-machineconfig-worker-reboot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected output:</p>
+</div>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>machineconfig.machineconfiguration.openshift.io "25-machineconfig-worker-reboot" deleted</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>+
+.  Wait for all of the worker nodes to reboot and become <code>Ready</code> again. You can monitor the node status using:</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get nodes -l node-role.kubernetes.io/worker</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>+
+Wait until all worker nodes show <code>STATUS</code> as <code>Ready</code>. This might take some time as the Machine Config Operator drains pods, reboots the nodes, and re-initializes them.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Once worker nodes are back online and ready, proceed to reboot the master nodes by deleting their corresponding <code>MachineConfig</code> object.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete machineconfig 25-machineconfig-master-reboot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected output:</p>
+</div>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>machineconfig.machineconfiguration.openshift.io "25-machineconfig-master-reboot" deleted</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>+
+.  Wait for all master nodes to reboot and become <code>Ready</code>. Monitor their status using:</p>
+</div>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get nodes -l node-role.kubernetes.io/master</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>+
+Wait until all master nodes show <code>STATUS</code> as <code>Ready</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>After both worker and master nodes have successfully rebooted, they will have acquired the new DNS configuration from the virtual network. You can verify the DNS resolution from within a pod in your cluster, or by SSHing into a node (if allowed) and checking the <code>/etc/resolv.conf</code> file.</p>
+<div class="paragraph">
+<p>For example, the <code>nameserver</code> entry in <code>/etc/resolv.conf</code> on a node should now reflect one of the custom DNS server IPs you configured in your virtual network.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text"># Sample /etc/resolv.conf after custom DNS configuration
+search reddog.microsoft.com example.com
+nameserver 192.168.1.10 # Your custom DNS IP
+nameserver 192.168.1.11 # Your secondary custom DNS IP (if configured)</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>search</code> domain <code>reddog.microsoft.com</code> might still appear as it&#8217;s often related to Azure internal networking, but the <code>nameserver</code> entries are key for verification.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You have successfully configured custom DNS for your Azure Red Hat OpenShift cluster! Applications deployed within the cluster will now use your specified DNS servers for name resolution.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a></span>
+  <span class="next"><a href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

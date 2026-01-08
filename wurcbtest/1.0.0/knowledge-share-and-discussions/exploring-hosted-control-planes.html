@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Exploring Hosted Control Planes :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="understanding-azure-spot-instances.html">
+    <link rel="next" href="../hands-on-lab/hands-on-lab.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a></li>
+    <li><a href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Exploring Hosted Control Planes</h1>
+<h1 id="_exploring_hosted_control_planes" class="sect0"><a class="anchor" href="#_exploring_hosted_control_planes"></a>Exploring Hosted Control Planes</h1>
+<div class="paragraph">
+<p>This section delves into the concept of Hosted Control Planes (HCPs), a critical architectural pattern that underpins many managed Kubernetes services, including Azure Red Hat OpenShift (ARO). We will explore what a Kubernetes control plane entails, the challenges of managing it, and how HCPs address these challenges by providing a more efficient, scalable, and cost-effective operational model. Understanding HCPs offers valuable insight into the core benefits of ARO&#8217;s managed service offering.</p>
+</div>
+<div class="sect1">
+<h2 id="_what_is_a_kubernetes_control_plane"><a class="anchor" href="#_what_is_a_kubernetes_control_plane"></a>What is a Kubernetes Control Plane?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before diving into hosted control planes, it&#8217;s essential to understand the fundamental role of the Kubernetes control plane. In a standard Kubernetes cluster, the control plane is the brain that manages and orchestrates the worker nodes and the workloads running on them. It consists of several key components:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>kube-apiserver</strong>: The front end of the Kubernetes control plane. It exposes the Kubernetes API, which is used by various tools and services to communicate with the cluster.</p>
+</li>
+<li>
+<p><strong>etcd</strong>: A consistent and highly available key-value store used to store all cluster data, including configuration, state, and metadata.</p>
+</li>
+<li>
+<p><strong>kube-scheduler</strong>: Watches for newly created pods with no assigned node and selects a node for them to run on.</p>
+</li>
+<li>
+<p><strong>kube-controller-manager</strong>: Runs controller processes. These controllers watch the shared state of the cluster through the API server and make changes attempting to move the current state towards the desired state. Examples include the Node controller, Replication controller, Endpoints controller, and Service Account controller.</p>
+</li>
+<li>
+<p><strong>cloud-controller-manager</strong> (optional): Integrates the cluster with a specific cloud provider&#8217;s API. This component is responsible for various cloud-specific operations, such as creating load balancers, persistent volumes, and integrating with networking resources.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These components typically run on dedicated <strong>control plane nodes</strong> (formerly known as master nodes), distinct from the <strong>worker nodes</strong> where application workloads are executed.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_challenge_of_managing_kubernetes_control_planes"><a class="anchor" href="#_the_challenge_of_managing_kubernetes_control_planes"></a>The Challenge of Managing Kubernetes Control Planes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While Kubernetes offers powerful orchestration capabilities, managing its control plane can be complex and resource-intensive, especially at scale. Some of the challenges include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>High Availability (HA)</strong>: Ensuring the control plane is highly available requires running multiple instances of each component, setting up robust load balancing, and careful configuration of <code>etcd</code> for quorum.</p>
+</li>
+<li>
+<p><strong>Operational Overhead</strong>: Maintaining, upgrading, patching, and securing the control plane components demands significant operational expertise and time. This includes certificate management, backup and restore procedures for <code>etcd</code>, and monitoring.</p>
+</li>
+<li>
+<p><strong>Resource Consumption</strong>: Control plane components, especially <code>etcd</code>, can be resource-intensive, requiring dedicated VMs or instances.</p>
+</li>
+<li>
+<p><strong>Security</strong>: Securing the API server, <code>etcd</code>, and other components is paramount to protect the entire cluster from unauthorized access and data breaches.</p>
+</li>
+<li>
+<p><strong>Scalability</strong>: Scaling the control plane to support a growing number of worker nodes and applications requires careful planning and execution.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For organizations that want to leverage Kubernetes without bearing the full burden of control plane management, hosted control planes offer an attractive solution.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introducing_hosted_control_planes_hcp"><a class="anchor" href="#_introducing_hosted_control_planes_hcp"></a>Introducing Hosted Control Planes (HCP)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A <strong>Hosted Control Plane</strong> (HCP), sometimes referred to as a "managed control plane" or "super-cluster" architecture, is an architectural pattern where the Kubernetes control plane components (API server, <code>etcd</code>, scheduler, controller manager) for multiple tenant clusters are run on a separate, dedicated infrastructure managed by a service provider. The tenant clusters then consist primarily of only worker nodes that connect back to their respective hosted control plane.</p>
+</div>
+<div class="paragraph">
+<p>This design significantly abstracts away the complexity of control plane management from the end-user or tenant.</p>
+</div>
+<div class="sect2">
+<h3 id="_how_hosted_control_planes_work"><a class="anchor" href="#_how_hosted_control_planes_work"></a>How Hosted Control Planes Work</h3>
+<div class="paragraph">
+<p>The core idea behind HCPs is the separation of concerns:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Centralized Management</strong>: The service provider (e.g., Microsoft and Red Hat for ARO) manages a fleet of control planes on a shared, highly optimized infrastructure. This infrastructure is often referred to as the "management cluster" or "hosting cluster."</p>
+</li>
+<li>
+<p><strong>Tenant Clusters (Data Planes)</strong>: Each user or tenant receives their own dedicated set of worker nodes, which form the "data plane" of their Kubernetes cluster. These worker nodes are configured to connect securely to their assigned hosted control plane.</p>
+</li>
+<li>
+<p><strong>API Endpoint</strong>: The tenant interacts with their cluster through a secure API endpoint provided by the hosted control plane.</p>
+</li>
+<li>
+<p><strong>Isolation</strong>: While the control planes might share underlying compute resources, they are logically isolated from each other, ensuring that one tenant&#8217;s control plane operations do not impact another&#8217;s.</p>
+</li>
+<li>
+<p><strong>Reduced Footprint</strong>: For the tenant, their cluster&#8217;s footprint is primarily just the worker nodes and associated network/storage resources, as the control plane resources are managed elsewhere.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock text-center unresolved">
+<div class="content">
+<img src="hosted-control-plane-architecture.png" alt="Hosted Control Plane Architecture">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_benefits_of_hosted_control_planes"><a class="anchor" href="#_benefits_of_hosted_control_planes"></a>Benefits of Hosted Control Planes</h3>
+<div class="paragraph">
+<p>Adopting an HCP model, as seen in services like Azure Red Hat OpenShift, offers several significant advantages:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Reduced Operational Overhead</strong>: The responsibility for maintaining, upgrading, and securing the control plane shifts entirely to the service provider. This frees up customer teams to focus on application development and deployment.</p>
+</li>
+<li>
+<p><strong>Cost Efficiency</strong>: By abstracting the control plane, customers only pay for the worker nodes and associated resources, often at a lower rate than if they had to run their own dedicated control plane VMs. The service provider can achieve economies of scale by running multiple control planes on shared, optimized infrastructure.</p>
+</li>
+<li>
+<p><strong>Enhanced Security</strong>: Service providers can implement advanced security measures, compliance certifications, and robust isolation mechanisms for the control plane infrastructure.</p>
+</li>
+<li>
+<p><strong>Simplified Scalability</strong>: The control plane can be scaled independently of the data plane, and the provider handles the complexities of scaling the control plane to accommodate growing tenant needs.</p>
+</li>
+<li>
+<p><strong>Higher Availability</strong>: Service providers build highly available and resilient control plane architectures by default, often leveraging redundant components and automated failover mechanisms.</p>
+</li>
+<li>
+<p><strong>Faster Provisioning</strong>: Provisioning a new cluster is typically faster as the control plane infrastructure is already in place; only the worker nodes need to be provisioned and connected.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hosted_control_planes_in_azure_red_hat_openshift_aro"><a class="anchor" href="#_hosted_control_planes_in_azure_red_hat_openshift_aro"></a>Hosted Control Planes in Azure Red Hat OpenShift (ARO)</h3>
+<div class="paragraph">
+<p>Azure Red Hat OpenShift is a prime example of a service that leverages the hosted control plane concept. When you create an ARO cluster:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The OpenShift control plane components (including Kubernetes control plane components, OpenShift API server, OpenShift controllers, etc.) are deployed and fully managed by Microsoft and Red Hat.</p>
+</li>
+<li>
+<p>These control plane components run on dedicated Azure infrastructure that is abstracted away from your direct view and management.</p>
+</li>
+<li>
+<p>You, as the customer, provision and manage your worker nodes (compute machines) within your Azure subscription. These worker nodes connect back to the managed control plane.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This joint engineering, operation, and support model ensures that the complex and critical control plane is always healthy, up-to-date, and secure, allowing ARO users to focus solely on their applications and worker node configurations. You don&#8217;t interact directly with the control plane VMs; instead, you interact with the OpenShift and Kubernetes APIs exposed by the managed control plane.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_openshifts_hypershift_project_a_native_hcp_implementation"><a class="anchor" href="#_openshifts_hypershift_project_a_native_hcp_implementation"></a>OpenShift&#8217;s HyperShift Project: A Native HCP Implementation</h3>
+<div class="paragraph">
+<p>Red Hat has also developed <code>HyperShift</code>, an upstream OpenShift project that explicitly implements a hosted control plane architecture within OpenShift itself. <code>HyperShift</code> allows you to run OpenShift control planes as pods on a "management cluster" (sometimes called a "hypershift cluster" or "hosting cluster"), with the associated worker nodes running in an external cloud provider (e.g., AWS, Azure).</p>
+</div>
+<div class="paragraph">
+<p>This provides:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Tenant Control Plane Isolation</strong>: Each hosted control plane runs in its own namespace as a set of pods and services on the management cluster, providing strong isolation.</p>
+</li>
+<li>
+<p><strong>Reduced Cloud Resource Footprint</strong>: Tenant clusters require minimal cloud provider resources (primarily worker nodes and network), as the control plane is hosted elsewhere.</p>
+</li>
+<li>
+<p><strong>Operational Consistency</strong>: Enables a consistent way to manage a large fleet of OpenShift clusters using the same OpenShift tooling and concepts.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>While ARO&#8217;s underlying implementation might differ, the <code>HyperShift</code> project demonstrates Red Hat&#8217;s commitment to and expertise in the hosted control plane paradigm.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_activity_understanding_the_aro_managed_control_plane"><a class="anchor" href="#_activity_understanding_the_aro_managed_control_plane"></a>Activity: Understanding the ARO Managed Control Plane</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While you cannot directly provision or modify the control plane components in an Azure Red Hat OpenShift cluster, understanding <strong>how</strong> ARO abstracts and manages it is crucial for advanced administration. This activity helps you conceptualize the separation of concerns.</p>
+</div>
+<div class="sect2">
+<h3 id="_objective"><a class="anchor" href="#_objective"></a>Objective</h3>
+<div class="paragraph">
+<p>To observe the characteristics of a managed control plane within an ARO cluster and understand its implications for administration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_steps"><a class="anchor" href="#_steps"></a>Steps</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Access your ARO Cluster</strong>:
+Ensure you have an active ARO cluster and are logged in using the <code>oc</code> CLI.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc login &lt;your-aro-api-server-url&gt; --token=&lt;your-token&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>List Nodes and Observe Roles</strong>:
+In a self-managed Kubernetes or OpenShift cluster, you would typically see nodes with the <code>master</code> or <code>control-plane</code> role. In ARO, you will primarily see <code>worker</code> nodes, as the control plane nodes are managed externally.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get nodes -o wide</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Observe the output. You should see only <code>worker</code> nodes. The control plane nodes are intentionally not exposed to you via <code>oc get nodes</code> because they are managed by Microsoft and Red Hat.</p>
+</div>
+</li>
+<li>
+<p><strong>Attempt to Access Control Plane Pods (Conceptual)</strong>:
+In a self-managed OpenShift cluster, you could list pods in the <code>openshift-kube-apiserver</code>, <code>openshift-etcd</code>, etc., namespaces to see the control plane components.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n openshift-kube-apiserver
+oc get pods -n openshift-etcd
+# ... and other control plane namespaces</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Expected Output</strong>: You might get <code>No resources found in openshift-kube-apiserver namespace.</code> or similar messages for most core control plane components, or you might see client-side proxies that allow <strong>limited</strong> interaction, but not the actual managed control plane pods themselves. This is because the actual control plane pods run within the provider&#8217;s managed infrastructure, separate from your data plane worker nodes. You only interact with the API exposed by these managed components.</p>
+</div>
+</li>
+<li>
+<p><strong>Identify Managed Resources through Azure Portal</strong>:
+Navigate to your ARO resource group in the Azure Portal. You will primarily see resources related to your worker nodes (VMSS, disks, network interfaces), load balancers, and other networking components. You won&#8217;t directly see individual VMs labeled "master" or "control plane" that you can manage or SSH into, reinforcing the managed nature. The <code>aro</code> resource itself represents the managed control plane.</p>
+</li>
+<li>
+<p><strong>Discuss Operational Responsibilities</strong>:
+Consider the implications of this managed control plane setup.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Customer Responsibility</strong>: Managing worker nodes (scaling, patching OS, application deployments), network configuration (NSGs, VNet peering), storage, application monitoring, and security within your namespace.</p>
+</li>
+<li>
+<p><strong>Microsoft/Red Hat Responsibility</strong>: Ensuring the high availability, security, patching, and upgrades of the control plane components (API server, etcd, scheduler, controllers). This includes certificate rotation, <code>etcd</code> backups, and core infrastructure health.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Contrast with Self-Managed Kubernetes</strong>:
+Think about the additional tasks you would perform if you were running a self-managed Kubernetes cluster on Azure VMs (e.g., using <code>kubeadm</code>):</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Provisioning and configuring VMs for control plane nodes.</p>
+</li>
+<li>
+<p>Setting up <code>etcd</code> clustering and backups.</p>
+</li>
+<li>
+<p>Configuring load balancers for the API server.</p>
+</li>
+<li>
+<p>Managing control plane upgrades and patches.</p>
+</li>
+<li>
+<p>Troubleshooting control plane component failures.
++
+Recognize how ARO&#8217;s hosted control plane model offloads these complex tasks, allowing you to focus on your applications.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This conceptual exploration highlights the division of responsibilities and the inherent benefits of the hosted control plane architecture utilized by Azure Red Hat OpenShift, streamlining your advanced administration efforts.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a></span>
+  <span class="next"><a href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

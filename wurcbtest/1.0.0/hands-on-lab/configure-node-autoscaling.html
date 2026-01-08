@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Configure node autoscaling :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="create-dedicated-machine-sets.html">
+    <link rel="next" href="configure-log-forwarding.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="configure-node-autoscaling.html">Configure node autoscaling</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Configure node autoscaling</h1>
+<h1 id="_configure_node_autoscaling" class="sect0"><a class="anchor" href="#_configure_node_autoscaling"></a>Configure Node Autoscaling</h1>
+<div class="paragraph">
+<p>This section details how to configure node autoscaling in Azure Red Hat OpenShift (ARO) clusters, a critical capability for optimizing resource utilization, managing costs, and ensuring application performance under varying loads.</p>
+</div>
+<div class="sect1">
+<h2 id="_node_autoscaling_in_azure_red_hat_openshift"><a class="anchor" href="#_node_autoscaling_in_azure_red_hat_openshift"></a>Node Autoscaling in Azure Red Hat OpenShift</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Node autoscaling in Azure Red Hat OpenShift allows your cluster to automatically adjust the number of worker nodes based on the pending resource requests of your workloads. This dynamic scaling ensures that your applications have sufficient resources when demand increases and reduces costs by scaling down nodes when demand decreases.</p>
+</div>
+<div class="paragraph">
+<p>OpenShift leverages the Kubernetes Cluster Autoscaler, working in conjunction with OpenShift&#8217;s Machine API, to achieve this functionality.</p>
+</div>
+<div class="sect2">
+<h3 id="_how_node_autoscaling_works"><a class="anchor" href="#_how_node_autoscaling_works"></a>How Node Autoscaling Works</h3>
+<div class="paragraph">
+<p>The core components involved in node autoscaling in ARO are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cluster Autoscaler</strong>: This component monitors for unschedulable pods (pods that cannot be scheduled due to insufficient resources on existing nodes). When it detects such pods, it communicates with the Machine API to request an increase in the number of nodes. It also identifies underutilized nodes and requests their removal when appropriate, ensuring that scaling down does not disrupt running applications (respecting Pod Disruption Budgets, PDBs).</p>
+</li>
+<li>
+<p><strong>MachineSet</strong>: A MachineSet is an OpenShift API object that defines a group of machines (VMs) with identical configurations. It acts similarly to a ReplicaSet for pods, but for infrastructure machines. MachineSets are responsible for creating, configuring, and managing the lifecycle of your worker nodes in Azure. A typical ARO cluster comes with default worker MachineSets.</p>
+</li>
+<li>
+<p><strong>MachineAutoscaler</strong>: This OpenShift API object links a specific MachineSet to the Cluster Autoscaler. It defines the minimum and maximum number of replicas (nodes) for that particular MachineSet. The Cluster Autoscaler then uses these boundaries to instruct the MachineAutoscaler to scale the associated MachineSet up or down.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock text-center unresolved">
+<div class="content">
+<img src="cluster-autoscaler-flow.png" alt="Cluster Autoscaler Flow" width="800">
+</div>
+</div>
+<div class="paragraph">
+<p><em>Figure: The Cluster Autoscaler monitors pending pods and interacts with MachineAutoscalers to adjust MachineSets, which in turn scale Azure VMs.</em></p>
+</div>
+<div class="paragraph">
+<p>When you configure node autoscaling, you essentially define a <code>MachineAutoscaler</code> resource that targets a specific <code>MachineSet</code>. The <code>MachineAutoscaler</code> specifies the <code>minReplicas</code> and <code>maxReplicas</code> for that <code>MachineSet</code>. The Cluster Autoscaler then observes the cluster&#8217;s resource needs and, if necessary, scales the <code>MachineSet</code> within these defined boundaries by creating or deleting Azure VMs.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_benefits_of_node_autoscaling"><a class="anchor" href="#_benefits_of_node_autoscaling"></a>Benefits of Node Autoscaling</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Cost Optimization</strong>: Automatically scales down nodes during periods of low demand, reducing cloud infrastructure costs.</p>
+</li>
+<li>
+<p><strong>Improved Performance and Availability</strong>: Ensures applications always have enough resources, preventing performance degradation and improving reliability during peak loads.</p>
+</li>
+<li>
+<p><strong>Resource Efficiency</strong>: Prevents over-provisioning of resources by dynamically matching compute capacity to workload requirements.</p>
+</li>
+<li>
+<p><strong>Operational Simplicity</strong>: Automates the manual process of adding or removing nodes, freeing up administrator time.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_considerations_for_node_autoscaling"><a class="anchor" href="#_considerations_for_node_autoscaling"></a>Considerations for Node Autoscaling</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Resource Requests and Limits</strong>: For accurate autoscaling, it is crucial that your application pods have appropriate <code>requests</code> and <code>limits</code> defined for CPU and memory. The Cluster Autoscaler relies on these values to make scaling decisions.</p>
+</li>
+<li>
+<p><strong>Pod Disruption Budgets (PDBs)</strong>: To prevent service disruptions during scale-down events, configure PDBs for critical applications. The Cluster Autoscaler respects PDBs when removing nodes.</p>
+</li>
+<li>
+<p><strong>Node Affinity/Selectors</strong>: If you have specific workloads that need to run on certain types of nodes (e.g., nodes with GPUs, or spot instances as mentioned in the context), ensure your pods use <code>nodeSelectors</code> or <code>nodeAffinity</code> rules to target those nodes. This also applies when scaling heterogeneous node groups.</p>
+</li>
+<li>
+<p><strong>Azure Quotas</strong>: Ensure your Azure subscription has sufficient quota for the VM sizes and regions your cluster uses, especially when planning for significant scale-up events. The context explicitly mentions setting quota for Spot instances slightly higher.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_configuring_node_autoscaling_for_spot_instances"><a class="anchor" href="#_hands_on_activity_configuring_node_autoscaling_for_spot_instances"></a>Hands-on Activity: Configuring Node Autoscaling for Spot Instances</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you will configure node autoscaling for a dedicated <code>MachineSet</code> utilizing Azure Spot Virtual Machines. Spot VMs are a cost-effective option for interruptible workloads, leveraging unused Azure capacity. The Cluster Autoscaler can manage these nodes efficiently, scaling them up and down as needed.</p>
+</div>
+<div class="paragraph">
+<p><strong>Estimated Time:</strong> 30-45 minutes</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An Azure Red Hat OpenShift (ARO) cluster.</p>
+</li>
+<li>
+<p>The <code>oc</code> CLI tool configured and logged in to your ARO cluster with cluster-admin privileges.</p>
+</li>
+<li>
+<p>Sufficient Azure quota for the VM size you intend to use for Spot instances (e.g., <code>Standard_E4s_v5</code>).</p>
+</li>
+<li>
+<p>An understanding of creating a dedicated machine set (covered in the 'Creating dedicated machine sets' objective). If you haven&#8217;t done so, the first step of this lab will guide you through creating one for Spot instances.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_lab_steps"><a class="anchor" href="#_lab_steps"></a>Lab Steps</h3>
+<div class="paragraph">
+<div class="title">Login to your ARO Cluster</div>
+<p>Open your terminal and log in to your ARO cluster using the <code>oc</code> CLI:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc login --token=&lt;your_token&gt; --server=&lt;your_api_server&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Identify Existing Worker MachineSets</div>
+<p>First, let&#8217;s see the existing worker MachineSets in your cluster. This helps us understand the naming conventions and provides a template for our new MachineSet.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get machinesets -n openshift-machine-api</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                                     DESIRED   CURRENT   READY   AVAILABLE   AGE
+aro-cluster-xxxx-worker-eastus1   3         3         3       3           3d1h</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note the name of one of your existing worker MachineSets (e.g., <code>aro-cluster-xxxx-worker-eastus1</code>). We will use its configuration as a base.</p>
+</div>
+<div class="paragraph">
+<div class="title">Create a New MachineSet for Azure Spot Instances</div>
+<p>We will create a new MachineSet specifically for Spot VMs. This allows us to separate these cost-effective, interruptible nodes from your regular on-demand nodes.</p>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><strong>Export an existing MachineSet configuration:</strong>
+Replace <code>&lt;EXISTING_MACHINESET_NAME&gt;</code> with the name you identified in the previous step.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get machineset &lt;EXISTING_MACHINESET_NAME&gt; -n openshift-machine-api -o yaml &gt; spot-machineset.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Edit the <code>spot-machineset.yaml</code> file:</strong>
+Open <code>spot-machineset.yaml</code> in your preferred text editor. You need to make the following modifications:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Change the <code>name</code> under <code>metadata</code> to something unique, e.g., <code>aro-cluster-xxxx-spot-worker-eastus1</code>.</p>
+</li>
+<li>
+<p>Remove the <code>uid</code>, <code>resourceVersion</code>, <code>creationTimestamp</code>, and <code>selfLink</code> fields from <code>metadata</code>.</p>
+</li>
+<li>
+<p>Change <code>spec.replicas</code> to <code>0</code>. We want the autoscaler to manage these nodes from scratch.</p>
+</li>
+<li>
+<p>Add a specific <code>label</code> to <code>spec.template.spec.metadata.labels</code>. This label will be used by our pods to target these spot nodes. For example:
+[source,yaml]
+----
+  spec:
+    template:
+      metadata:
+        labels:
+          machine.openshift.io/cluster-api-cluster: aro-cluster-xxxx # Keep existing label
+          machine.openshift.io/cluster-api-machine-role: worker # Keep existing label
+          machine.openshift.io/cluster-api-machine-type: worker # Keep existing label
+          node-role.kubernetes.io/spot: "" # &lt;1&gt;
+----
+&lt;1&gt; Add this custom label.</p>
+</li>
+<li>
+<p>Modify <code>spec.template.spec.providerSpec.value</code> to configure it for Spot VMs. Specifically, add <code>spotVmOptions</code> and adjust the <code>sku.name</code> if desired for a different VM size. For example:
+[source,yaml]
+----
+  providerSpec:
+    value:
+      image:
+        offer: aro-rhcos
+        publisher: redhat
+        resourceGroup: aro-cluster-xxxx-rg
+        sku: aro-rhcos # Keep existing
+        version: latest
+      internalLoadBalancer: ""
+      kind: AzureMachineProviderSpec
+      location: eastus
+      networkResources:
+        networkInterfaces:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>loadBalancerBackendPool: ""
+          natRule: ""
+          privateIP: ""
+          publicIP: ""
+          securityGroup: aro-cluster-xxxx-nsg
+          subnet: aro-cluster-xxxx-worker-subnet
+      osDisk:
+        diskSizeGB: 128
+        managedDisk:
+          storageAccountType: Premium_LRS
+        osType: Linux
+      publicIP: false
+      resourceGroup: aro-cluster-xxxx-rg
+      spotVmOptions: # &lt;1&gt;
+        maxPrice: "-1" # &lt;2&gt;
+      sshKeyPair: {}
+      tags:
+        cluster.k8s.io/cluster-api-cluster/aro-cluster-xxxx: owned
+        redhat_openshift_machine: "true"
+      userDataSecret:
+        name: worker-user-data
+      vmSize: Standard_E4s_v5 # &lt;3&gt;
+      vnet: aro-cluster-xxxx-vnet
+      zone: "1" # Keep or remove if you want Azure to pick
+----
+&lt;1&gt; Add the <code>spotVmOptions</code> block.
+&lt;2&gt; <code>-1</code> indicates no maximum price, meaning the VM will not be evicted due to price increases, only capacity. You can specify a monetary value here if you wish.
+&lt;3&gt; Change to a suitable VM size for Spot (e.g., <code>Standard_E4s_v5</code> is often a good choice for smaller workloads).</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Apply the new MachineSet:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f spot-machineset.yaml -n openshift-machine-api
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify the new MachineSet:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get machinesets -n openshift-machine-api
+----
+You should see your new `spot-worker` MachineSet with `DESIRED` replicas as `0`.</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<div class="title">Create a MachineAutoscaler for the Spot MachineSet</div>
+<p>Now, let&#8217;s create a <code>MachineAutoscaler</code> that will manage the scaling of your new spot <code>MachineSet</code>.</p>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><strong>Create a <code>machineautoscaler.yaml</code> file</strong> with the following content.
+Replace <code>aro-cluster-xxxx-spot-worker-eastus1</code> with the name of your newly created MachineSet.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: autoscaling.openshift.io/v1beta1
+kind: MachineAutoscaler
+metadata:
+  name: spot-worker-autoscaler
+  namespace: openshift-machine-api
+spec:
+  minReplicas: 0 <i class="conum" data-value="1"></i><b>(1)</b>
+  maxReplicas: 3 <i class="conum" data-value="2"></i><b>(2)</b>
+  scaleTargetRef:
+    apiVersion: machine.openshift.io/v1beta1
+    kind: MachineSet
+    name: aro-cluster-xxxx-spot-worker-eastus1 <i class="conum" data-value="3"></i><b>(3)</b>
+----
+&lt;1&gt; Minimum number of spot worker nodes to maintain. Set to 0 to save costs when not in use.
+&lt;2&gt; Maximum number of spot worker nodes the autoscaler can provision.
+&lt;3&gt; The name of your spot MachineSet created in the previous step.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Apply the MachineAutoscaler:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f machineautoscaler.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify the MachineAutoscaler status:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get machineautoscaler -n openshift-machine-api
+----
+You should see your `spot-worker-autoscaler` listed.</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<div class="title">Test Node Autoscaling</div>
+<p>Now, let&#8217;s deploy an application that requires more resources than currently available on your non-spot nodes. We&#8217;ll specifically target the new spot nodes using the label we added earlier.</p>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><strong>Create a new project for your test application:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc new-project autoscaling-test
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Create a deployment for a demanding application</strong> that targets your spot nodes.
+Create a file named <code>test-app-deployment.yaml</code> with the following content. This example uses a simple NGINX image but with a high replica count and a node selector to target your <code>spot</code> nodes.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-demand-app
+  labels:
+    app: high-demand-app
+spec:
+  replicas: 15 <i class="conum" data-value="1"></i><b>(1)</b>
+  selector:
+    matchLabels:
+      app: high-demand-app
+  template:
+    metadata:
+      labels:
+        app: high-demand-app
+    spec:
+      nodeSelector: <i class="conum" data-value="2"></i><b>(2)</b>
+        node-role.kubernetes.io/spot: ""
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:alpine
+          ports:
+            - containerPort: 80
+          resources: <i class="conum" data-value="3"></i><b>(3)</b>
+            requests:
+              cpu: "200m" # Requesting 200m CPU per pod
+            limits:
+              cpu: "500m"
+----
+&lt;1&gt; Set a high number of replicas to trigger scaling.
+&lt;2&gt; This `nodeSelector` ensures these pods *only* schedule on your spot nodes.
+&lt;3&gt; Define resource requests to allow the Cluster Autoscaler to make informed decisions.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the application:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f test-app-deployment.yaml -n autoscaling-test
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Monitor for pending pods:</strong>
+Initially, many pods will be in a <code>Pending</code> state because there are no spot nodes available.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get pods -n autoscaling-test
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Observe node scaling:</strong>
+Watch the <code>MachineSet</code> and <code>MachineAutoscaler</code> for changes. The Cluster Autoscaler will detect the pending pods and instruct the <code>MachineAutoscaler</code> to scale up the <code>spot-worker</code> MachineSet.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+watch oc get machinesets -n openshift-machine-api
+----
+You should see the `DESIRED` and `CURRENT` counts for your `spot-worker` MachineSet gradually increase up to `maxReplicas`.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Also, monitor the nodes:
+[source,bash]
+----
+watch oc get nodes
+----
+New nodes with the `spot` label should appear and eventually reach the `Ready` state.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify pods are scheduled:</strong>
+Once new spot nodes are ready, your <code>high-demand-app</code> pods should start moving from <code>Pending</code> to <code>Running</code> on these new nodes.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get pods -n autoscaling-test -o wide
+----</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<div class="title">Clean Up</div>
+<p>To scale down the cluster and clean up the resources:</p>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><strong>Scale down the application deployment:</strong>
+This will remove the demand for the spot nodes.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc scale deployment/high-demand-app --replicas=0 -n autoscaling-test
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Observe nodes scaling down:</strong>
+The Cluster Autoscaler will detect that the spot nodes are underutilized (or empty) and will gracefully terminate them, scaling the <code>MachineSet</code> back down to <code>minReplicas</code> (0 in our case). This might take several minutes as the autoscaler waits to ensure nodes are truly idle.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+watch oc get machinesets -n openshift-machine-api
+watch oc get nodes
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Delete the test application and project:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc delete deployment high-demand-app -n autoscaling-test
+oc delete project autoscaling-test
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Delete the MachineAutoscaler:</strong>
+If you no longer need the autoscaling for spot instances, delete the <code>MachineAutoscaler</code>.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc delete machineautoscaler spot-worker-autoscaler -n openshift-machine-api
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Delete the Spot MachineSet:</strong>
+Finally, delete the <code>MachineSet</code> if you don&#8217;t intend to use spot instances again.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc delete machineset aro-cluster-xxxx-spot-worker-eastus1 -n openshift-machine-api
+----</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This concludes the lab on configuring node autoscaling in Azure Red Hat OpenShift. You have successfully implemented a dynamic scaling solution for your cluster, demonstrating how to integrate Azure Spot VMs for cost-effective, elastic capacity.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="create-dedicated-machine-sets.html">Create dedicated machine sets</a></span>
+  <span class="next"><a href="configure-log-forwarding.html">Configure log forwarding</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

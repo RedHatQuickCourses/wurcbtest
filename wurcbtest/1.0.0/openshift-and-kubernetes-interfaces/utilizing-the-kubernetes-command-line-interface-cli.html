@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Utilizing the Kubernetes Command-line Interface (CLI) :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="navigating-the-openshift-web-console.html">
+    <link rel="next" href="utilizing-the-openshift-command-line-interface-cli.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a></li>
+    <li><a href="utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Utilizing the Kubernetes Command-line Interface (CLI)</h1>
+<h1 id="_utilizing_the_kubernetes_command_line_interface_cli" class="sect0"><a class="anchor" href="#_utilizing_the_kubernetes_command_line_interface_cli"></a>Utilizing the Kubernetes Command-line Interface (CLI)</h1>
+<div class="paragraph summary">
+<p>The Kubernetes Command-line Interface, <code>kubectl</code>, is your primary tool for interacting with a Kubernetes cluster. In an Azure Red Hat OpenShift (ARO) environment, <code>kubectl</code> allows you to deploy applications, inspect and manage cluster resources, and troubleshoot issues directly from your terminal. This section will guide you through the essential <code>kubectl</code> commands and provide hands-on experience in managing your ARO cluster.</p>
+</div>
+<div class="sect1">
+<h2 id="_introduction_to_kubectl"><a class="anchor" href="#_introduction_to_kubectl"></a>Introduction to kubectl</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Kubernetes is designed to be declarative, meaning you describe the desired state of your applications and infrastructure, and Kubernetes works to achieve and maintain that state. <code>kubectl</code> is the client-side tool that enables you to communicate these desired states to the Kubernetes control plane. It translates your commands into API requests that are sent to the Kubernetes API server, which then orchestrates the necessary actions across your cluster&#8217;s worker nodes.</p>
+</div>
+<div class="paragraph">
+<p>When working with Azure Red Hat OpenShift, the underlying Kubernetes control plane is jointly managed by Microsoft and Red Hat. <code>kubectl</code> seamlessly integrates with this managed control plane, allowing you to manage your applications and standard Kubernetes resources just as you would on any other Kubernetes cluster.</p>
+</div>
+<div class="imageblock unresolved">
+<div class="content">
+<img src="kubernetes-cli-interaction.png" alt="Kubernetes CLI Interaction" width="600" height="400">
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>kubectl</code> command structure typically follows this pattern:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl &lt;command&gt; &lt;TYPE&gt; &lt;NAME&gt; &lt;flags&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>command</code></strong>: Specifies the operation you want to perform (e.g., <code>create</code>, <code>get</code>, <code>describe</code>, <code>delete</code>).</p>
+</li>
+<li>
+<p><strong><code>TYPE</code></strong>: The type of Kubernetes resource (e.g., <code>pod</code>, <code>deployment</code>, <code>service</code>, <code>namespace</code>). You can use singular, plural, or abbreviated forms (e.g., <code>po</code> for <code>pod</code>, <code>deploy</code> for <code>deployment</code>).</p>
+</li>
+<li>
+<p><strong><code>NAME</code></strong>: The specific name of the resource you are targeting (optional for some commands, like <code>get all</code>).</p>
+</li>
+<li>
+<p><strong><code>flags</code></strong>: Optional parameters to modify the command&#8217;s behavior (e.g., <code>--namespace</code>, <code>--watch</code>, <code>-o yaml</code>).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Before you can use <code>kubectl</code>, it needs to know how to connect and authenticate to your Kubernetes cluster. This information is stored in a <code>kubeconfig</code> file (typically located at <code>~/.kube/config</code>). For ARO clusters, when you log in using the <code>oc login</code> command (as demonstrated in the "Utilizing the OpenShift Command-line Interface (CLI)" section), this command automatically configures your <code>kubeconfig</code> file, making both <code>oc</code> and <code>kubectl</code> ready to use.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_basic_kubernetes_resource_management_with_kubectl"><a class="anchor" href="#_basic_kubernetes_resource_management_with_kubectl"></a>Basic Kubernetes Resource Management with kubectl</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section will walk you through the most common <code>kubectl</code> operations: deploying an application, inspecting its status, viewing logs, and cleaning up resources.</p>
+</div>
+<div class="sect2">
+<h3 id="_verifying_cluster_connectivity"><a class="anchor" href="#_verifying_cluster_connectivity"></a>Verifying Cluster Connectivity</h3>
+<div class="paragraph">
+<p>It&#8217;s always a good practice to verify that your <code>kubectl</code> client can successfully communicate with your ARO cluster before attempting any resource management tasks.</p>
+</div>
+<div class="sect3">
+<h4 id="_activity_verify_kubectl_connectivity"><a class="anchor" href="#_activity_verify_kubectl_connectivity"></a>Activity: Verify kubectl Connectivity</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Prerequisite</strong>: Ensure you have successfully logged into your ARO cluster using the <code>oc login</code> command. This command, referencing the output from <code>az aro show</code> and <code>az aro list-credentials</code> from the context, automatically populates your <code>kubeconfig</code> file, allowing <code>kubectl</code> to interact with your cluster. For example, a successful <code>oc login</code> command might look like this:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc login \
+    $(az aro show \
+        --resource-group ${RG_NAME} \
+        --name aro-cluster \
+        --query apiserverProfile.url \
+        --output tsv) \
+    -u $(az aro list-credentials \
+        --resource-group ${RG_NAME} \
+        --name aro-cluster \
+        --query kubeadminUsername \
+        --output tsv) \
+    -p $(az aro list-credentials \
+        --resource-group ${RG_NAME} \
+        --name aro-cluster \
+        --query kubeadminPassword \
+        --output tsv)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Upon successful execution, you should see <code>Login successful.</code></p>
+</div>
+</li>
+<li>
+<p>From your terminal, verify <code>kubectl</code> is configured to communicate with your ARO cluster by checking its cluster information:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl cluster-info</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>You should see output similar to this, indicating the Kubernetes control plane is running and accessible:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">Kubernetes control plane is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443
+CoreDNS is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+KubeScheduler is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443/api/v1/namespaces/kube-system/services/kube-scheduler:http/proxy
+KubeControllerManager is running at https://api.your-aro-cluster.azm.p.openshiftapps.com:6443/api/v1/namespaces/kube-system/services/kube-controller-manager:http/proxy
+...</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_deploying_applications_with_kubectl"><a class="anchor" href="#_deploying_applications_with_kubectl"></a>Deploying Applications with kubectl</h3>
+<div class="paragraph">
+<p>One of the most frequent tasks with <code>kubectl</code> is deploying applications. Kubernetes uses <code>Deployment</code> resources to manage stateless applications, ensuring a specified number of replicas are running and providing capabilities for rolling updates and rollbacks.</p>
+</div>
+<div class="sect3">
+<h4 id="_activity_deploying_a_simple_application_with_kubectl"><a class="anchor" href="#_activity_deploying_a_simple_application_with_kubectl"></a>Activity: Deploying a Simple Application with kubectl</h4>
+<div class="paragraph">
+<p>In this activity, you will deploy a simple <code>hello-node</code> application, similar to the example mentioned in the provided context for deploying a simple Kubernetes application: <code>kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy a sample <code>hello-node</code> application using <code>kubectl create deployment</code>. This command creates a Deployment resource that ensures a single replica of a pod running the specified <code>gcr.io/hello-minikube-zero-install/hello-node</code> container image.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl create deployment hello-node --image=gcr.io/hello-minikube-zero-install/hello-node</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify the deployment was created successfully:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">deployment.apps/hello-node created</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Monitor the status of the created pods. The <code>hello-node</code> deployment will create pods with labels <code>app=hello-node</code>. The <code>--watch</code> flag will continuously update the output, allowing you to see when the pod transitions to a <code>Running</code> status.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl get pods -l app=hello-node --watch</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>You should see output similar to this once the pod is running. The <code>1/1</code> in the <code>READY</code> column indicates the container inside the pod is ready. Press <code>Ctrl+C</code> to exit the watch once you see a <code>Running</code> status:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                          READY   STATUS    RESTARTS   AGE
+hello-node-765f4d854c-abcde   1/1     Running   0          29s</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_inspecting_kubernetes_resources"><a class="anchor" href="#_inspecting_kubernetes_resources"></a>Inspecting Kubernetes Resources</h3>
+<div class="paragraph">
+<p>Once an application is deployed, you&#8217;ll often need to inspect its status, view details, or check logs for debugging.</p>
+</div>
+<div class="sect3">
+<h4 id="_activity_inspecting_the_deployed_application"><a class="anchor" href="#_activity_inspecting_the_deployed_application"></a>Activity: Inspecting the Deployed Application</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Get more detailed information about the <code>hello-node</code> deployment. The <code>describe</code> command provides a wealth of information, including events, replica set status, and pod templates.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl describe deployment hello-node</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>View the logs from the <code>hello-node</code> pod. First, you need to get the exact name of the running pod. Since deployments manage pods dynamically, their names include a unique hash.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">POD_NAME=$(kubectl get pods -l app=hello-node -o jsonpath='{.items[0].metadata.name}')
+echo "Pod name: $POD_NAME"</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now, view the logs for that pod. The <code>logs</code> command fetches the output from the container&#8217;s standard output and standard error streams.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl logs $POD_NAME</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>You should see output from the <code>hello-node</code> application, likely indicating it&#8217;s serving requests, for example:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">Hello from Kubernetes!</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cleaning_up_resources"><a class="anchor" href="#_cleaning_up_resources"></a>Cleaning Up Resources</h3>
+<div class="paragraph">
+<p>It&#8217;s important to clean up resources you no longer need to avoid consuming unnecessary resources and incurring costs.</p>
+</div>
+<div class="sect3">
+<h4 id="_activity_deleting_the_sample_application"><a class="anchor" href="#_activity_deleting_the_sample_application"></a>Activity: Deleting the Sample Application</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Delete the <code>hello-node</code> deployment. When you delete a Deployment, Kubernetes automatically terminates and removes all associated ReplicaSets and Pods.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl delete deployment hello-node</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify that the deployment and its associated pods are scheduled for termination:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">deployment.apps "hello-node" deleted</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>You can optionally check for pods. Initially, you might see them in a <code>Terminating</code> state, and after a short while, the output should indicate no resources found:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl get pods -l app=hello-node</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Eventually, the output will be:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">No resources found in default namespace.</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_advanced_kubectl_operations_brief_overview"><a class="anchor" href="#_advanced_kubectl_operations_brief_overview"></a>Advanced kubectl Operations (Brief Overview)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Beyond basic create, get, describe, and delete operations, <code>kubectl</code> offers a wide range of powerful commands for more complex scenarios.</p>
+</div>
+<div class="sect2">
+<h3 id="_declarative_management_with_kubectl_apply"><a class="anchor" href="#_declarative_management_with_kubectl_apply"></a>Declarative Management with <code>kubectl apply</code></h3>
+<div class="paragraph">
+<p>While <code>kubectl create</code> is useful for ad-hoc deployments, <code>kubectl apply</code> is the preferred command for managing applications and infrastructure in a declarative manner using configuration files (YAML or JSON). It intelligently calculates differences between the current cluster state and the desired state defined in your files, applying only the necessary changes. This makes it ideal for GitOps workflows and managing infrastructure as code.</p>
+</div>
+<div class="sect3">
+<h4 id="_activity_deploying_with_kubectl_apply"><a class="anchor" href="#_activity_deploying_with_kubectl_apply"></a>Activity: Deploying with <code>kubectl apply</code></h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a simple NGINX deployment YAML file. This file describes a deployment named <code>nginx-deployment</code> with two replicas, running the <code>nginx:1.14.2</code> image.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Save the content to a file named <code>nginx-deployment.yaml</code>.</p>
+</li>
+<li>
+<p>Apply the configuration to your cluster. The first time, it will create the resources. Subsequent <code>apply</code> commands on the same file will update them.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl apply -f nginx-deployment.yaml</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify that the deployment and two pods have been created:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl get deployments -l app=nginx
+kubectl get pods -l app=nginx</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>To clean up, you can delete the resources by referencing the same configuration file. This is particularly useful as it ensures all resources defined in the file are removed.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl delete -f nginx-deployment.yaml</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify deletion:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">kubectl get deployments -l app=nginx</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">No resources found in default namespace.</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_other_useful_kubectl_commands"><a class="anchor" href="#_other_useful_kubectl_commands"></a>Other Useful <code>kubectl</code> Commands:</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>kubectl exec</code></strong>: Execute a command in a container. Useful for debugging within a running pod (e.g., <code>kubectl exec -it &lt;pod-name&gt;&#8201;&#8212;&#8201;bash</code>).</p>
+</li>
+<li>
+<p><strong><code>kubectl port-forward</code></strong>: Forward one or more local ports to a pod. Allows you to access a pod&#8217;s services locally (e.g., <code>kubectl port-forward &lt;pod-name&gt; 8080:80</code>).</p>
+</li>
+<li>
+<p><strong><code>kubectl scale</code></strong>: Scale a Deployment or ReplicaSet up or down (e.g., <code>kubectl scale deployment nginx-deployment --replicas=3</code>).</p>
+</li>
+<li>
+<p><strong><code>kubectl rollout</code></strong>: Manage rollouts of Deployments, including viewing history, undoing, and pausing (e.g., <code>kubectl rollout status deployment/nginx-deployment</code>).</p>
+</li>
+<li>
+<p><strong><code>kubectl edit</code></strong>: Edit the live configuration of a resource in your default editor. Exercise caution with this command as it directly modifies the cluster state.</p>
+</li>
+<li>
+<p><strong><code>kubectl top</code></strong>: View resource (CPU/memory) usage for nodes or pods (requires Kubernetes Metrics Server to be installed, which is standard in ARO).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion"><a class="anchor" href="#_conclusion"></a>Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>kubectl</code> command-line interface is an indispensable tool for anyone working with Kubernetes, including Azure Red Hat OpenShift. By mastering commands like <code>create</code>, <code>get</code>, <code>describe</code>, <code>logs</code>, <code>delete</code>, and <code>apply</code>, you gain the power to manage your applications and cluster resources efficiently. Understanding how <code>kubectl</code> interacts with the Kubernetes API server and leveraging the <code>kubeconfig</code> setup provided by <code>oc login</code> ensures a smooth and effective administration experience in your ARO environment.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a></span>
+  <span class="next"><a href="utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

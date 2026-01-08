@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Integrating Azure Key Vault with ARO :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="integrating-azure-ad-with-openshift-oauth.html">
+    <link rel="next" href="differentiating-availability-sets-vs-availability-zones.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a></li>
+    <li><a href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Integrating Azure Key Vault with ARO</h1>
+<h1 id="_integrating_azure_key_vault_with_aro" class="sect0"><a class="anchor" href="#_integrating_azure_key_vault_with_aro"></a>Integrating Azure Key Vault with ARO</h1>
+<div class="paragraph">
+<p>This section delves into integrating Azure Key Vault with Azure Red Hat OpenShift (ARO) clusters. Azure Key Vault provides a robust and secure store for sensitive information such as cryptographic keys, secrets (like passwords and connection strings), and TLS/SSL certificates. Integrating it with ARO significantly enhances security posture and streamlines secret management for both the cluster itself and the applications running within it.</p>
+</div>
+<div class="paragraph">
+<p>There are two primary integration scenarios:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Customer-Managed Keys (CMK) for ARO Disk Encryption</strong>: This allows you to use your own encryption keys from Azure Key Vault to encrypt the underlying Azure managed disks used by your ARO cluster nodes (OS and data disks).</p>
+</li>
+<li>
+<p><strong>Application Secret Management</strong>: This enables applications deployed on ARO to securely retrieve and utilize secrets, keys, or certificates stored in Azure Key Vault at runtime.</p>
+</li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="technical-explanation"><a class="anchor" href="#technical-explanation"></a>Technical Explanation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Integrating Azure Key Vault with ARO addresses critical security and operational requirements for modern cloud-native applications.</p>
+</div>
+<div class="sect2">
+<h3 id="_customer_managed_keys_cmk_for_aro_disk_encryption"><a class="anchor" href="#_customer_managed_keys_cmk_for_aro_disk_encryption"></a>Customer-Managed Keys (CMK) for ARO Disk Encryption</h3>
+<div class="paragraph">
+<p>By default, Azure automatically encrypts all data at rest for managed disks using platform-managed encryption keys. However, for organizations with stringent compliance requirements or specific security policies, Customer-Managed Keys (CMK) provide an additional layer of control. When you use CMK, your encryption keys are stored in your Azure Key Vault, and you retain control over the key lifecycle, including rotation, revocation, and deletion.</p>
+</div>
+<div class="paragraph">
+<p>The process for enabling CMK with ARO involves several Azure resources:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Azure Key Vault</strong>: This is the secure repository where your encryption key resides. It&#8217;s best practice to enable purge protection on the Key Vault to prevent accidental or malicious deletion of your critical encryption keys.</p>
+</li>
+<li>
+<p><strong>Azure Disk Encryption Set (DES)</strong>: This resource acts as a proxy or a reference point between your Azure managed disks and your Azure Key Vault. It specifically points to the encryption key within your Key Vault. The DES requires specific permissions on the Key Vault to perform cryptographic operations: <code>wrapkey</code> (to encrypt data with your key), <code>unwrapkey</code> (to decrypt data with your key), and <code>get</code> (to retrieve key properties).</p>
+</li>
+<li>
+<p><strong>ARO Cluster Provisioning</strong>: When creating an ARO cluster, you specify the Azure Disk Encryption Set. Azure then configures the managed disks for all new VMs (master and worker nodes) in the cluster to use the encryption key referenced by the DES. Consequently, all data written to these disks is encrypted using your customer-managed key.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Enabling Customer-Managed Keys (CMK) on <strong>existing</strong> ARO clusters is currently only possible for worker nodes, not master nodes. This can be achieved by updating <code>MachineSet</code> custom resources through the OpenShift Machine API to apply a Disk Encryption Set to new worker nodes or existing worker nodes when they are re-provisioned.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_integrating_key_vault_for_application_secret_management"><a class="anchor" href="#_integrating_key_vault_for_application_secret_management"></a>Integrating Key Vault for Application Secret Management</h3>
+<div class="paragraph">
+<p>Applications deployed on OpenShift often require access to sensitive information such as database credentials, API keys, certificates, or configuration values. Storing these directly within application images or Kubernetes <code>Secrets</code> (which are base64 encoded and not inherently encrypted at rest by default in all configurations) can pose security risks.</p>
+</div>
+<div class="paragraph">
+<p>Integrating Azure Key Vault for application secret management allows your applications to consume secrets securely from a centralized, highly available, and audited store. A common and recommended approach leverages the <strong>Azure Key Vault Provider for Secrets Store CSI Driver</strong> for Kubernetes.</p>
+</div>
+<div class="paragraph">
+<p>The high-level workflow is as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create Azure Key Vault and Secrets</strong>: You provision an Azure Key Vault and store your application&#8217;s sensitive data (e.g., <code>secret1</code> with a value of "HelloFromKeyVault") as secrets within it.</p>
+</li>
+<li>
+<p><strong>Create Azure AD Service Principal</strong>: An Azure Active Directory (AD) Service Principal acts as an identity for the Secrets Store CSI driver to authenticate with Azure Key Vault. This Service Principal must be granted the necessary permissions (e.g., <code>Get</code>, <code>List</code>) on the Key Vault secrets it needs to access.</p>
+</li>
+<li>
+<p><strong>Configure OpenShift Permissions</strong>: The Secrets Store CSI driver and its components require appropriate Security Context Constraints (SCCs) within OpenShift to function correctly. Specifically, the <code>csi-secrets-store-provider-azure</code> service account often requires the <code>privileged</code> SCC to perform its operations.</p>
+</li>
+<li>
+<p><strong>Deploy Secrets Store CSI Driver</strong>: The driver needs to be installed in your ARO cluster. It allows Kubernetes pods to mount secrets, keys, and certificates from Azure Key Vault as a volume.</p>
+</li>
+<li>
+<p><strong>Define <code>SecretProviderClass</code></strong>: This Kubernetes custom resource specifies <strong>which</strong> Key Vault, <strong>which</strong> secret names, and <strong>which</strong> Azure AD identity (Service Principal) the CSI driver should use to fetch secrets.</p>
+</li>
+<li>
+<p><strong>Deploy Application Pod</strong>: Your application pod then references the <code>SecretProviderClass</code> and mounts the secrets as files into its container, making them accessible to the application just like any other mounted file. This ensures secrets are never directly exposed in pod definitions or environment variables.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="hands-on-activities"><a class="anchor" href="#hands-on-activities"></a>Hands-on Activities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section provides hands-on exercises to guide you through integrating Azure Key Vault with your ARO cluster for both disk encryption and application secret management.</p>
+</div>
+<div class="sect2">
+<h3 id="_lab_1_configure_customer_managed_keys_for_aro_cluster_disks"><a class="anchor" href="#_lab_1_configure_customer_managed_keys_for_aro_cluster_disks"></a>Lab 1: Configure Customer-Managed Keys for ARO Cluster Disks</h3>
+<div class="paragraph">
+<p>In this lab, you will configure customer-managed encryption keys (CMK) for a new Azure Red Hat OpenShift cluster. This ensures that the underlying OS and data disks for your ARO nodes are encrypted using your own keys managed in Azure Key Vault.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Ensure you have the necessary Azure CLI version and permissions to create Key Vaults, Disk Encryption Sets, and ARO clusters in your Azure subscription. This typically includes roles like <code>Contributor</code> or <code>Owner</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Set Environment Variables
+First, define environment variables for your resources. Replace <code>$USER</code> with your initials or a unique identifier, and adjust <code>$RESOURCEGROUP</code> and <code>$LOCATION</code> to your desired Azure values.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+export USER="&lt;your-initials&gt;" # e.g., jsmith
+export RESOURCEGROUP="aro-cmk-rg-$USER" # Or your existing resource group name
+export LOCATION="eastus" # Or your preferred Azure region</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># Ensure the resource group exists
+az group create -n $RESOURCEGROUP -l $LOCATION</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>export KEYVAULT_NAME="$USER-enckv"
+export KEYVAULT_KEY_NAME="$USER-key"
+export DISK_ENCRYPTION_SET_NAME="$USER-des"
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create an Azure Key Vault and an Encryption Key
+Create a new Azure Key Vault with purge protection enabled. Purge protection prevents immediate and irreversible deletion of the vault or its keys, offering a recovery window. Then, generate a new software-protected key within this Key Vault. This key will be used for disk encryption.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+az keyvault create \
+   -n $KEYVAULT_NAME \
+   -g $RESOURCEGROUP \
+   -l $LOCATION \
+   --enable-purge-protection true \
+   --sku standard # Using standard SKU for simplicity</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>az keyvault key create \
+   --vault-name $KEYVAULT_NAME \
+   -n $KEYVAULT_KEY_NAME \
+   --protection software # Key is software-protected, not HSM
+----
++
+Retrieve the Key Vault ID and Key URL. These values are crucial for linking the Disk Encryption Set to your Key Vault.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+KEYVAULT_ID=$(az keyvault show --name $KEYVAULT_NAME --query "id" -o tsv)
+KEYVAULT_KEY_URL=$(az keyvault key show --vault-name $KEYVAULT_NAME \
+                                        --name $KEYVAULT_KEY_NAME \
+                                        --query "kid" -o tsv)
+echo "Key Vault ID: $KEYVAULT_ID"
+echo "Key Vault Key URL: $KEYVAULT_KEY_URL"
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create an Azure Disk Encryption Set
+Create an Azure Disk Encryption Set (DES) that references the encryption key you just created in your Key Vault. The DES will serve as the mechanism to apply your customer-managed key to the ARO cluster&#8217;s disks.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+az disk-encryption-set create \
+   -n $DISK_ENCRYPTION_SET_NAME \
+   -g $RESOURCEGROUP \
+   -l $LOCATION \
+   --key-url $KEYVAULT_KEY_URL \
+   --source-vault $KEYVAULT_ID
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Grant Permissions for the Disk Encryption Set to Access Key Vault
+For the Disk Encryption Set to utilize your key, it requires specific permissions on the Key Vault. You need to grant <code>wrapkey</code> (for encryption), <code>unwrapkey</code> (for decryption), and <code>get</code> (to read key properties) permissions to the Disk Encryption Set&#8217;s managed identity.
++
+First, retrieve the <code>principalId</code> of the Disk Encryption Set&#8217;s system-assigned managed identity.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+DES_IDENTITY=$(az disk-encryption-set show \
+                 -n $DISK_ENCRYPTION_SET_NAME \
+                 -g $RESOURCEGROUP \
+                 --query "identity.principalId" -o tsv)
+echo "Disk Encryption Set Identity (principalId): $DES_IDENTITY"
+----
++
+Now, grant the necessary permissions to your Key Vault.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+az keyvault set-policy \
+   -n $KEYVAULT_NAME \
+   -g $RESOURCEGROUP \
+   --object-id $DES_IDENTITY \
+   --key-permissions wrapkey unwrapkey get
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create an Azure Red Hat OpenShift Cluster with CMK
+With the Key Vault, key, and Disk Encryption Set configured, you can now create your ARO cluster, specifying the Disk Encryption Set. All VMs (master and worker nodes) created for this new cluster will have their OS and data disks encrypted using your customer-managed keys.
++
+[NOTE]
+====
+This command assumes you have already created a VNet with appropriate subnets for ARO and have your OpenShift pull secret available. Replace <code>--cluster-resource-group</code>, <code>--vnet</code>, <code>--master-subnet</code>, <code>--worker-subnet</code>, and <code>@pull-secret.json</code> with your actual values.
+====</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+export CLUSTER_NAME="$USER-arocmk"
+export ARO_VNET_NAME="aro-vnet-$USER"
+export MASTER_SUBNET_NAME="master-subnet"
+export WORKER_SUBNET_NAME="worker-subnet"
+export PULL_SECRET_FILE="pull-secret.json" # Path to your pull secret file</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># Example: Create a private ARO cluster using CMK
+az aro create \
+   --resource-group $RESOURCEGROUP \
+   --name $CLUSTER_NAME \
+   --vnet $ARO_VNET_NAME \
+   --master-subnet $MASTER_SUBNET_NAME \
+   --worker-subnet $WORKER_SUBNET_NAME \
+   --pull-secret @$PULL_SECRET_FILE \
+   --disk-encryption-set $DISK_ENCRYPTION_SET_NAME \
+   --apiserver-visibility Private \
+   --ingress-visibility Private \
+   --master-vm-size Standard_D8s_v3 \
+   --worker-vm-size Standard_D4s_v3 \
+   --worker-count 3
+----
++
+This command will take a significant amount of time (typically 30-45 minutes) to provision the ARO cluster.</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify CMK Configuration
+After the ARO cluster is successfully provisioned, you can verify that the customer-managed encryption keys are correctly configured for the cluster&#8217;s virtual machine disks. You&#8217;ll need to query the Azure Managed Disks associated with the ARO cluster&#8217;s Virtual Machine Scale Sets (VMSS).</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+# Get the resource group where ARO infrastructure VMs are deployed (managed resource group)
+ARO_INFRA_RG=$(az aro show --resource-group $RESOURCEGROUP --name $CLUSTER_NAME --query "clusterProfile.resourceGroupId" -o tsv | awk -F'/' '{print $NF}')
+echo "ARO Infrastructure Resource Group: $ARO_INFRA_RG"</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># List managed disks in the ARO infrastructure resource group and check their encryption properties
+az disk list \
+   --resource-group $ARO_INFRA_RG \
+   --query "[?starts_with(name, 'aro-$CLUSTER_NAME')].{name:name, diskEncryptionSetId:encryption.diskEncryptionSetId, type:diskSizeGb}" \
+   -o table
+----
++
+In the output, look for the `diskEncryptionSetId` column. The values should match the ID of your `DISK_ENCRYPTION_SET_NAME`. If this field is populated with your DES ID, it confirms that your ARO cluster's disks are using customer-managed encryption keys.</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="lab-2-app-secret-management"><a class="anchor" href="#lab-2-app-secret-management"></a>Lab 2: Integrate Azure Key Vault for Application Secret Management</h3>
+<div class="paragraph">
+<p>This lab guides you through the process of setting up Azure Key Vault for an application running on ARO, allowing the application to securely retrieve secrets using the Secrets Store CSI driver.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This lab requires an existing ARO cluster and Azure CLI permissions to create Key Vaults and Azure AD Service Principals. It also assumes the Azure Key Vault Provider for Secrets Store CSI Driver is already installed in your ARO cluster. If not, you would need to install it first (typically via an OpenShift Operator).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a Namespace for Your Application
+First, create a dedicated namespace in your ARO cluster for your application. This helps with resource isolation and organization.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc new-project my-application
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create an Azure Key Vault and a Secret
+Create a new Azure Key Vault in your subscription and then add a secret to it that your application will consume.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+export KEYVAULT_APP_NAME="myapp-kv-$USER" # Unique Key Vault name
+export KEYVAULT_RESOURCE_GROUP="$RESOURCEGROUP" # Use same RG or a different one
+export KEYVAULT_LOCATION="$LOCATION" # Use same location or a different one</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>az keyvault create \
+   -n ${KEYVAULT_APP_NAME} \
+   -g ${KEYVAULT_RESOURCE_GROUP} \
+   --location ${KEYVAULT_LOCATION} \
+   --sku standard # Using standard SKU</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>az keyvault secret set \
+   --vault-name ${KEYVAULT_APP_NAME} \
+   --name secret1 \
+   --value "HelloFromKeyVault"
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create a Service Principal for Key Vault Access
+Create an Azure Active Directory (AD) Service Principal. This identity will be used by the Secrets Store CSI driver to authenticate with your Azure Key Vault and retrieve secrets.
++
+[NOTE]
+====
+If you receive an error when creating the service principal, such as "AuthorizationFailed", you may need to upgrade your Azure CLI to the latest version or ensure your Azure account has sufficient permissions to create AAD applications.
+====</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+export SERVICE_PRINCIPAL_NAME="http://$KEYVAULT_APP_NAME-sp-$USER" # Unique name for SP
+export SERVICE_PRINCIPAL_CLIENT_SECRET="$(az ad sp create-for-rbac \
+                                           --skip-assignment \
+                                           --name $SERVICE_PRINCIPAL_NAME \
+                                           --query 'password' -otsv)"
+export SERVICE_PRINCIPAL_CLIENT_ID="$(az ad sp list \
+                                         --display-name $SERVICE_PRINCIPAL_NAME \
+                                         --query '[0].appId' -otsv)"</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>echo "Service Principal Client ID: $SERVICE_PRINCIPAL_CLIENT_ID"
+echo "Service Principal Client Secret: $SERVICE_PRINCIPAL_CLIENT_SECRET" # Keep this secure!
+----
++
+Now, grant the Service Principal permissions to *get* secrets from your Key Vault. This is the minimum permission required for the CSI driver to read secrets.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+az keyvault set-policy \
+   --name ${KEYVAULT_APP_NAME} \
+   --spn ${SERVICE_PRINCIPAL_CLIENT_ID} \
+   --secret-permissions get
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Configure OpenShift Security Context Constraints (SCC)
+The Azure Key Vault Provider for Secrets Store CSI Driver&#8217;s service account requires elevated permissions to function correctly within OpenShift. Grant the <code>privileged</code> SCC to the specific service account used by the CSI provider.
++
+[IMPORTANT]
+====
+This step assumes the Azure Key Vault Provider for Secrets Store CSI Driver is already installed and running in your ARO cluster. The default service account used by the provider is often <code>csi-secrets-store-provider-azure</code> in the <code>k8s-secrets-store-csi</code> namespace, but verify this in your specific ARO environment. The <code>-n my-application</code> ensures this policy is applied for pods in your application&#8217;s namespace.
+====</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc adm policy add-scc-to-user privileged \
+   system:serviceaccount:k8s-secrets-store-csi:csi-secrets-store-provider-azure -n my-application
+----
++
+[NOTE]
+====
+To fully consume the secret in an application, you would proceed with:</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Creating an OpenShift <code>SecretProviderClass</code> resource that references your Azure Key Vault and the secret.</p>
+</li>
+<li>
+<p>Creating an OpenShift <code>Secret</code> resource that holds the Service Principal client ID and secret.</p>
+</li>
+<li>
+<p>Deploying an application pod that uses the <code>SecretProviderClass</code> to mount the Key Vault secret as a volume.</p>
+<div class="literalblock">
+<div class="content">
+<pre>These steps involve more advanced Kubernetes/OpenShift configuration for the Secrets Store CSI driver and are beyond the scope of this foundational integration topic, which focuses on the core Azure Key Vault and ARO setup.
+====</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a></span>
+  <span class="next"><a href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

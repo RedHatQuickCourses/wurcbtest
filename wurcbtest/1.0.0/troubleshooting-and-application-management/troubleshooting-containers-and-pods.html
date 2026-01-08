@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Troubleshooting containers and pods :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="troubleshooting-and-application-management.html">
+    <link rel="next" href="managing-applications-using-the-kubernetes-workload-api.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="troubleshooting-and-application-management.html">Troubleshooting and Application Management</a></li>
+    <li><a href="troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Troubleshooting containers and pods</h1>
+<h1 id="_troubleshooting_containers_and_pods_in_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_troubleshooting_containers_and_pods_in_azure_red_hat_openshift"></a>Troubleshooting Containers and Pods in Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>Managing applications in a Kubernetes-based environment like Azure Red Hat OpenShift (ARO) involves ensuring that containers and pods run smoothly. However, issues can arise due to various factors, including misconfigurations, resource constraints, network problems, or application bugs. This section provides a structured approach to identifying and resolving common problems with containers and pods.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_the_troubleshooting_workflow"><a class="anchor" href="#_understanding_the_troubleshooting_workflow"></a>Understanding the Troubleshooting Workflow</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Effective troubleshooting in OpenShift follows a systematic approach. Before diving into specific commands, it&#8217;s essential to understand the typical lifecycle of a pod and identify common failure points.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A pod is created: This involves pulling the container image, allocating resources, and scheduling the pod to a node.</p>
+</li>
+<li>
+<p>The container starts: The container runtime initializes the container, runs the entrypoint command, and monitors its health.</p>
+</li>
+<li>
+<p>The application runs: The application inside the container processes requests and performs its intended function.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Failure can occur at any of these stages. Our goal is to pinpoint <strong>where</strong> the failure is happening.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_troubleshooting_principles"><a class="anchor" href="#_key_troubleshooting_principles"></a>Key Troubleshooting Principles</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Start Broad, Then Narrow Down:</strong> Begin by checking the overall status of the pod, then progressively examine more granular details like container logs, events, and underlying node conditions.</p>
+</li>
+<li>
+<p><strong>Utilize Observability Tools:</strong> Leverage logs, metrics, and events to gain insights into the system&#8217;s behavior. A robust logging solution is crucial for efficient troubleshooting. As highlighted in the provided context, verifying the deployment of your container logging solution (e.g., <strong>checking <code>omsagent</code> or similar logging agents</strong>) is a foundational step in ensuring you have the data needed for analysis.</p>
+</li>
+<li>
+<p><strong>Reproduce the Issue:</strong> If possible, try to reproduce the problem to understand its conditions and scope.</p>
+</li>
+<li>
+<p><strong>Check Recent Changes:</strong> Often, issues are introduced by recent changes to deployments, configurations, or infrastructure.</p>
+</li>
+<li>
+<p><strong>Consult Documentation and Community:</strong> Official documentation, knowledge bases, and community forums (like the "Troubleshooting guide" mentioned in the context) can provide solutions for known issues.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_essential_troubleshooting_tools"><a class="anchor" href="#_essential_troubleshooting_tools"></a>Essential Troubleshooting Tools</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The primary tools for troubleshooting in ARO are the OpenShift Command-line Interface (CLI) (<code>oc</code>) and the Kubernetes Command-line Interface (<code>kubectl</code>). Both offer similar functionalities for managing and inspecting Kubernetes resources, with <code>oc</code> providing additional OpenShift-specific capabilities.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Always ensure you are logged into your ARO cluster using <code>oc login</code> before attempting any troubleshooting commands.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_detailed_troubleshooting_steps_and_hands_on_activities"><a class="anchor" href="#_detailed_troubleshooting_steps_and_hands_on_activities"></a>Detailed Troubleshooting Steps and Hands-on Activities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s walk through the common steps to troubleshoot a failing pod or container.</p>
+</div>
+<div class="sect2">
+<h3 id="_step_1_check_pod_status"><a class="anchor" href="#_step_1_check_pod_status"></a>Step 1: Check Pod Status</h3>
+<div class="paragraph">
+<p>The first step is to check the current status of the affected pod. This provides a high-level overview of whether the pod is running, pending, or in a failed state.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation"><a class="anchor" href="#_technical_explanation"></a>Technical Explanation</h4>
+<div class="paragraph">
+<p>The <code>oc get pod</code> command retrieves information about pods. The <code>STATUS</code> column is particularly important:
+*   <code>Running</code>: The pod and all its containers are healthy and running.
+*   <code>Pending</code>: The pod has been accepted by the Kubernetes cluster but one or more of the container images has not been created. This could be due to a lack of resources, image pull errors, or volume mounting issues.
+*   <code>ContainerCreating</code>: The pod has been scheduled to a node, and the container runtime is in the process of pulling images and starting containers.
+*   <code>CrashLoopBackOff</code>: A container in the pod is repeatedly crashing and restarting. This often indicates an application error.
+*   <code>ImagePullBackOff</code> or <code>ErrImagePull</code>: Kubernetes cannot pull the specified container image. This could be due to incorrect image name, tag, registry authentication issues, or network problems.
+*   <code>Error</code>: A container has exited with a non-zero exit code.
+*   <code>OOMKilled</code>: A container was terminated because it exceeded its memory limit.
+*   <code>Completed</code>: The pod has run to completion (e.g., a Job pod).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_inspecting_pod_status"><a class="anchor" href="#_hands_on_activity_inspecting_pod_status"></a>Hands-on Activity: Inspecting Pod Status</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Identify a problematic pod (or simulate one):</strong>
+For this activity, we&#8217;ll create a simple pod that immediately crashes to simulate a <code>CrashLoopBackOff</code> state.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: failing-pod
+spec:
+  containers:
+  - name: failing-container
+    image: busybox
+    command: ["/bin/sh", "-c", "sleep 1; exit 1"] # This command will cause the container to exit with an error
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the failing pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f failing-pod.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Check the status of the pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get pod failing-pod
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Expected Output (after a short delay):*
+[source,console]
+----
+NAME          READY   STATUS             RESTARTS   AGE
+failing-pod   0/1     CrashLoopBackOff   X          Xs
+----
+(Where `X` will be increasing numbers)</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up the failing pod:</strong>
+[source,bash]
+----
+oc delete pod failing-pod
+----</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_examine_pod_events_and_details"><a class="anchor" href="#_step_2_examine_pod_events_and_details"></a>Step 2: Examine Pod Events and Details</h3>
+<div class="paragraph">
+<p>If the pod status is not <code>Running</code>, the <code>oc describe</code> command is your next best friend. It provides a wealth of information about the pod&#8217;s current state, events, and resource configurations.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_2"><a class="anchor" href="#_technical_explanation_2"></a>Technical Explanation</h4>
+<div class="paragraph">
+<p><code>oc describe pod &lt;pod-name&gt;</code> outputs details such as:
+*   <strong>Labels, Annotations, IP Address:</strong> Basic metadata.
+*   <strong>Containers:</strong> Details about each container in the pod, including image, port, environment variables, resource limits, and state.
+*   <strong>Init Containers:</strong> Information about any initialization containers.
+*   <strong>Conditions:</strong> Current conditions of the pod (e.g., <code>Initialized</code>, <code>Ready</code>, <code>ContainersReady</code>).
+*   <strong>Volumes:</strong> Mounted volumes.
+*   <strong>QoS Class:</strong> Quality of Service class.
+*   <strong>Node:</strong> Which node the pod is scheduled on.
+*   <strong>Events:</strong> A chronological list of events related to the pod, providing crucial clues about what went wrong (e.g., <code>Failed to pull image</code>, <code>OOMKilled</code>, <code>Back-off restarting failed container</code>).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_describing_a_pod"><a class="anchor" href="#_hands_on_activity_describing_a_pod"></a>Hands-on Activity: Describing a Pod</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Re-deploy the failing pod from Step 1:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f failing-pod.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Describe the failing pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc describe pod failing-pod
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Expected Output Snippet (focus on the `Events` section):*
+[source,console]
+----
+...
+Containers:
+  failing-container:
+    Container ID:   cri-o://...
+    Image:          busybox
+    Image ID:       docker.io/library/busybox@sha256:...
+    Port:           &lt;none&gt;
+    Host Port:      &lt;none&gt;
+    Command:
+      /bin/sh
+      -c
+      sleep 1; exit 1
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1  &lt;-- Crucial!
+      Started:      ...
+      Finished:     ...
+    Ready:          False
+    Restart Count:  X
+    Limits:
+      cpu:     100m
+      memory:  128Mi
+    Requests:
+      cpu:     10m
+      memory:  64Mi
+    Environment:    &lt;none&gt;
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-abcde (ro)
+...
+Events:
+  Type     Reason     Age        From               Message
+  ----     ------     ----       ----               -------
+  Normal   Scheduled  X          default-scheduler  Successfully assigned default/failing-pod to ...
+  Normal   Pulled     X          kubelet            Container image "busybox" already present on machine
+  Normal   Created    X          kubelet            Created container failing-container
+  Normal   Started    X          kubelet            Started container failing-container
+  Warning  BackOff    X          kubelet            Back-off restarting failed container
+  Warning  Failed     X          kubelet            Error: container has run to completion
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Analysis:* The `Events` clearly show `Back-off restarting failed container` and the `State` of the container showing `Exit Code: 1`, indicating an intentional application-level error. This helps distinguish it from an image pull error or a node issue.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up:</strong>
+[source,bash]
+----
+oc delete pod failing-pod
+----</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_view_container_logs"><a class="anchor" href="#_step_3_view_container_logs"></a>Step 3: View Container Logs</h3>
+<div class="paragraph">
+<p>For a deeper dive into what&#8217;s happening <strong>inside</strong> the container, examining its logs is paramount. Applications typically write stdout and stderr, which OpenShift captures.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_3"><a class="anchor" href="#_technical_explanation_3"></a>Technical Explanation</h4>
+<div class="paragraph">
+<p>The <code>oc logs &lt;pod-name&gt; [-c &lt;container-name&gt;]</code> command retrieves logs for a specific container within a pod.
+*   If a pod has only one container, <code>-c &lt;container-name&gt;</code> is optional.
+*   Use <code>-f</code> or <code>--follow</code> to stream logs in real-time.
+*   Use <code>--since=&lt;duration&gt;</code> (e.g., <code>--since=1h</code>) or <code>--tail=&lt;lines&gt;</code> to filter logs.
+*   Use <code>--previous</code> to view logs from the previous instance of a crashed container.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_accessing_container_logs"><a class="anchor" href="#_hands_on_activity_accessing_container_logs"></a>Hands-on Activity: Accessing Container Logs</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a pod that logs periodically:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: logging-pod
+spec:
+  containers:
+  - name: logger
+    image: busybox
+    command: ["/bin/sh", "-c", "while true; do echo 'Hello from logging-pod at $(date)'; sleep 5; done"]
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the logging pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f logging-pod.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>View the logs of the <code>logger</code> container:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc logs logging-pod -c logger
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Expected Output:*
+[source,console]
+----
+Hello from logging-pod at Mon Apr 15 10:00:00 UTC 2024
+Hello from logging-pod at Mon Apr 15 10:00:05 UTC 2024
+...
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Stream logs in real-time:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc logs -f logging-pod -c logger
+----
+(Press `Ctrl+C` to stop streaming)</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up:</strong>
+[source,bash]
+----
+oc delete pod logging-pod
+----</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For advanced log analysis and aggregation in ARO, you would typically integrate with solutions like OpenShift Logging (powered by Elasticsearch, Fluentd, and Kibana - EFK stack) or forward logs to external systems like Azure Monitor, similar to how the context mentions verifying container logging solutions. This allows for centralized log collection, searching, and alerting.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_4_execute_commands_inside_a_container_rshexec"><a class="anchor" href="#_step_4_execute_commands_inside_a_container_rshexec"></a>Step 4: Execute Commands Inside a Container (RSH/Exec)</h3>
+<div class="paragraph">
+<p>Sometimes, you need to interact directly with a container to diagnose issues, such as checking file system contents, network connectivity, or running debug tools.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_4"><a class="anchor" href="#_technical_explanation_4"></a>Technical Explanation</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>oc rsh &lt;pod-name&gt; [-c &lt;container-name&gt;]</code>: Provides a remote shell into a running container. This is OpenShift&#8217;s preferred method for interactive shells.</p>
+</li>
+<li>
+<p><code>oc exec -it &lt;pod-name&gt; [-c &lt;container-name&gt;]&#8201;&#8212;&#8201;&lt;command&gt;</code>: Executes a command inside a container. Use <code>-it</code> for an interactive terminal (e.g., <code>oc exec -it &lt;pod-name&gt;&#8201;&#8212;&#8201;bash</code>).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_interacting_with_a_container"><a class="anchor" href="#_hands_on_activity_interacting_with_a_container"></a>Hands-on Activity: Interacting with a Container</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a simple NGINX pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-shell
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:latest
+    ports:
+    - containerPort: 80
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the NGINX pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f nginx-shell.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Wait for the pod to be <code>Running</code>:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get pod nginx-shell -w
+----
+(Wait until `STATUS` is `Running`, then press `Ctrl+C`)</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Use <code>oc rsh</code> to get a shell into the NGINX container:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc rsh nginx-shell
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Once inside the container (your prompt will change):*
+[source,console]
+----
+# ls /etc/nginx
+conf.d      fastcgi_params  koi-utf     mime.types  modules     nginx.conf  scgi_params uwsgi_params  win-utf
+# exit
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Use <code>oc exec</code> to run a command (e.g., check process status):</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc exec nginx-shell -- ps aux
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Expected Output (snippet):*
+[source,console]
+----
+PID   USER     TIME  COMMAND
+    1 root      0:00 nginx: master process nginx -g daemon off;
+    6 nginx     0:00 nginx: worker process
+    7 nginx     0:00 nginx: worker process
+    ...
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up:</strong>
+[source,bash]
+----
+oc delete pod nginx-shell
+----</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_5_network_troubleshooting"><a class="anchor" href="#_step_5_network_troubleshooting"></a>Step 5: Network Troubleshooting</h3>
+<div class="paragraph">
+<p>Network connectivity issues can prevent pods from communicating with each other or with external services.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_5"><a class="anchor" href="#_technical_explanation_5"></a>Technical Explanation</h4>
+<div class="paragraph">
+<p>Common network problems include:
+*   <strong>DNS Resolution Issues:</strong> Pods unable to resolve hostnames.
+*   <strong>Service/Route Misconfiguration:</strong> Services not correctly exposing pods, or routes not correctly exposing services externally.
+*   <strong>Network Policy Restrictions:</strong> Network policies blocking legitimate traffic.
+*   <strong>CNI Plugin Issues:</strong> Problems with the Container Network Interface (CNI) plugin.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_basic_network_checks"><a class="anchor" href="#_hands_on_activity_basic_network_checks"></a>Hands-on Activity: Basic Network Checks</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Deploy a simple <code>debug</code> pod with network tools:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: net-debug
+spec:
+  containers:
+  - name: net-debug-container
+    image: curlimages/curl
+    command: ["tail", "-f", "/dev/null"] # Keep container running indefinitely
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the debug pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f net-debug.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Wait for the pod to be <code>Running</code> and get a shell into it:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc rsh net-debug
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Inside the <code>net-debug</code> container, perform network checks:</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Test external connectivity:</strong>
+[source,console]
+----
+# curl -v google.com</p>
+</li>
+<li>
+<p>Trying 142.250.187.110:80&#8230;&#8203;</p>
+</li>
+<li>
+<p>Connected to google.com (142.250.187.110) port 80 (#0)
+&gt; GET / HTTP/1.1
+&gt; Host: google.com
+&gt; User-Agent: curl/8.5.0
+&gt; Accept: <strong>/</strong>
+&gt;
+&lt; HTTP/1.1 301 Moved Permanently
+&#8230;&#8203;
+----</p>
+</li>
+<li>
+<p><strong>Test DNS resolution (e.g., Kubernetes API server):</strong>
+[source,console]
+----
+# nslookup kubernetes.default
+Server:    10.128.0.10
+Address 1: 10.128.0.10 kube-dns.kube-system.svc.cluster.local</p>
+<div class="literalblock">
+<div class="content">
+<pre>Name:      kubernetes.default
+Address 1: 172.30.0.1 kubernetes.default.svc.cluster.local
+----
+(The `Server` IP is your cluster's DNS service IP, and `Address 1` for `kubernetes.default` is the ClusterIP of the Kubernetes API service).</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Exit the debug container:</strong>
+[source,console]
+----
+# exit
+----</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Clean up:</strong>
+[source,bash]
+----
+oc delete pod net-debug
+----</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_6_resource_related_issues"><a class="anchor" href="#_step_6_resource_related_issues"></a>Step 6: Resource-Related Issues</h3>
+<div class="paragraph">
+<p>Pods can fail or become unstable if they exhaust their assigned CPU or memory resources.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_6"><a class="anchor" href="#_technical_explanation_6"></a>Technical Explanation</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>OOMKilled (Out Of Memory Killed):</strong> If a container exceeds its <code>memory.limit</code>, the Kubernetes Kubelet will terminate it. This will appear as an <code>OOMKilled</code> reason in <code>oc describe</code> and in logs.</p>
+</li>
+<li>
+<p><strong>CPU Throttling:</strong> If a container continuously hits its <code>cpu.limit</code>, its CPU usage will be throttled, leading to performance degradation and potentially unresponsive applications.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>To diagnose resource issues, check:
+*   <strong><code>oc describe pod &lt;pod-name&gt;</code>:</strong> Look for <code>Limits</code> and <code>Requests</code> under the <code>Containers</code> section and <code>OOMKilled</code> events.
+*   <strong>OpenShift Monitoring (Grafana/Prometheus):</strong> For historical and real-time CPU/memory usage of pods and nodes.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_simulating_and_diagnosing_oomkilled"><a class="anchor" href="#_hands_on_activity_simulating_and_diagnosing_oomkilled"></a>Hands-on Activity: Simulating and Diagnosing OOMKilled</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a pod with a very low memory limit that will quickly OOM:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-pod
+spec:
+  containers:
+  - name: memory-eater
+    image: progrium/stress
+    command: ["stress", "--vm", "1", "--vm-bytes", "200M", "--vm-hang", "1"] # Tries to allocate 200MB
+    resources:
+      limits:
+        memory: "100Mi" # Limit it to 100MB
+      requests:
+        memory: "50Mi"
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the OOM pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f oom-pod.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Monitor its status:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get pod oom-pod -w
+----
+(You should see `CrashLoopBackOff` or `Error` after some time, then `OOMKilled` in describe.)</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Describe the pod to find the <code>OOMKilled</code> event:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc describe pod oom-pod
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Expected Output Snippet (look for `Last State` and `Events`):*
+[source,console]
+----
+...
+State:          Waiting
+  Reason:       CrashLoopBackOff
+Last State:     Terminated
+  Reason:       OOMKilled  &lt;-- Here it is!
+  Exit Code:    137
+  Started:      ...
+  Finished:     ...
+...
+Events:
+  Type     Reason          Age                  From               Message
+  ----     ------          ----                 ----               -------
+  Normal   Scheduled       X                    default-scheduler  Successfully assigned default/oom-pod to ...
+  Normal   Pulled          X                    kubelet            Container image "progrium/stress" already present on machine
+  Normal   Created         X                    kubelet            Created container memory-eater
+  Normal   Started         X                    kubelet            Started container memory-eater
+  Warning  OOMKilled       Xs (x over xs)       kubelet            Container memory-eater was OOM-killed.
+  Warning  BackOff         Xs (x over xs)       kubelet            Back-off restarting failed container
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up:</strong>
+[source,bash]
+----
+oc delete pod oom-pod
+----</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_7_image_pull_issues"><a class="anchor" href="#_step_7_image_pull_issues"></a>Step 7: Image Pull Issues</h3>
+<div class="paragraph">
+<p>When a pod enters <code>ImagePullBackOff</code> or <code>ErrImagePull</code> state, it means the container runtime on the node cannot retrieve the specified image from the registry.</p>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_7"><a class="anchor" href="#_technical_explanation_7"></a>Technical Explanation</h4>
+<div class="paragraph">
+<p>Common causes include:
+*   <strong>Incorrect Image Name/Tag:</strong> Typo in the image name or tag.
+*   <strong>Private Registry Authentication:</strong> Missing or incorrect image pull secret for a private registry (e.g., Azure Container Registry, Quay).
+*   <strong>Network Connectivity:</strong> Node unable to reach the image registry.
+*   <strong>Image Does Not Exist:</strong> The image or tag was deleted from the registry.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hands_on_activity_simulating_imagepullbackoff"><a class="anchor" href="#_hands_on_activity_simulating_imagepullbackoff"></a>Hands-on Activity: Simulating ImagePullBackOff</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a pod with a non-existent image:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bad-image-pod
+spec:
+  containers:
+  - name: bad-container
+    image: non-existent-registry.io/non-existent-image:latest # This image does not exist
+    command: ["tail", "-f", "/dev/null"]
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the bad image pod:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f bad-image-pod.yaml
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Monitor its status:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get pod bad-image-pod -w
+----
+(It should quickly show `ImagePullBackOff` or `ErrImagePull`).</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Describe the pod to find the detailed error:</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc describe pod bad-image-pod
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>*Expected Output Snippet (look for `State` and `Events`):*
+[source,console]
+----
+...
+State:          Waiting
+  Reason:       ImagePullBackOff
+...
+Events:
+  Type     Reason                 Age                From               Message
+  ----     ------                 ----               ----               -------
+  Normal   Scheduled              X                  default-scheduler  Successfully assigned default/bad-image-pod to ...
+  Warning  FailedCreatePodSandBox X                  kubelet            Failed to create pod sandbox: rpc error: code = Unknown desc = failed to get sandbox image "registry.access.redhat.com/rhel8/pause": failed to get image "registry.access.redhat.com/rhel8/pause": ...
+  Normal   Pulling                Xs (x over xs)     kubelet            Pulling image "non-existent-registry.io/non-existent-image:latest"
+  Warning  Failed                 Xs (x over xs)     kubelet            Failed to pull image "non-existent-registry.io/non-existent-image:latest": rpc error: code = NotFound desc = no matching manifest for "non-existent-registry.io/non-existent-image:latest" in the remote repository
+  Warning  Failed                 Xs (x over xs)     kubelet            Error: ErrImagePull
+  Warning  BackOff                Xs (x over xs)     kubelet            Back-off pulling image "non-existent-registry.io/non-existent-image:latest"
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up:</strong>
+[source,bash]
+----
+oc delete pod bad-image-pod
+----</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+For issues related to Azure Container Registry (ACR) or Quay integration with ARO, ensure your <code>ImagePullSecret</code> is correctly configured and referenced in your pod specification or service account. The "Registry Integrations" section of this course covers this in detail.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_advanced_troubleshooting_considerations"><a class="anchor" href="#_advanced_troubleshooting_considerations"></a>Advanced Troubleshooting Considerations</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Node-Level Issues:</strong> If multiple pods on a single node are failing, the issue might be with the node itself. Check node status (<code>oc get node &lt;node-name&gt;</code>, <code>oc describe node &lt;node-name&gt;</code>) for resource pressure, network issues, or disk problems.</p>
+</li>
+<li>
+<p><strong>Persistent Volume Issues:</strong> Pods mounting Persistent Volumes (PVs) can fail if the PV/PVC binding is incorrect, the underlying storage is inaccessible, or permissions are misconfigured.</p>
+</li>
+<li>
+<p><strong>OpenShift Operators:</strong> If a component managed by an OpenShift Operator is failing, check the status and logs of the Operator itself.</p>
+</li>
+<li>
+<p><strong>OpenShift Console Monitoring:</strong> The OpenShift Web Console provides a graphical interface to view pod status, events, logs, and resource usage, often simplifying initial diagnosis.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>By systematically applying these troubleshooting steps and utilizing the powerful <code>oc</code> and <code>kubectl</code> CLI tools, you can effectively diagnose and resolve most issues encountered with containers and pods in your Azure Red Hat OpenShift clusters. Remember to leverage comprehensive logging and monitoring solutions, as good observability is the cornerstone of efficient troubleshooting.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="troubleshooting-and-application-management.html">Troubleshooting and Application Management</a></span>
+  <span class="next"><a href="managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

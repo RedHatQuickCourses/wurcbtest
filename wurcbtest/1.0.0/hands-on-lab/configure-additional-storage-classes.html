@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Configure additional storage classes :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="create-an-azure-red-hat-openshift-cluster.html">
+    <link rel="next" href="create-dedicated-machine-sets.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="configure-additional-storage-classes.html">Configure additional storage classes</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Configure additional storage classes</h1>
+<h1 id="_configure_additional_storage_classes_in_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_configure_additional_storage_classes_in_azure_red_hat_openshift"></a>Configure Additional Storage Classes in Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>Storage classes in Kubernetes and OpenShift provide a way for administrators to describe the "classes" of storage they offer. These classes can abstract various storage characteristics, such as performance tiers, availability, backup policies, or specific underlying storage technologies. In Azure Red Hat OpenShift (ARO), storage classes dynamically provision persistent volumes based on the requested class, seamlessly integrating with Azure&#8217;s robust storage services.</p>
+</div>
+<div class="paragraph">
+<p>By default, every ARO cluster comes with a pre-configured <code>managed-premium</code> StorageClass. While this default is suitable for many ReadWriteOnce (RWO) workloads, there are common scenarios where additional storage classes are required:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Shared File Systems (ReadWriteMany)</strong>: Applications requiring multiple pods to concurrently read and write to the same volume (e.g., content management systems, shared configuration).</p>
+</li>
+<li>
+<p><strong>Performance Tiers</strong>: Need for ultra-high-performance storage beyond standard Azure Disks, such as Azure NetApp Files.</p>
+</li>
+<li>
+<p><strong>Specific Azure Storage Types</strong>: Utilizing Azure Files for NFS/SMB shares or other specialized Azure Disk configurations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This section will guide you through configuring additional storage classes in your ARO cluster, focusing on creating an Azure File StorageClass, making it the default, and demonstrating its usage with a sample application.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_aros_default_storageclass"><a class="anchor" href="#_understanding_aros_default_storageclass"></a>Understanding ARO&#8217;s Default StorageClass</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Upon cluster creation, ARO configures a default StorageClass named <code>managed-premium</code>. This class leverages the <code>azure-disk</code> provisioner to provision Azure Premium SSDs, which are block storage devices suitable for ReadWriteOnce (RWO) persistent volumes. This means only a single pod can mount the volume at a time.</p>
+</div>
+<div class="paragraph">
+<p>You can inspect the existing storage classes in your cluster using the <code>oc get</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="title">Get existing storage classes</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get storageclass</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Expected output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                        PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+managed-premium (default)   kubernetes.io/azure-disk   Delete          Immediate           true                   2d19h</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice the <code>(default)</code> annotation next to <code>managed-premium</code>, indicating that any PersistentVolumeClaim (PVC) created without explicitly specifying a <code>storageClassName</code> will automatically use this class.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_an_azure_file_storage_class"><a class="anchor" href="#_creating_an_azure_file_storage_class"></a>Creating an Azure File Storage Class</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Azure Files offers fully managed file shares in the cloud that are accessible via the industry-standard Server Message Block (SMB) protocol or Network File System (NFS) protocol. It&#8217;s a robust solution for applications requiring shared file storage that can be mounted by multiple pods concurrently using the ReadWriteMany (RWX) access mode.</p>
+</div>
+<div class="paragraph">
+<p>The <code>file.csi.azure.com</code> provisioner is used to dynamically provision Azure File shares. When configuring an Azure File StorageClass, it&#8217;s crucial to understand the parameters and mount options that dictate its behavior and integration with the underlying Azure storage account.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+When naming custom storage classes that integrate with managed identities, avoid using <code>azurefile-csi</code> as the name. This specific name might be reserved or subject to automated removal by Azure services.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_deploying_an_azure_file_storageclass"><a class="anchor" href="#_hands_on_activity_deploying_an_azure_file_storageclass"></a>Hands-on Activity: Deploying an Azure File StorageClass</h3>
+<div class="paragraph">
+<p>Let&#8217;s create a new StorageClass that provisions Azure File shares.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a file named <code>azure-storageclass-azure-file.yaml</code> with the following content:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-file
+provisioner: file.csi.azure.com
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=0
+  - gid=0
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+  - noperm
+  - nobrl // xref:advanced-troubleshooting.adoc#posix-locks[Disable byte range locks for POSIX lock compatibility]
+parameters:
+  location: &lt;ARO_CLUSTER_LOCATION&gt; // e.g., eastus, westus2
+  secretNamespace: kube-system
+  skuName: Standard_LRS // Options: Standard_LRS, Standard_ZRS, Premium_LRS, Premium_ZRS
+  resourceGroup: &lt;AZURE_FILES_RESOURCE_GROUP&gt; // The Azure resource group where the storage account will be created
+  tags: "environment=dev,project=myproject" // Example: "key1=value1,key2=value2"
+  matchTags: "true" // Ensure storage accounts are created with specified tags
+reclaimPolicy: Delete
+volumeBindingMode: Immediate</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Customize the Manifest</strong>: Replace the placeholder values (<code>&lt;ARO_CLUSTER_LOCATION&gt;</code>, <code>&lt;AZURE_FILES_RESOURCE_GROUP&gt;</code>) with appropriate values for your Azure environment.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>nobrl</code> mount option is included in this manifest. This option disables sending byte range lock requests to the server, which can be critical for applications that have challenges with POSIX locks or when integrating with specific types of clients.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><strong>Apply the Manifest</strong>: Use the <code>oc create</code> command to apply the manifest to your ARO cluster.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc create -f azure-storageclass-azure-file.yaml</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify the New Storage Class</strong>: Confirm that the <code>azure-file</code> storage class has been successfully created.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get storageclass</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You should now see <code>azure-file</code> listed alongside <code>managed-premium</code> in the output.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_changing_the_default_storageclass_optional"><a class="anchor" href="#_changing_the_default_storageclass_optional"></a>Changing the Default StorageClass (Optional)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While you can always explicitly specify a <code>storageClassName</code> in your PersistentVolumeClaim (PVC) definition, it&#8217;s often convenient to change the default storage class. This means any PVC created without an explicit <code>storageClassName</code> will automatically use your newly designated default. This is particularly useful if most of your applications require a different type of storage than the ARO default.</p>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_setting_azure_file_as_the_default"><a class="anchor" href="#_hands_on_activity_setting_azure_file_as_the_default"></a>Hands-on Activity: Setting <code>azure-file</code> as the Default</h3>
+<div class="paragraph">
+<p>To promote <code>azure-file</code> to the default storage class, you must first mark the current default (<code>managed-premium</code>) as non-default, and then apply the default annotation to <code>azure-file</code>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Mark <code>managed-premium</code> as non-default</strong>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch storageclass managed-premium -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class":"false"}}}'</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Set <code>azure-file</code> as the new default</strong>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch storageclass azure-file -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class":"true"}}}'</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify the Default Storage Class Change</strong>: Check the storage classes again to confirm the change.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get storageclass</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The output should now show <code>azure-file (default)</code> indicating it&#8217;s the new default.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_the_new_storage_class_with_an_application"><a class="anchor" href="#_using_the_new_storage_class_with_an_application"></a>Using the New Storage Class with an Application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s deploy a simple application that requests persistent storage to demonstrate how it utilizes the default storage class or can explicitly request a specific one. For this activity, we&#8217;ll use the <code>httpd-example</code> template provided by OpenShift.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+To successfully use the <code>httpd-example</code> template, your ARO cluster <strong>must</strong> have the Red Hat pull secret enabled during its deployment. If you encounter image pull errors, refer to the official Red Hat documentation on "Get a Red Hat pull secret" for guidance.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_hands_on_activity_deploying_an_application_with_azure_file_storage"><a class="anchor" href="#_hands_on_activity_deploying_an_application_with_azure_file_storage"></a>Hands-on Activity: Deploying an Application with Azure File Storage</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create a New Project</strong>: Set up a dedicated project for this demonstration.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project azfiletest</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the <code>httpd-example</code> Application</strong>: This template includes a PersistentVolumeClaim (PVC) definition. Since we&#8217;ve configured <code>azure-file</code> as the default, the PVC should automatically provision an Azure File share.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-app httpd-example</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Monitor Application Deployment</strong>: Wait for the application&#8217;s pod to become <code>Ready</code>. This involves pulling the image, provisioning the PVC, and mounting the volume.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n azfiletest
+oc get pvc -n azfiletest
+oc get pv</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Observe the output of <code>oc get pvc</code> and <code>oc get pv</code>. You should see that the PersistentVolume (PV) associated with your application&#8217;s PVC was provisioned using the <code>azure-file</code> storage class, confirming the successful integration of your new storage class.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integrating_with_azure_netapp_files_anf"><a class="anchor" href="#_integrating_with_azure_netapp_files_anf"></a>Integrating with Azure NetApp Files (ANF)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For demanding, high-performance, and low-latency storage requirements, Azure NetApp Files (ANF) offers an enterprise-grade file storage solution. ARO can integrate with ANF by creating custom storage classes that provision volumes from ANF capacity pools.</p>
+</div>
+<div class="paragraph">
+<p>The general workflow for ANF integration typically involves:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Azure NetApp Files Setup</strong>: Creating an ANF account, capacity pools, and volumes within your Azure subscription.</p>
+</li>
+<li>
+<p><strong>Trident Deployment</strong>: Deploying NetApp Trident, an open-source storage orchestrator for Kubernetes, into your ARO cluster. Trident acts as the CSI (Container Storage Interface) driver that understands how to provision ANF volumes.</p>
+</li>
+<li>
+<p><strong>Trident Backend Configuration</strong>: Configuring Trident to communicate with your ANF account.</p>
+</li>
+<li>
+<p><strong>Custom ANF StorageClass</strong>: Defining a custom StorageClass in ARO that references the Trident backend and specifies ANF volume properties.</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+While <code>oc patch</code> is used for CLI-based default storage class changes, you can also manage this via the OpenShift Web Console for ANF-backed StorageClasses:
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In the OpenShift console&#8217;s sidebar, navigate to <strong>Storage</strong> &#8594; <strong>Storage Classes</strong>.</p>
+</li>
+<li>
+<p>Locate your <code>AzureNetAppFiles_StorageClass_name</code>.</p>
+</li>
+<li>
+<p>Select the Action menu (⋮) next to it, then choose <strong>Set as default</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This provides a visual alternative for administrators preferring the GUI.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting_considerations"><a class="anchor" href="#_troubleshooting_considerations"></a>Troubleshooting Considerations</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Image Pull Failures (<code>httpd-example</code>)</strong>: If the <code>httpd-example</code> pod gets stuck in <code>ImagePullBackOff</code> or similar states, ensure your ARO cluster was configured with the correct Red Hat pull secret during deployment. The template often references images from authenticated Red Hat registries.</p>
+</li>
+<li>
+<p><strong>Azure File Shared Key Access</strong>: A common issue for Azure Files is when the backing Azure Storage Account does not have shared key access enabled. If PersistentVolumes fail to provision or mount, verify that shared key access is enabled on your Azure Storage Account, or ensure your CSI driver configuration is set up to use managed identity-based authentication if shared key access is intentionally disabled.</p>
+</li>
+<li>
+<p><strong>Azure Permissions</strong>: Ensure that the ARO cluster&#8217;s managed identity (or the service principal used during deployment) has the necessary Azure role-based access control (RBAC) permissions to create and manage Azure Storage Accounts, Azure Files shares, and other related resources within the specified resource groups.</p>
+</li>
+<li>
+<p><strong>Storage Account Naming</strong>: Azure Storage Accounts have specific naming conventions (e.g., globally unique, lowercase alphanumeric). Ensure any dynamically provisioned storage accounts adhere to these rules.</p>
+</li>
+<li>
+<p><strong>CSI Driver Logs</strong>: For detailed insights into provisioning failures, check the logs of the <code>file-csi-driver</code> pods (or <code>azure-file-csi-driver</code> pods, depending on your ARO version) in the <code>kube-system</code> namespace.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_next_steps"><a class="anchor" href="#_next_steps"></a>Next Steps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>By configuring additional storage classes, you gain the flexibility to provision persistent storage tailored to your applications' diverse needs, from highly available shared file systems to ultra-high-performance block storage solutions. This capability is fundamental for running complex, stateful applications on Azure Red Hat OpenShift.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a></span>
+  <span class="next"><a href="create-dedicated-machine-sets.html">Create dedicated machine sets</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

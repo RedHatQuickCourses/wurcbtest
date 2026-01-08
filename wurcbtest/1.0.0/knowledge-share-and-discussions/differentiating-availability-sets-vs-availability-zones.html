@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Differentiating Availability Sets vs. Availability Zones :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="integrating-azure-key-vault-with-aro.html">
+    <link rel="next" href="understanding-azure-spot-instances.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="knowledge-share-and-discussions.html">Knowledge Share and Discussions</a></li>
+    <li><a href="differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Differentiating Availability Sets vs. Availability Zones</h1>
+<h1 id="_differentiating_availability_sets_vs_availability_zones_in_azure_red_hat_openshift" class="sect0"><a class="anchor" href="#_differentiating_availability_sets_vs_availability_zones_in_azure_red_hat_openshift"></a>Differentiating Availability Sets vs. Availability Zones in Azure Red Hat OpenShift</h1>
+<div class="paragraph">
+<p>High availability is a critical aspect of any production-grade application, and cloud providers like Azure offer various mechanisms to ensure your services remain operational even during infrastructure failures. For Azure Red Hat OpenShift (ARO) clusters, understanding how these mechanisms are leveraged is paramount for designing resilient and fault-tolerant applications.</p>
+</div>
+<div class="paragraph">
+<p>While the primary focus of this section will be on how Azure Red Hat OpenShift utilizes Availability Zones, we will also conceptually differentiate them from Availability Sets to provide a comprehensive understanding.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_azure_availability_zones_in_aro"><a class="anchor" href="#_understanding_azure_availability_zones_in_aro"></a>Understanding Azure Availability Zones in ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Azure Availability Zones represent distinct, physically isolated locations within an Azure region. Each zone comprises one or more datacenters equipped with independent power, cooling, and networking infrastructure. This isolation ensures that if one zone experiences a localized failure (e.g., a major power outage or network disruption), the other zones in the same region remain operational, thus preventing a single point of failure at the datacenter level.</p>
+</div>
+<div class="paragraph">
+<p>Azure Red Hat OpenShift clusters are architected to inherently leverage Availability Zones for enhanced resilience and fault tolerance for both their control plane and worker nodes when deployed in a region that supports them.</p>
+</div>
+<div class="paragraph">
+<p>When an Azure region <strong>consists of multiple availability zones</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Control Plane Nodes:</strong> The ARO cluster automatically creates a machine set in <strong>each</strong> available availability zone. A control plane node is then provisioned from each of these machine sets, distributing the critical OpenShift control plane components across physically distinct zones. This design ensures that the OpenShift control plane remains highly available and operational even if an entire zone becomes unavailable.</p>
+</li>
+<li>
+<p><strong>Worker Nodes:</strong> Similarly, the ARO service creates a worker node machine set in <strong>each</strong> availability zone. A worker node is provisioned from each machine set, distributing your application workloads across these zones. This zonal distribution helps maintain application availability and performance by mitigating the impact of zone-wide failures.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>As stated in the provided context, "In regions that consist of multiple availability zones, a control plane node machine set is created in each zone. A control plane node is provisioned from each machine set." And for worker nodes, "In regions consisting of multiple availability zones, a worker node machine set is created in each zone. Also, a worker node is provisioned from each machine set."</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Conversely, in Azure regions that <strong>do not support availability zones</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The Azure Red Hat OpenShift cluster provisions both control plane and worker nodes from a single machine set. In this scenario, while high availability mechanisms within that single logical datacenter (such as redundant hardware, networking, and power) are still in place, the cluster does not benefit from the geographically separated and isolated infrastructure that Availability Zones provide.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The context clarifies this: "Where an Azure region doesn&#8217;t support availability zones, the Azure Red Hat OpenShift cluster provisions the control plane nodes from a single machine set." And for worker nodes, "When an Azure region doesn&#8217;t support availability zones, the Azure Red Hat OpenShift cluster provisions the worker nodes from a single machine set."</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Customers have the ability to increase the worker node count and manage permissions in each region, adapting the cluster size to workload demands while still benefiting from the underlying zonal or non-zonal deployment strategy.</p>
+</div>
+<div class="sect2">
+<h3 id="_how_aro_benefits_from_availability_zones"><a class="anchor" href="#_how_aro_benefits_from_availability_zones"></a>How ARO Benefits from Availability Zones</h3>
+<div class="paragraph">
+<p>By distributing critical components across multiple Availability Zones, ARO clusters achieve:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Increased Uptime and Resilience:</strong> Protection against datacenter-level failures, ensuring the cluster remains operational even during significant localized outages.</p>
+</li>
+<li>
+<p><strong>Enhanced Fault Tolerance:</strong> A more robust infrastructure that can withstand failures of entire zones without impacting the entire cluster or its running applications.</p>
+</li>
+<li>
+<p><strong>Business Continuity:</strong> Critical workloads can continue to run and be accessed even if one part of the region experiences a major incident.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_availability_sets_vs_availability_zones_a_conceptual_differentiation"><a class="anchor" href="#_availability_sets_vs_availability_zones_a_conceptual_differentiation"></a>Availability Sets vs. Availability Zones: A Conceptual Differentiation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While the primary operational context for Azure Red Hat OpenShift directly involves and leverages <strong>Availability Zones</strong>, it&#8217;s important to understand the conceptual difference from <strong>Availability Sets</strong>, even though explicit details about Availability Sets are not provided in the current context.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Azure Availability Zones:</strong></p>
+</li>
+<li>
+<p><strong>Scope:</strong> Offer protection against datacenter-level failures by distributing resources across physically distinct, independent locations <strong>within an Azure region</strong>.</p>
+</li>
+<li>
+<p><strong>Failure Domains:</strong> Each zone represents a distinct failure domain, providing isolation for power, cooling, and networking.</p>
+</li>
+<li>
+<p><strong>Resilience:</strong> Designed for the highest level of resilience against regional outages affecting one or more datacenters.</p>
+</li>
+<li>
+<p><strong>ARO Integration:</strong> Azure Red Hat OpenShift clusters explicitly leverage Availability Zones to distribute control plane and worker nodes for maximum high availability, as detailed above.</p>
+</li>
+<li>
+<p><strong>Azure Availability Sets:</strong></p>
+</li>
+<li>
+<p><strong>Scope:</strong> (Information not explicitly detailed in the provided context) Traditionally, Availability Sets have been used to ensure that Virtual Machines (VMs) within a single Azure datacenter are spread across different <strong>fault domains</strong> and <strong>update domains</strong>.</p>
+</li>
+<li>
+<p><strong>Fault Domains:</strong> Group VMs across different physical server racks, power units, and network switches within the same datacenter to protect against single hardware failures.</p>
+</li>
+<li>
+<p><strong>Update Domains:</strong> Group VMs that can be rebooted together during planned maintenance events, ensuring that not all VMs are offline simultaneously.</p>
+</li>
+<li>
+<p><strong>Resilience:</strong> Designed to protect against hardware failures or planned maintenance within a <strong>single datacenter</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In summary, Availability Zones provide a broader level of fault isolation, protecting against datacenter-wide failures, which is why they are the preferred and integrated mechanism for highly available services like Azure Red Hat OpenShift&#8217;s control plane and managed infrastructure. Availability Sets, on the other hand, provide a more granular level of high availability within a single datacenter.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>A key takeaway from the provided context is ARO&#8217;s inherent design to use Availability Zones for high availability of its control plane and worker nodes when the region supports them. This shows a direct integration with zonal deployment for maximum resilience.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_verifying_availability_zone_deployment_for_aro_worker_nodes"><a class="anchor" href="#_hands_on_activity_verifying_availability_zone_deployment_for_aro_worker_nodes"></a>Hands-on Activity: Verifying Availability Zone Deployment for ARO Worker Nodes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While the ARO control plane and underlying infrastructure deployment across zones are handled by the managed service, you can observe the zonal distribution of your worker nodes. This activity helps you confirm that your ARO cluster is benefiting from Availability Zones.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This hands-on activity focuses on <strong>observing</strong> the results of ARO&#8217;s zonal deployment, rather than performing explicit configuration <strong>of</strong> zones, as the management of zones for ARO&#8217;s core components is handled by the Azure Red Hat OpenShift service.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_objective"><a class="anchor" href="#_objective"></a>Objective</h3>
+<div class="paragraph">
+<p>Learn to identify if your ARO cluster&#8217;s worker nodes are distributed across Azure Availability Zones.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure Red Hat OpenShift cluster deployed in an Azure region that supports Availability Zones (e.g., <code>eastus</code>, <code>centralus</code>, <code>westeurope</code>).</p>
+</li>
+<li>
+<p>The <code>oc</code> CLI configured and authenticated to your ARO cluster. Refer to <a href="#openshift-and-kubernetes-interfaces.adoc" class="xref unresolved">Utilizing the OpenShift Command-line Interface (CLI)</a> for setup instructions.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_steps"><a class="anchor" href="#_steps"></a>Steps</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>List Worker Nodes in Your Cluster:</strong>
+Open your terminal and use the <code>oc get nodes</code> command to list all nodes in your ARO cluster. This command provides a quick overview of your cluster&#8217;s nodes.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc get nodes
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Examine Node Labels for Zone Information:</strong>
+Azure nodes are typically labeled with information indicating their Availability Zone. The most common label for this is <code>topology.kubernetes.io/zone</code>. You can get detailed information for a specific node and filter for this label.</p>
+<div class="literalblock">
+<div class="content">
+<pre>Execute the following command, replacing `&lt;node-name&gt;` with the actual name of one of your worker nodes (e.g., you might see names like `aro-cluster-xxxx-worker-eastus1`, `aro-cluster-xxxx-worker-eastus2`, etc., from the previous `oc get nodes` output).</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc describe node &lt;node-name&gt; | grep "topology.kubernetes.io/zone"
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Repeat this command for several of your worker nodes to observe their zonal assignments.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Observe Zonal Distribution and Interpret Results:</strong>
+If your ARO cluster is deployed in a multi-zone region and is leveraging Availability Zones, you should observe that your worker nodes are distributed across different zones (e.g., <code>eastus1</code>, <code>eastus2</code>, <code>eastus3</code>).</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,text]
+----
+# Example Output for Node 1 (in zone 1)
+topology.kubernetes.io/zone=eastus1</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># Example Output for Node 2 (in zone 2)
+topology.kubernetes.io/zone=eastus2</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># Example Output for Node 3 (in zone 3)
+topology.kubernetes.io/zone=eastus3
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>If you see different zone labels for different worker nodes, it confirms that your ARO cluster is designed for and actively utilizing Azure Availability Zones for high availability. If your cluster is in a region without Availability Zone support, or if for some reason the nodes are all in one zone, you will see a consistent zone label across all nodes or potentially a more generic region-level label.</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This hands-on activity provides practical insight into how Azure Red Hat OpenShift&#8217;s architecture incorporates zonal resilience at the worker node level, directly reflecting the concepts of Availability Zones in action.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a></span>
+  <span class="next"><a href="understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

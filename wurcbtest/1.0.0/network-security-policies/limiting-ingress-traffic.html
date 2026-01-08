@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Limiting ingress traffic :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="configuring-network-policies.html">
+    <link rel="next" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="network-security-policies.html">Network Security Policies</a></li>
+    <li><a href="limiting-ingress-traffic.html">Limiting ingress traffic</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Limiting ingress traffic</h1>
+<h1 id="_limiting_ingress_traffic" class="sect0"><a class="anchor" href="#_limiting_ingress_traffic"></a>Limiting Ingress Traffic</h1>
+<div class="paragraph">
+<p>OpenShift clusters, including Azure Red Hat OpenShift (ARO), manage various types of network traffic. <strong>Ingress traffic</strong> refers to any network traffic attempting to enter a cluster, a specific namespace, or a particular pod from an external source or another part of the cluster. Effectively managing and limiting this traffic is a critical security measure to protect applications and data from unauthorized access or malicious activities.</p>
+</div>
+<div class="paragraph">
+<p>In ARO, limiting ingress traffic is primarily achieved through Kubernetes <code>NetworkPolicy</code> objects, which leverage OpenShift&#8217;s Software Defined Networking (SDN) capabilities. Additionally, route annotations can provide basic IP-based ingress control for applications exposed via OpenShift Routes.</p>
+</div>
+<div class="sect1">
+<h2 id="_understanding_ingress_traffic_and_network_policies"><a class="anchor" href="#_understanding_ingress_traffic_and_network_policies"></a>Understanding Ingress Traffic and Network Policies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>By default, without any explicit network policies, all pods within an OpenShift cluster can communicate with each other. This "flat network" model is convenient for development but often undesirable for production environments where strict security boundaries are required. <code>NetworkPolicy</code> objects allow you to define rules that control how pods communicate with each other and with external network endpoints, thereby enforcing these crucial security boundaries.</p>
+</div>
+<div class="paragraph">
+<p>All cluster ingress traffic, particularly for external exposure, traverses the defined load balancer. However, for internal pod-to-pod communication and fine-grained access control, <code>NetworkPolicy</code> objects are the primary mechanism.</p>
+</div>
+<div class="sect2">
+<h3 id="_openshift_networkpolicy_objects"><a class="anchor" href="#_openshift_networkpolicy_objects"></a>OpenShift NetworkPolicy Objects</h3>
+<div class="paragraph">
+<p><a href="#ROOT:network-security-policies.adoc" class="xref unresolved">NetworkPolicy objects</a> are a powerful and granular mechanism for controlling ingress (and egress) traffic at the pod level within an OpenShift cluster. They function by defining sets of rules that specify which connections are allowed or denied to a particular group of pods.</p>
+</div>
+<div class="paragraph">
+<p>Key characteristics of <code>NetworkPolicy</code> objects in ARO:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Granular Control</strong>: <code>NetworkPolicy</code> objects allow for full control over ingress network policy down to the pod level, including between pods on the same cluster and even within the same namespace.</p>
+</li>
+<li>
+<p><strong>OpenShift SDN Integration</strong>: <code>NetworkPolicy</code> objects utilize the <code>ovs-networkpolicy</code> plugin, which is part of OpenShift Software Defined Networking (SDN). OpenShift SDN uses Open vSwitch (OVS) to configure an overlay network, enabling these fine-grained policy enforcements.</p>
+</li>
+<li>
+<p><strong>V1 NetworkPolicy Compliant</strong>: The ingress network policy in ARO is <code>V1 NetworkPolicy</code> compliant, aligning with standard Kubernetes <code>NetworkPolicy</code> specifications.</p>
+</li>
+<li>
+<p><strong>Enforcement</strong>: The ingress network policy is enabled by default, and its enforcement is carried out by users through the creation and application of <code>NetworkPolicy</code> resources.</p>
+</li>
+<li>
+<p><strong>Limitations for Ingress Rules</strong>: According to the provided context, for <strong>ingress rules</strong> defined within a <code>NetworkPolicy</code>, the <code>Egress</code> and <code>IPBlock</code> types are not supported. This means you cannot define egress rules as part of an ingress policy, and you cannot directly specify source IP CIDR blocks (<code>IPBlock</code>) for incoming traffic within the <code>ingress</code> section of a <code>NetworkPolicy</code> on an ARO cluster. Instead, you primarily rely on <code>podSelector</code> and <code>namespaceSelector</code> for source identification of incoming traffic.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_route_annotations_for_ip_allow_lists"><a class="anchor" href="#_route_annotations_for_ip_allow_lists"></a>Route Annotations for IP Allow Lists</h3>
+<div class="paragraph">
+<p>For applications exposed via OpenShift Routes, project administrators can add route annotations to implement basic ingress control, such as defining an IP allow list. This method is typically used for broader access control at the route level rather than granular pod-level policy.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc annotate route &lt;route-name&gt; haproxy.router.openshift.io/ip_whitelist="&lt;IP-address-or-CIDR&gt;,&lt;IP-address-or-CIDR&gt;"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For example, to allow access only from <code>192.168.1.0/24</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc annotate route my-app-route haproxy.router.openshift.io/ip_whitelist="192.168.1.0/24"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>While useful for initial filtering, <code>NetworkPolicy</code> objects provide a more comprehensive and robust solution for network segmentation and security within the cluster.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_restricting_ingress_with_networkpolicy"><a class="anchor" href="#_hands_on_activity_restricting_ingress_with_networkpolicy"></a>Hands-on Activity: Restricting Ingress with NetworkPolicy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this activity, you will deploy a simple web application and then apply a <code>NetworkPolicy</code> to restrict which pods can access it, demonstrating fine-grained ingress control.</p>
+</div>
+<div class="sect2">
+<h3 id="_scenario"><a class="anchor" href="#_scenario"></a>Scenario</h3>
+<div class="paragraph">
+<p>You will:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy an Nginx application (the "backend") in a dedicated namespace.</p>
+</li>
+<li>
+<p>Deploy a client pod (with <code>curl</code>) in another namespace.</p>
+</li>
+<li>
+<p>Verify that the client pod can initially access the Nginx application.</p>
+</li>
+<li>
+<p>Create and apply a <code>NetworkPolicy</code> to the Nginx application that denies all incoming traffic by default, then explicitly allows traffic <strong>only</strong> from pods within its own namespace.</p>
+</li>
+<li>
+<p>Verify that the client pod can no longer access the Nginx application, demonstrating the policy&#8217;s effect.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An active Azure Red Hat OpenShift cluster.</p>
+</li>
+<li>
+<p><code>oc</code> CLI configured and logged into the cluster with administrative privileges.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_procedure"><a class="anchor" href="#_procedure"></a>Procedure</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Create namespaces</strong>:
+Create two new namespaces: one for the backend application and one for the client pod.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc new-project backend-app
+oc new-project client-tester
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the Nginx backend application</strong>:
+Deploy a simple Nginx web server in the <code>backend-app</code> namespace.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-backend
+  labels:
+    app: nginx-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-backend
+  template:
+    metadata:
+      labels:
+        app: nginx-backend
+    spec:
+      containers:
+      - name: nginx
+        image: quay.io/nginxinc/nginx-unprivileged:latest
+        ports:
+        - containerPort: 80
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Apply the deployment:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f - &lt;&lt;EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-backend
+  labels:
+    app: nginx-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-backend
+  template:
+    metadata:
+      labels:
+        app: nginx-backend
+    spec:
+      containers:
+      - name: nginx
+        image: quay.io/nginxinc/nginx-unprivileged:latest
+        ports:
+        - containerPort: 80
+EOF
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Expose the Nginx application internally with a ClusterIP service:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-backend-svc
+spec:
+  selector:
+    app: nginx-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Apply the service:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc apply -f - &lt;&lt;EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-backend-svc
+spec:
+  selector:
+    app: nginx-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+EOF
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Deploy the client pod</strong>:
+Deploy a <code>curl</code> client pod in the <code>client-tester</code> namespace. This pod will be used to test connectivity.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-pod
+spec:
+  containers:
+  - name: client
+    image: quay.io/centos/centos:latest # Or any image with curl, e.g., busybox
+    command: ["sh", "-c", "sleep infinity"]
+  restartPolicy: Never
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Switch to the `client-tester` project and apply the pod:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc project client-tester
+oc apply -f - &lt;&lt;EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-pod
+spec:
+  containers:
+  - name: client
+    image: quay.io/centos/centos:latest
+    command: ["sh", "-c", "sleep infinity"]
+  restartPolicy: Never
+EOF
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Wait for both `nginx-backend` deployment and `client-pod` to be running:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc project backend-app
+oc get pods
+oc project client-tester
+oc get pods
+----</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Verify initial connectivity</strong>:
+From the <code>client-pod</code>, try to access the <code>nginx-backend-svc</code> in the <code>backend-app</code> namespace. You&#8217;ll need the full service DNS name.</p>
+<div class="literalblock">
+<div class="content">
+<pre>First, get the full DNS name for the backend service:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc project client-tester
+SERVICE_DNS_NAME=$(oc get service nginx-backend-svc -n backend-app -o jsonpath='{.metadata.name}.{.metadata.namespace}.svc.cluster.local')
+echo "Attempting to reach: $SERVICE_DNS_NAME"
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Now, execute `curl` from the `client-pod`:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc exec client-pod -- curl -s $SERVICE_DNS_NAME
+----
+You should see Nginx's default welcome page (HTML content), indicating successful connection.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Apply the NetworkPolicy</strong>:
+Now, create a <code>NetworkPolicy</code> in the <code>backend-app</code> namespace that will deny all ingress traffic to <code>nginx-backend</code> pods unless it originates from a pod within the <code>backend-app</code> namespace itself.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,yaml]
+----
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-ingress-from-other-namespaces
+  namespace: backend-app
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-backend # This policy applies to pods with this label
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow ingress only from pods within the same namespace
+    - from:
+        - podSelector: {} # Selects all pods in the same namespace (backend-app)
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Switch to the `backend-app` project and apply the NetworkPolicy:</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc project backend-app
+oc apply -f - &lt;&lt;EOF
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-ingress-from-other-namespaces
+  namespace: backend-app
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx-backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+EOF
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>[NOTE]
+====
+This `NetworkPolicy` works as follows:</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>podSelector: matchLabels: app: nginx-backend</code>: This specifies that the policy applies to pods labeled <code>app: nginx-backend</code>.</p>
+</li>
+<li>
+<p><code>policyTypes: - Ingress</code>: This indicates that the policy defines rules for incoming traffic.</p>
+</li>
+<li>
+<p><code>ingress:</code>: This section contains the ingress rules. If this section is present and contains rules, only traffic matching those rules is allowed, and all other ingress is denied. If this section were present and empty, it would deny <strong>all</strong> ingress.</p>
+</li>
+<li>
+<p><code>from: - podSelector: {}</code>: This rule explicitly allows ingress from <strong>any</strong> pod within the <strong>same namespace</strong> (<code>backend-app</code>), because <code>podSelector: {}</code> selects all pods within the policy&#8217;s namespace.
+====</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Verify restricted connectivity</strong>:
+Try to access the Nginx application again from the <code>client-pod</code> in the <code>client-tester</code> namespace.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc project client-tester
+SERVICE_DNS_NAME=$(oc get service nginx-backend-svc -n backend-app -o jsonpath='{.metadata.name}.{.metadata.namespace}.svc.cluster.local')
+oc exec client-pod -- curl -s --max-time 5 $SERVICE_DNS_NAME
+----</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>You should now see that the `curl` command hangs or fails to connect (e.g., "Connection timed out" or "Failed to connect"), indicating that the `NetworkPolicy` is successfully blocking traffic from `client-pod` to `nginx-backend`.</pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Clean up (Optional)</strong>:
+Remove the resources created during this activity.</p>
+<div class="literalblock">
+<div class="content">
+<pre>[source,bash]
+----
+oc delete project backend-app
+oc delete project client-tester
+----</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This hands-on activity demonstrates how <code>NetworkPolicy</code> objects provide fine-grained control over ingress traffic within your Azure Red Hat OpenShift cluster, significantly enhancing the security posture of your applications.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="configuring-network-policies.html">Configuring network policies</a></span>
+  <span class="next"><a href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

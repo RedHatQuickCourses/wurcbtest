@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Backup and restore of cluster applications using Velero :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="cluster-application-data-management.html">
+    <link rel="next" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="cluster-application-data-management.html">Cluster Application Data Management</a></li>
+    <li><a href="backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Backup and restore of cluster applications using Velero</h1>
+<h1 id="_backup_and_restore_of_cluster_applications_using_velero" class="sect0"><a class="anchor" href="#_backup_and_restore_of_cluster_applications_using_velero"></a>Backup and restore of cluster applications using Velero</h1>
+<div class="quoteblock abstract">
+<blockquote>
+This module provides a comprehensive guide to backing up and restoring applications in an Azure Red Hat OpenShift (ARO) cluster using Velero. You will learn how to set up Velero, perform application backups, including persistent volumes, and restore applications to their previous state, ensuring business continuity and data resilience.
+</blockquote>
+</div>
+<div class="sect1">
+<h2 id="_understanding_velero_for_aro_cluster_application_management"><a class="anchor" href="#_understanding_velero_for_aro_cluster_application_management"></a>Understanding Velero for ARO Cluster Application Management</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the dynamic environment of Azure Red Hat OpenShift, ensuring the resilience and recoverability of your applications is critical. Velero is an open-source tool specifically designed for disaster recovery and migration of Kubernetes cluster resources and persistent volumes. It provides a robust and flexible solution for creating snapshots of your application&#8217;s state and data, enabling swift restoration in various scenarios.</p>
+</div>
+<div class="paragraph">
+<p>Velero operates by interacting with the Kubernetes API to collect resource definitions (such as Deployments, Services, ConfigMaps, and Secrets) and, optionally, leveraging cloud provider APIs to create snapshots of underlying Persistent Volumes. These backups are then securely stored in an object storage solution, such as Azure Blob Storage, allowing for granular or complete application recovery to the same or a different ARO cluster.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_capabilities"><a class="anchor" href="#_key_capabilities"></a>Key Capabilities:</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Application-centric Backup and Restore:</strong> Velero allows you to back up and restore all Kubernetes resources associated with specific applications or namespaces.</p>
+</li>
+<li>
+<p><strong>Persistent Volume Snapshots:</strong> It integrates with Azure&#8217;s native snapshot capabilities to capture consistent snapshots of Persistent Volumes (PVs), critical for stateful applications.</p>
+</li>
+<li>
+<p><strong>Cluster Migration:</strong> Facilitates the migration of applications and their data between ARO clusters, across regions, or even to different environments.</p>
+</li>
+<li>
+<p><strong>Disaster Recovery:</strong> Offers a crucial mechanism for recovering applications and their data in the event of accidental deletion, data corruption, or broader cluster failures.</p>
+</li>
+<li>
+<p><strong>Backup Scheduling:</strong> Supports automated, scheduled backups to maintain regular recovery points.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_velero_integrates_with_aro_and_azure"><a class="anchor" href="#_how_velero_integrates_with_aro_and_azure"></a>How Velero Integrates with ARO and Azure:</h3>
+<div class="paragraph">
+<p>Velero leverages a dedicated plugin for Microsoft Azure, <code>velero-plugin-for-microsoft-azure</code>, to seamlessly interact with Azure services. This plugin enables Velero to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Store Backup Archives:</strong> Store compressed <code>.tar.gz</code> archives of Kubernetes resource definitions in designated Azure Blob Storage containers.</p>
+</li>
+<li>
+<p><strong>Manage Volume Snapshots:</strong> Orchestrate the creation and restoration of snapshots for Azure Managed Disks, which serve as the backing storage for Persistent Volumes in ARO.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This integration ensures that your application&#8217;s configuration and persistent data are securely backed up within your Azure subscription, adhering to your cloud infrastructure&#8217;s security and compliance standards.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before proceeding with Velero installation and operations, ensure the following prerequisites are met:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Azure Red Hat OpenShift v4 Cluster:</strong> You must have an active ARO v4 cluster and be successfully authenticated as an administrator via the <code>oc</code> CLI.</p>
+</li>
+<li>
+<p><strong>Azure CLI:</strong> Install Azure CLI version <code>2.6.0</code> or later. Verify your version by running <code>az --version</code>. If needed, refer to the Azure documentation for installation or upgrade instructions.</p>
+</li>
+<li>
+<p><strong><code>oc</code> CLI:</strong> The OpenShift command-line interface installed and configured to connect to your ARO cluster.</p>
+</li>
+<li>
+<p><strong>Permissions:</strong> Your Azure account (or the Service Principal/Managed Identity you use) must have sufficient permissions to create:</p>
+</li>
+<li>
+<p>Azure Resource Groups</p>
+</li>
+<li>
+<p>Azure Storage Accounts and Blob Containers</p>
+</li>
+<li>
+<p>Azure Disk Snapshots</p>
+</li>
+<li>
+<p>Your ARO user account must have permissions to deploy applications and manage cluster resources.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_setting_up_velero_for_aro"><a class="anchor" href="#_setting_up_velero_for_aro"></a>Setting Up Velero for ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To implement Velero for backup and restore operations, you&#8217;ll first need to configure the necessary Azure storage infrastructure and then install Velero into your ARO cluster.</p>
+</div>
+<div class="sect2">
+<h3 id="_step_1_create_an_azure_storage_account_and_blob_container"><a class="anchor" href="#_step_1_create_an_azure_storage_account_and_blob_container"></a>Step 1: Create an Azure Storage Account and Blob Container</h3>
+<div class="paragraph">
+<p>Velero requires an Azure storage account and a blob container to store its backup data. For optimal disaster recovery planning, it&#8217;s recommended to create a dedicated Azure resource group for these backup resources, separate from your ARO cluster&#8217;s resource group. This strategy ensures that your backups persist independently, even if the primary ARO cluster&#8217;s resource group is deleted.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 1. Activity: Create Azure Storage for Velero Backups</div>
+<div class="content">
+<div class="paragraph">
+<p>This activity guides you through the process of creating a dedicated Azure resource group, storage account, and blob container specifically for Velero backups.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to your Azure account using the Azure CLI:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az login</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Set environment variables. These variables will define the names and location for your backup resources. Ensure <code>AZURE_LOCATION</code> matches a region where your ARO cluster or desired restore target resides.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">export AZURE_BACKUP_RESOURCE_GROUP="Velero_Backups" # Dedicated resource group for Velero backups
+export AZURE_STORAGE_ACCOUNT_NAME="arovelero$(head /dev/urandom | tr -dc a-z0-9 | head -c 10 | tr '[:upper:]' '[:lower:]')" # Must be globally unique, lowercase
+export AZURE_BLOB_CONTAINER="velerobackups" # Name of the blob container for backups
+export AZURE_LOCATION="eastus" # Choose an appropriate Azure region</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create the dedicated Azure resource group for your Velero backups:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az group create --name $AZURE_BACKUP_RESOURCE_GROUP --location $AZURE_LOCATION</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create the storage account within the new resource group. <code>Standard_GRS</code> (Geo-Redundant Storage) is often chosen for backups due to its high durability and availability across regions.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az storage account create \
+  --name $AZURE_STORAGE_ACCOUNT_NAME \
+  --resource-group $AZURE_BACKUP_RESOURCE_GROUP \
+  --sku Standard_GRS \
+  --encryption-services blob \
+  --location $AZURE_LOCATION \
+  --kind StorageV2 # Recommended for general purpose storage features</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>--sku Standard_GRS</code> provides geographic redundancy, meaning your data is replicated to a secondary region hundreds of miles away, offering robust protection against regional outages.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Create the blob container where Velero will store the backup archives:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">az storage container create \
+  --name $AZURE_BLOB_CONTAINER \
+  --account-name $AZURE_STORAGE_ACCOUNT_NAME</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Retrieve the access key for the storage account. Velero requires this key to authenticate and interact with your Azure Blob Storage.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">export AZURE_STORAGE_ACCOUNT_KEY=$(az storage account keys list \
+  --resource-group $AZURE_BACKUP_RESOURCE_GROUP \
+  --account-name $AZURE_STORAGE_ACCOUNT_NAME \
+  --query '[0].value' --output tsv)</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create a Velero credentials file named <code>credentials-velero</code>. This file will temporarily store the storage account key for Velero installation.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt; EOF &gt; credentials-velero
+AZURE_STORAGE_ACCOUNT_ACCESS_KEY=$AZURE_STORAGE_ACCOUNT_KEY
+EOF</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The <code>credentials-velero</code> file contains sensitive information. Ensure it is handled securely and deleted immediately after Velero installation is complete to prevent unauthorized access.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_install_velero_into_your_aro_cluster"><a class="anchor" href="#_step_2_install_velero_into_your_aro_cluster"></a>Step 2: Install Velero into your ARO Cluster</h3>
+<div class="paragraph">
+<p>Velero needs to be deployed into its own dedicated project (namespace) within your ARO cluster. This installation includes deploying the Velero server components and the necessary Custom Resource Definitions (CRDs) that Velero uses for managing backups and restores.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 2. Activity: Install Velero</div>
+<div class="content">
+<div class="paragraph">
+<p>This activity guides you through installing the Velero CLI locally and then deploying the Velero server into your ARO cluster using the <code>velero install</code> command.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download and install the Velero CLI locally on your workstation. Ensure you download the version compatible with your operating system from the official Velero GitHub releases page.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Example for Linux (adjust VELERO_VERSION to the latest stable release)
+export VELERO_VERSION="1.13.0" # Check Velero releases for the latest stable version
+wget https://github.com/vmware-tanzu/velero/releases/download/v${VELERO_VERSION}/velero-v${VELERO_VERSION}-linux-amd64.tar.gz
+tar -xvf velero-v${VELERO_VERSION}-linux-amd64.tar.gz
+sudo mv velero-v${VELERO_VERSION}-linux-amd64/velero /usr/local/bin
+velero --version # Verify the Velero CLI installation and version</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Install Velero into your ARO cluster. This command creates a <code>velero</code> namespace, deploys the Velero server pod, and configures it to use your Azure storage account.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero install \
+  --provider azure \
+  --plugins velero/velero-plugin-for-microsoft-azure:v1.1.0 \
+  --bucket $AZURE_BLOB_CONTAINER \
+  --secret-file ./credentials-velero \
+  --backup-location-config resourceGroup=$AZURE_BACKUP_RESOURCE_GROUP,storageAccount=$AZURE_STORAGE_ACCOUNT_NAME \
+  --snapshot-location-config apiTimeout=5m,resourceGroup=$AZURE_BACKUP_RESOURCE_GROUP \
+  --kubeconfig ~/.kube/config # Ensure this path correctly points to your ARO cluster's KubeConfig</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>--plugins</code> argument specifies the Azure plugin and its version (<code>v1.1.0</code> as per context). Always verify the compatibility matrix between your Velero CLI version and the plugin version in Velero&#8217;s official documentation. The <code>resourceGroup</code> for <code>snapshot-location-config</code> specifies where Azure Disk Snapshots will be stored.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Verify the Velero installation by checking the status of the Velero pod in the <code>velero</code> namespace:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n velero</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see output similar to the following, indicating the <code>velero-&#8230;&#8203;</code> pod is in a <code>Running</code> state:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                      READY   STATUS    RESTARTS   AGE
+velero-xxxxxxx-xxxx       1/1     Running   0          2m</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Once Velero is successfully installed and running, you can safely remove the temporary <code>credentials-velero</code> file:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">rm credentials-velero</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_performing_an_application_backup"><a class="anchor" href="#_performing_an_application_backup"></a>Performing an Application Backup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With Velero successfully installed, you can now begin creating backups of your applications running on the ARO cluster. Velero allows for flexible backup options, including backing up entire namespaces or specific resources within them.</p>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation_how_velero_backups_work"><a class="anchor" href="#_technical_explanation_how_velero_backups_work"></a>Technical Explanation: How Velero Backups Work</h3>
+<div class="paragraph">
+<p>When you initiate a backup, Velero orchestrates a series of actions to capture your application&#8217;s state:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Resource Collection:</strong> Velero queries the Kubernetes API server to identify and collect the YAML definitions of all specified Kubernetes resources (e.g., Deployments, Services, ConfigMaps, Secrets, PVCs) within the target namespaces.</p>
+</li>
+<li>
+<p><strong>Archive Creation:</strong> These collected resource definitions are then bundled and compressed into a <code>.tar.gz</code> archive.</p>
+</li>
+<li>
+<p><strong>Object Storage Upload:</strong> The <code>.tar.gz</code> archive containing the application&#8217;s Kubernetes resource definitions is uploaded to the configured Azure Blob Storage container.</p>
+</li>
+<li>
+<p><strong>Persistent Volume Snapshots (Optional):</strong> If configured (e.g., using <code>--snapshot-volumes</code>), Velero interacts with the Azure API to create point-in-time snapshots of the underlying Azure Managed Disks that are backing your Persistent Volumes (PVs). This ensures data consistency for stateful applications.</p>
+</li>
+<li>
+<p><strong>Metadata Recording:</strong> Velero creates a <code>Backup</code> custom resource in the ARO cluster, which serves as a record of the backup operation, including its status, included resources, and associated volume snapshots.</p>
+</li>
+</ol>
+</div>
+<div class="exampleblock">
+<div class="title">Example 3. Activity: Create an Application Backup</div>
+<div class="content">
+<div class="paragraph">
+<p>This activity demonstrates how to create a backup of a stateless application running in your ARO cluster. For this example, we&#8217;ll use a simple Nginx deployment.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy a sample stateless application (if you don&#8217;t have one readily available). We will create a <code>nginx-example</code> namespace and deploy an Nginx application into it.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project nginx-example || true # Create the project if it doesn't exist
+oc create deployment nginx-example --image=nginx:latest -n nginx-example
+oc expose service nginx-example -n nginx-example --port=80
+oc scale deployment nginx-example --replicas=3 -n nginx-example
+oc rollout status deployment/nginx-example -n nginx-example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Verify that the application pods are running:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n nginx-example</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create a Velero backup that includes all resources within the <code>nginx-example</code> namespace. It&#8217;s good practice to include a unique identifier like a timestamp in the backup name.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero backup create nginx-backup-$(date +%Y%m%d%H%M%S) --include-namespaces nginx-example</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Using a timestamp in the backup name makes it easy to identify when a backup was created, which is crucial for managing multiple recovery points.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Check the status of your newly created backup:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero backup get</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A successful backup will show <code>Phase: Completed</code> and <code>Status: Completed</code>. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                           STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+nginx-backup-20231027103000      Completed   0        0          2023-10-27 10:30:00 +0000 UTC   29d       default            &lt;none&gt;</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>To get detailed information about a specific backup, including its included resources and any warnings or errors:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero backup describe &lt;your-nginx-backup-name&gt; --details</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_including_persistent_volumes_in_backups"><a class="anchor" href="#_including_persistent_volumes_in_backups"></a>Including Persistent Volumes in Backups</h3>
+<div class="paragraph">
+<p>For stateful applications, merely backing up Kubernetes resource definitions is insufficient; the data stored in Persistent Volumes (PVs) must also be protected. Velero&#8217;s <code>--snapshot-volumes</code> flag ensures that snapshots of your Azure Managed Disks are taken alongside your Kubernetes resource backups.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 4. Activity: Create a Backup with Persistent Volume Snapshots</div>
+<div class="content">
+<div class="paragraph">
+<p>This activity demonstrates how to create a backup that includes persistent volume snapshots. You&#8217;ll need an application that utilizes a Persistent Volume Claim (PVC) and a Persistent Volume (PV). We&#8217;ll use a simple PostgreSQL database as an example.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Deploy a sample stateful application, such as a PostgreSQL database, into a new namespace called <code>postgres-example</code>.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc new-project postgres-example || true
+
+# Create a Persistent Volume Claim (PVC)
+cat &lt;&lt; EOF | oc apply -f - -n postgres-example
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+EOF
+
+# Deploy PostgreSQL using the PVC
+cat &lt;&lt; EOF | oc apply -f - -n postgres-example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13
+          env:
+            - name: POSTGRES_DB
+              value: mydatabase
+            - name: POSTGRES_USER
+              value: myuser
+            - name: POSTGRES_PASSWORD
+              value: mypassword
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+EOF</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Wait for the PostgreSQL pod to be running and the PVC to be in a <code>Bound</code> state.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n postgres-example
+oc get pvc -n postgres-example</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Create a backup for the <code>postgres-example</code> namespace, explicitly enabling volume snapshots using the <code>--snapshot-volumes</code> flag:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero backup create postgres-backup-$(date +%Y%m%d%H%M%S) \
+  --include-namespaces postgres-example \
+  --snapshot-volumes</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>--snapshot-volumes</code> flag instructs Velero to coordinate with the Azure plugin to create snapshots of any Azure Managed Disks associated with the Persistent Volumes (PVs) used by resources in the <code>postgres-example</code> namespace.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Check the backup status and details. Pay close attention to the <code>VolumeSnapshots</code> section in the detailed output to confirm that the PV snapshot was created successfully.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero backup get
+velero backup describe &lt;your-postgres-backup-name&gt; --details</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The detailed output should show <code>VolumeSnapshots: 1 of 1 completed</code> (or similar, depending on the number of PVs), confirming the successful snapshot of the persistent data.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_performing_an_application_restore"><a class="anchor" href="#_performing_an_application_restore"></a>Performing an Application Restore</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Restoring an application from a Velero backup is a critical capability for disaster recovery, data recovery, or even migrating applications. You can restore to the same cluster (e.g., to revert an accidental deletion) or to a completely new ARO cluster.</p>
+</div>
+<div class="sect2">
+<h3 id="_technical_explanation_how_velero_restores_work"><a class="anchor" href="#_technical_explanation_how_velero_restores_work"></a>Technical Explanation: How Velero Restores Work</h3>
+<div class="paragraph">
+<p>When you initiate a restore operation, Velero executes the following steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Backup Retrieval:</strong> Velero fetches the specified backup archive from your Azure Blob Storage container.</p>
+</li>
+<li>
+<p><strong>Resource Extraction:</strong> The <code>.tar.gz</code> archive is uncompressed, and the Kubernetes resource definitions are extracted.</p>
+</li>
+<li>
+<p><strong>Kubernetes Object Creation:</strong> Velero then uses these definitions to recreate the Kubernetes objects (deployments, services, config maps, etc.) in the target ARO cluster.</p>
+</li>
+<li>
+<p><strong>Persistent Volume Restoration (Optional):</strong> If the backup included volume snapshots, Velero interacts with the Azure API to:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Create new Azure Managed Disks from the stored snapshots.</p>
+</li>
+<li>
+<p>Provision new Persistent Volumes (PVs) and Persistent Volume Claims (PVCs) in the cluster.</p>
+</li>
+<li>
+<p>These new PVs and PVCs are configured to reference the newly created Azure Disks, effectively restoring the persistent data.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="exampleblock">
+<div class="title">Example 5. Activity: Restore an Application</div>
+<div class="content">
+<div class="paragraph">
+<p>This activity demonstrates how to restore a stateless application from a previously created Velero backup. For demonstration purposes, we will delete the <code>nginx-example</code> namespace and then restore it.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>First, list all available backups to identify the specific backup you wish to restore:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get backups -n velero</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command provides a concise list of all backups managed by Velero.</p>
+</div>
+</li>
+<li>
+<p>Identify the name of the Nginx backup you want to restore (e.g., <code>nginx-backup-20231027103000</code>).</p>
+</li>
+<li>
+<p>(Optional, but recommended for demonstration) Delete the <code>nginx-example</code> namespace to simulate an accidental deletion or a migration scenario to a clean cluster:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete project nginx-example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait for the namespace and its associated resources to be fully terminated before proceeding.</p>
+</div>
+</li>
+<li>
+<p>Execute the restore operation using the <code>velero restore create</code> command, referencing your chosen backup:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero restore create nginx-restore-$(date +%Y%m%d%H%M%S) \
+  --from-backup &lt;your-nginx-backup-name&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace <code>&lt;your-nginx-backup-name&gt;</code> with the actual name of your Nginx backup.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+For testing or specific scenarios, you can use flags like <code>--dry-run</code> to preview the restore actions or <code>--namespace-mappings</code> to restore to a different namespace (e.g., <code>--namespace-mappings nginx-example:nginx-restored</code>).
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Check the status of the restore operation:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero restore get</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A successful restore will display <code>Phase: Completed</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">NAME                           BACKUP                           STATUS      STARTED                         COMPLETED                       ERRORS   WARNINGS
+nginx-restore-20231027110000     nginx-backup-20231027103000      Completed   2023-10-27 11:00:00 +0000 UTC   2023-10-27 11:00:15 +0000 UTC   0        0</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify that the <code>nginx-example</code> namespace and its resources have been successfully restored:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get project nginx-example
+oc get all -n nginx-example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should observe the <code>nginx-example</code> project and its deployments, services, and pods running again.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_restoring_applications_with_persistent_volumes"><a class="anchor" href="#_restoring_applications_with_persistent_volumes"></a>Restoring Applications with Persistent Volumes</h3>
+<div class="paragraph">
+<p>When restoring stateful applications that had their persistent volumes backed up with snapshots, Velero will automatically handle the re-provisioning of the PVs and PVCs. It links them to newly created Azure Disks that are hydrated from the original snapshots, ensuring data integrity.</p>
+</div>
+<div class="exampleblock">
+<div class="title">Example 6. Activity: Restore a Stateful Application</div>
+<div class="content">
+<div class="paragraph">
+<p>This activity demonstrates restoring the <code>postgres-example</code> application, including its Persistent Volume data.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>(Optional) Delete the <code>postgres-example</code> namespace to simulate a complete loss scenario:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete project postgres-example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Wait for the namespace to be fully terminated.</p>
+</div>
+</li>
+<li>
+<p>List available backups to identify your PostgreSQL backup.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get backups -n velero</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Perform the restore operation for your PostgreSQL backup:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero restore create postgres-restore-$(date +%Y%m%d%H%M%S) \
+  --from-backup &lt;your-postgres-backup-name&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace <code>&lt;your-postgres-backup-name&gt;</code> with the actual name of your PostgreSQL backup.</p>
+</div>
+</li>
+<li>
+<p>Check the status of the restore operation:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">velero restore get</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Verify the successful restoration of the <code>postgres-example</code> namespace, deployment, and, crucially, the Persistent Volume Claim and its data:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get project postgres-example
+oc get all -n postgres-example
+oc get pvc -n postgres-example</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see the <code>postgres-example</code> project recreated, the <code>postgres-deployment</code> coming up, and the <code>postgres-pv-claim</code> in a <code>Bound</code> state, confirming the successful restoration of both application resources and persistent data.</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting_and_best_practices"><a class="anchor" href="#_troubleshooting_and_best_practices"></a>Troubleshooting and Best Practices</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Maintaining a robust backup and restore strategy is crucial for any production environment. Here are some common troubleshooting tips and best practices when working with Velero on ARO.</p>
+</div>
+<div class="sect2">
+<h3 id="_common_troubleshooting_scenarios"><a class="anchor" href="#_common_troubleshooting_scenarios"></a>Common Troubleshooting Scenarios:</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Backup/Restore Failure:</strong></p>
+</li>
+<li>
+<p><strong>Check Velero Pod Logs:</strong> The first step for any failure is to inspect the logs of the Velero server pod: <code>oc logs -n velero &lt;velero-pod-name&gt;</code>.</p>
+</li>
+<li>
+<p><strong>Examine Backup/Restore Details:</strong> Use <code>velero backup describe &lt;name&gt; --details</code> or <code>velero restore describe &lt;name&gt; --details</code> to find specific error messages, warnings, or detailed progress information.</p>
+</li>
+<li>
+<p><strong>Resource Quotas:</strong> Ensure the target namespace for restore operations has sufficient resource quotas for the application&#8217;s components.</p>
+</li>
+<li>
+<p><strong>Azure Permissions Issues:</strong> Velero requires specific Azure permissions to create/delete resource groups, storage accounts, blob containers, and disk snapshots. Verify that the Azure identity Velero uses (e.g., Service Principal or Managed Identity) has the necessary roles (e.g., <code>Contributor</code> on the backup resource group, or a more granular custom role).</p>
+</li>
+<li>
+<p><strong>Network Connectivity:</strong> Confirm that your ARO cluster has outbound network access to Azure Blob Storage endpoints (<code>*.blob.core.windows.net</code>) and Azure API endpoints (<code>management.azure.com</code>).</p>
+</li>
+<li>
+<p><strong>Volume Snapshot Delays:</strong> Creating and restoring volume snapshots, especially for large Persistent Volumes, can take a significant amount of time. Monitor the Velero backup/restore status and the Azure portal for snapshot progress.</p>
+</li>
+<li>
+<p><strong>Restore Conflicts:</strong> If restoring to a cluster where some resources already exist, Velero might encounter conflicts. Consider restoring to a different namespace using <code>--namespace-mappings</code> or carefully selecting specific resources to restore using <code>--include-resources</code> or <code>--exclude-resources</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_velero_best_practices"><a class="anchor" href="#_velero_best_practices"></a>Velero Best Practices:</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Dedicated Azure Resource Group:</strong> Always use a dedicated Azure resource group for your Velero backup storage. This isolation ensures that your backups are not accidentally deleted if the ARO cluster&#8217;s resource group is removed and provides a clear separation of concerns.</p>
+</li>
+<li>
+<p><strong>Automated Backup Schedules:</strong> Implement <code>velero schedule create</code> for automated, regular backups. Define your Recovery Point Objective (RPO) and Recovery Time Objective (RTO) to guide your backup frequency and retention.</p>
+</li>
+<li>
+<p><strong>Retention Policies (TTL):</strong> Configure Time-To-Live (TTL) for your backups using <code>--ttl</code> with <code>velero backup create</code> or schedules. This automatically cleans up old backups, managing storage costs and adhering to data retention policies.</p>
+</li>
+<li>
+<p><strong>Periodic Test Restores:</strong> Regularly perform test restores to a non-production ARO cluster. This is the most crucial step to validate your backup strategy, ensure data integrity, and verify that your team can successfully execute a restore operation under pressure.</p>
+</li>
+<li>
+<p><strong>Granular Backups and Exclusions:</strong> Use Velero filters (<code>--include-namespaces</code>, <code>--exclude-namespaces</code>, <code>--include-resources</code>, <code>--exclude-resources</code>, <code>--selector</code>) to create targeted backups. This helps avoid backing up unnecessary or ephemeral data, reducing backup size and restore times.</p>
+</li>
+<li>
+<p><strong>Monitor Velero Resources:</strong> Keep an eye on the Velero server pod&#8217;s resource consumption (CPU/Memory), especially in large clusters with numerous backups or frequent operations. Adjust its resource limits if necessary.</p>
+</li>
+<li>
+<p><strong>Keep Velero CLI and Server Aligned:</strong> Ensure your local Velero CLI version is compatible with the Velero server version deployed in your cluster to prevent unexpected behavior.</p>
+</li>
+<li>
+<p><strong>Documentation:</strong> Maintain clear documentation of your backup and restore procedures, including backup schedules, retention policies, and test restore results.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>By following these guidelines, you can establish a robust and reliable backup and restore solution for your critical applications on Azure Red Hat OpenShift, safeguarding your data and ensuring operational continuity.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="cluster-application-data-management.html">Cluster Application Data Management</a></span>
+  <span class="next"><a href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

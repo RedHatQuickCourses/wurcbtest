@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Implementing OpenShift GitOps :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="gitops-for-cluster-administration.html">
+    <link rel="next" href="using-argocd-for-declarative-cluster-management.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../hands-on-lab/hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../hands-on-lab/manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="gitops-for-cluster-administration.html">GitOps for Cluster Administration</a></li>
+    <li><a href="implementing-openshift-gitops.html">Implementing OpenShift GitOps</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Implementing OpenShift GitOps</h1>
+<h1 id="_implementing_openshift_gitops" class="sect0"><a class="anchor" href="#_implementing_openshift_gitops"></a>Implementing OpenShift GitOps</h1>
+<div class="paragraph">
+<p>This section delves into implementing GitOps principles for managing your Azure Red Hat OpenShift (ARO) clusters and applications. GitOps offers a powerful, declarative approach to continuous delivery, bringing the benefits of version control and automation to infrastructure and application deployments.</p>
+</div>
+<div class="sect1">
+<h2 id="_what_is_gitops"><a class="anchor" href="#_what_is_gitops"></a>What is GitOps?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>GitOps is an operational framework that takes DevOps best practices used for application development, such as version control, collaboration, compliance, and CI/CD, and applies them to infrastructure automation. At its core, GitOps uses a Git repository as the single source of truth for the desired state of your infrastructure and applications.</p>
+</div>
+<div class="paragraph">
+<p>In a GitOps workflow, changes to your cluster configuration or application deployments are made by updating manifest files (e.g., YAML files) in a Git repository. An automated process then detects these changes, compares them with the actual state of the cluster, and reconciles any differences to bring the cluster to the desired state defined in Git.</p>
+</div>
+<div class="sect2">
+<h3 id="_key_principles_of_gitops"><a class="anchor" href="#_key_principles_of_gitops"></a>Key Principles of GitOps</h3>
+<div class="paragraph">
+<p>GitOps is built upon four fundamental principles:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Declarative:</strong> The desired state of the entire system (infrastructure and applications) is expressed declaratively. This means you describe <strong>what</strong> you want the system to look like, rather than <strong>how</strong> to get there. Kubernetes manifests are a perfect example of declarative configuration.</p>
+</li>
+<li>
+<p><strong>Versioned and Immutable:</strong> The desired state is stored in a Git repository, which provides version control, an immutable audit trail, and easy rollback capabilities. Every change is tracked, allowing you to see who made what change, when, and why.</p>
+</li>
+<li>
+<p><strong>Pulled Automatically:</strong> Agents deployed within the cluster continuously observe the Git repository for changes to the desired state and pull these changes into the cluster. This "pull" model enhances security by reducing the need for external systems to have direct write access to your cluster.</p>
+</li>
+<li>
+<p><strong>Continuously Reconciled:</strong> The automated agents constantly compare the actual state of the cluster with the desired state defined in Git. If any deviation is detected (drift), the agents automatically reconcile the differences, ensuring the cluster always matches the single source of truth.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_openshift_gitops_and_argocd"><a class="anchor" href="#_openshift_gitops_and_argocd"></a>OpenShift GitOps and ArgoCD</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Red Hat OpenShift GitOps is Red Hat&#8217;s opinionated solution for implementing GitOps workflows on OpenShift Container Platform, including ARO. It packages and integrates key open-source technologies to provide a robust and streamlined GitOps experience.</p>
+</div>
+<div class="paragraph">
+<p>The core components of OpenShift GitOps include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>ArgoCD:</strong> A declarative, GitOps continuous delivery tool for Kubernetes. It serves as the primary reconciliation engine, monitoring Git repositories and synchronizing the desired state to the cluster.</p>
+</li>
+<li>
+<p><strong>OpenShift Pipelines (Tekton):</strong> While not always directly used <strong>by</strong> ArgoCD for deployments, OpenShift Pipelines can be integrated for building container images, running tests, and preparing application manifests that are then committed to a Git repository for ArgoCD to deploy.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_argocd_the_heart_of_openshift_gitops"><a class="anchor" href="#_argocd_the_heart_of_openshift_gitops"></a>ArgoCD: The Heart of OpenShift GitOps</h3>
+<div class="paragraph">
+<p>ArgoCD is a powerful tool designed specifically for GitOps continuous delivery. It enables developers to define applications, infrastructure, and configurations in Git repositories and automatically deploy them to Kubernetes clusters. Key features of ArgoCD include:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Automatic Synchronization:</strong> ArgoCD continuously monitors a Git repository for changes and automatically applies them to the target cluster.</p>
+</li>
+<li>
+<p><strong>Web UI and CLI:</strong> Provides a user-friendly web interface for visualizing application status, health, and history, along with a powerful command-line interface.</p>
+</li>
+<li>
+<p><strong>Rollback and Roll-forward:</strong> Easily revert to previous application versions or fast-forward to newer ones using Git history.</p>
+</li>
+<li>
+<p><strong>Health Checks:</strong> Monitors the health of deployed applications and reports their status.</p>
+</li>
+<li>
+<p><strong>Multi-tenancy:</strong> Supports managing multiple applications across various projects and clusters.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_benefits_of_gitops_for_azure_red_hat_openshift_aro_administration"><a class="anchor" href="#_benefits_of_gitops_for_azure_red_hat_openshift_aro_administration"></a>Benefits of GitOps for Azure Red Hat OpenShift (ARO) Administration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Implementing GitOps for your ARO clusters offers significant advantages:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Increased Automation:</strong> Automates the deployment and management of applications and infrastructure, reducing manual errors and operational overhead.</p>
+</li>
+<li>
+<p><strong>Improved Consistency and Standardization:</strong> Ensures that all environments (development, staging, production) are configured identically, reducing "it works on my machine" issues.</p>
+</li>
+<li>
+<p><strong>Enhanced Auditability and Traceability:</strong> Every change to your cluster&#8217;s desired state is version-controlled in Git, providing a complete audit trail of who, what, and when.</p>
+</li>
+<li>
+<p><strong>Faster and Safer Deployments:</strong> Automated, consistent deployments lead to faster release cycles with less risk, as rollbacks are simple Git reverts.</p>
+</li>
+<li>
+<p><strong>Disaster Recovery:</strong> Rebuilding a cluster or restoring an application to a known state becomes straightforward by simply re-applying the Git-controlled manifests.</p>
+</li>
+<li>
+<p><strong>Developer Experience:</strong> Developers can manage deployments using familiar Git workflows, pushing changes to a repository rather than interacting directly with the cluster.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_gitops_works_with_aro"><a class="anchor" href="#_how_gitops_works_with_aro"></a>How GitOps Works with ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Let&#8217;s break down the technical flow of how GitOps, specifically with ArgoCD, operates within an ARO environment:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Git as the Source of Truth:</strong> You define your ARO cluster&#8217;s desired state (e.g., namespace configurations, application deployments, <code>ConfigMaps</code>, <code>Secrets</code>, <code>Custom Resource Definitions</code>) in YAML manifests within a Git repository. This repository becomes the single, authoritative source for everything that should be running on your cluster.</p>
+</li>
+<li>
+<p><strong>ArgoCD Installation on ARO:</strong> You install the OpenShift GitOps Operator on your ARO cluster. This operator deploys ArgoCD (and its associated components like the ArgoCD server, controller, and Redis) into a dedicated namespace within your ARO cluster.</p>
+</li>
+<li>
+<p><strong>Application Definition:</strong> Within ArgoCD, you define an "Application" resource. This resource specifies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The Git repository URL containing your application/cluster manifests.</p>
+</li>
+<li>
+<p>The path within the repository to the relevant manifest files.</p>
+</li>
+<li>
+<p>The target ARO cluster and namespace where the resources should be deployed.</p>
+</li>
+<li>
+<p>Synchronization policies (e.g., automatic sync, prune resources, self-healing).</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Continuous Reconciliation:</strong> The ArgoCD controller, running within your ARO cluster, continuously performs the following tasks:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Monitors Git:</strong> It periodically fetches the latest state from the configured Git repository.</p>
+</li>
+<li>
+<p><strong>Monitors Cluster:</strong> It queries the ARO Kubernetes API server to get the current actual state of the resources on the cluster.</p>
+</li>
+<li>
+<p><strong>Compares States:</strong> It compares the desired state from Git with the actual state on the cluster.</p>
+</li>
+<li>
+<p><strong>Reconciles Differences:</strong> If a difference is detected (e.g., a new resource in Git, a change to an existing resource, or a resource missing from the cluster), ArgoCD takes action to bring the cluster&#8217;s state in line with the Git repository. This involves creating, updating, or deleting Kubernetes resources on ARO.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Pull-Based Model:</strong> This "pull" model means ArgoCD is proactively fetching changes from Git and applying them. External CI/CD pipelines can push changes to Git, but they don&#8217;t directly interact with the ARO cluster for deployment. This enhances security by limiting direct access to the cluster&#8217;s API.</p>
+</li>
+<li>
+<p><strong>Visibility and Control:</strong> You can use the ArgoCD web UI or CLI to visualize the sync status, health of applications, history of deployments, and manually trigger syncs or rollbacks if needed.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_lab_deploying_an_application_with_openshift_gitops_on_aro"><a class="anchor" href="#_hands_on_lab_deploying_an_application_with_openshift_gitops_on_aro"></a>Hands-on Lab: Deploying an Application with OpenShift GitOps on ARO</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you will implement OpenShift GitOps by deploying an example application to your Azure Red Hat OpenShift cluster using ArgoCD.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="paragraph">
+<p>Before you begin, ensure you have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An existing Azure Red Hat OpenShift (ARO) cluster.</p>
+</li>
+<li>
+<p><code>az</code> CLI installed and configured for your Azure subscription.</p>
+</li>
+<li>
+<p><code>oc</code> CLI installed and logged into your ARO cluster as a user with <code>cluster-admin</code> privileges.</p>
+</li>
+<li>
+<p>A GitHub/GitLab/Bitbucket account and a repository where you can commit YAML manifest files. For this lab, we&#8217;ll use a public GitHub repository. You can fork this example repository: <code><a href="https://github.com/openshift-cs/argocd-example-apps" class="bare">https://github.com/openshift-cs/argocd-example-apps</a></code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_steps"><a class="anchor" href="#_activity_steps"></a>Activity Steps</h3>
+<div class="sect3">
+<h4 id="_step_1_install_the_openshift_gitops_operator"><a class="anchor" href="#_step_1_install_the_openshift_gitops_operator"></a>Step 1: Install the OpenShift GitOps Operator</h4>
+<div class="paragraph">
+<p>First, you need to install the OpenShift GitOps Operator from the OperatorHub on your ARO cluster. This operator will deploy ArgoCD and its dependencies.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Log in to the OpenShift Web Console as a <code>cluster-admin</code>.</p>
+</li>
+<li>
+<p>Navigate to <strong>Operators</strong> &#8594; <strong>OperatorHub</strong>.</p>
+</li>
+<li>
+<p>Search for "OpenShift GitOps".</p>
+</li>
+<li>
+<p>Click on the "OpenShift GitOps" tile and then click <strong>Install</strong>.</p>
+</li>
+<li>
+<p>On the "Install Operator" page:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Set <strong>Installation mode</strong> to <code>All namespaces on the cluster (default)</code>.</p>
+</li>
+<li>
+<p>Set <strong>Update channel</strong> to <code>stable</code>.</p>
+</li>
+<li>
+<p>Set <strong>Approval strategy</strong> to <code>Automatic</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Click <strong>Install</strong>.</p>
+</li>
+<li>
+<p>Wait for the operator to install. You can monitor its status under <strong>Operators</strong> &#8594; <strong>Installed Operators</strong>. Ensure its status changes to <code>Succeeded</code>.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_step_2_verify_argocd_installation_and_access_the_ui"><a class="anchor" href="#_step_2_verify_argocd_installation_and_access_the_ui"></a>Step 2: Verify ArgoCD Installation and Access the UI</h4>
+<div class="paragraph">
+<p>After the operator is installed, ArgoCD components will be deployed.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Verify that ArgoCD components are running:
+<code><code>bash
+oc get pods -n openshift-gitops -l app.kubernetes.io/name=argocd-server
+oc get route -n openshift-gitops argocd-server
+</code></code>
+You should see pods for <code>argocd-server</code>, <code>argocd-application-controller</code>, <code>argocd-repo-server</code>, and <code>argocd-dex-server</code> (if configured) in the <code>openshift-gitops</code> namespace.</p>
+</li>
+<li>
+<p>Get the ArgoCD UI route:
+<code><code>bash
+oc get route argocd-server -n openshift-gitops -o jsonpath='{.spec.host}'
+</code></code>
+This command will output the URL for the ArgoCD web console. Copy this URL.</p>
+</li>
+<li>
+<p>Get the initial admin password for ArgoCD:
+<code><code>bash
+oc extract secret/argocd-initial-admin-secret -n openshift-gitops --keys=password --to=-
+</code></code>
+Copy the password.</p>
+</li>
+<li>
+<p>Open a web browser and navigate to the ArgoCD UI URL you obtained.</p>
+</li>
+<li>
+<p>Log in with <code>admin</code> as the username and the password you extracted.
+You should now be in the ArgoCD dashboard.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_step_3_prepare_your_git_repository"><a class="anchor" href="#_step_3_prepare_your_git_repository"></a>Step 3: Prepare Your Git Repository</h4>
+<div class="paragraph">
+<p>For this lab, we&#8217;ll use a simple "guestbook" application available in a public GitHub repository.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If you haven&#8217;t already, fork the <code>argocd-example-apps</code> repository to your own GitHub account: <code><a href="https://github.com/openshift-cs/argocd-example-apps" class="bare">https://github.com/openshift-cs/argocd-example-apps</a></code>.
+<strong>Self-Correction</strong>: While the original context didn&#8217;t specify, providing a direct example repo is crucial for a hands-on lab.</p>
+</li>
+<li>
+<p>Navigate to the <code>guestbook</code> directory within the forked repository. You&#8217;ll see <code>guestbook-ui-deployment.yaml</code> and <code>guestbook-ui-service.yaml</code>. These are the manifests ArgoCD will deploy.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_step_4_create_an_argocd_application"><a class="anchor" href="#_step_4_create_an_argocd_application"></a>Step 4: Create an ArgoCD Application</h4>
+<div class="paragraph">
+<p>Now, you will create an ArgoCD <code>Application</code> resource that tells ArgoCD to synchronize the <code>guestbook</code> application from your Git repository to your ARO cluster.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a new namespace for the guestbook application:
+<code><code>bash
+oc new-project guestbook-app
+</code></code></p>
+</li>
+<li>
+<p>You can define an ArgoCD <code>Application</code> either via the UI or by creating a YAML manifest. Let&#8217;s create a YAML manifest for consistency with GitOps principles (even for the GitOps definition itself!).
+Create a file named <code>guestbook-argocd-app.yaml</code> with the following content. <strong>Remember to replace <code>YOUR_GITHUB_USERNAME</code> with your actual GitHub username.</strong></p>
+<div class="literalblock">
+<div class="content">
+<pre>```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: guestbook
+  namespace: openshift-gitops # ArgoCD Application resources live in the GitOps namespace
+spec:
+  destination:
+    namespace: guestbook-app   # Target namespace on the ARO cluster
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: guestbook            # Path to the application manifests within the repo
+    repoURL: https://github.com/YOUR_GITHUB_USERNAME/argocd-example-apps.git # Your forked repo URL
+    targetRevision: HEAD       # Use the latest commit on the main branch
+  syncPolicy:
+    automated:                 # Enable automatic synchronization
+      prune: true              # Delete resources that are no longer in Git
+      selfHeal: true           # Auto-correct any drift detected on the cluster
+    syncOptions:
+      - CreateNamespace=true   # Automatically create the target namespace if it doesn't exist
+```</pre>
+</div>
+</div>
+</li>
+<li>
+<p>Apply this manifest to your ARO cluster:
+<code><code>bash
+oc apply -f guestbook-argocd-app.yaml -n openshift-gitops
+</code></code></p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_step_5_sync_and_verify_the_application_deployment"><a class="anchor" href="#_step_5_sync_and_verify_the_application_deployment"></a>Step 5: Sync and Verify the Application Deployment</h4>
+<div class="paragraph">
+<p>ArgoCD should now detect the new <code>Application</code> resource and begin synchronizing.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Observe the synchronization in the ArgoCD UI:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Refresh the ArgoCD UI. You should see a new "guestbook" application tile.</p>
+</li>
+<li>
+<p>Initially, it might be in an <code>OutOfSync</code> state. ArgoCD will automatically detect the desired state from Git and start deploying the resources.</p>
+</li>
+<li>
+<p>Watch as it transitions to <code>Healthy</code> and <code>Synced</code>. You can click on the application tile to see the deployed resources (Deployment, Service) and their status.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify the application deployment on your ARO cluster using the <code>oc</code> CLI:
+<code><code>bash
+oc get deployment -n guestbook-app
+oc get service -n guestbook-app
+oc get pods -n guestbook-app
+</code></code>
+You should see the <code>guestbook-ui</code> deployment, service, and running pods.</p>
+</li>
+<li>
+<p>Access the Guestbook UI:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Expose the <code>guestbook-ui</code> service as a route:
+<code><code>bash
+oc expose service guestbook-ui -n guestbook-app
+</code></code></p>
+</li>
+<li>
+<p>Get the route URL:
+<code><code>bash
+oc get route guestbook-ui -n guestbook-app -o jsonpath='{.spec.host}'
+</code></code></p>
+</li>
+<li>
+<p>Open the URL in your web browser. You should see the Guestbook application.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_step_6_update_the_application_via_git"><a class="anchor" href="#_step_6_update_the_application_via_git"></a>Step 6: Update the Application via Git</h4>
+<div class="paragraph">
+<p>Now, let&#8217;s demonstrate the GitOps principle of updating via Git.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Go to your forked <code>argocd-example-apps</code> repository on GitHub.</p>
+</li>
+<li>
+<p>Navigate to the <code>guestbook</code> directory.</p>
+</li>
+<li>
+<p>Edit the <code>guestbook-ui-deployment.yaml</code> file.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Click the pencil icon to edit the file.</p>
+</li>
+<li>
+<p>Locate the <code>image</code> field under <code>spec.template.spec.containers[0]</code>.</p>
+</li>
+<li>
+<p>Change the image tag from <code>guestbook-ui:v1</code> to <code>guestbook-ui:v2</code>.</p>
+</li>
+<li>
+<p>Commit the change directly to the <code>main</code> branch (or <code>master</code>, depending on your repo configuration).</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Observe ArgoCD:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Go back to the ArgoCD UI.</p>
+</li>
+<li>
+<p>Within a short period (ArgoCD polls Git every 3 minutes by default, but you can trigger a refresh manually), you will see the <code>guestbook</code> application change to <code>OutOfSync</code>.</p>
+</li>
+<li>
+<p>Since <code>automated: true</code> with <code>selfHeal: true</code> is configured in our <code>Application</code> resource, ArgoCD will automatically detect the change in Git and start updating the deployment on ARO.</p>
+</li>
+<li>
+<p>Watch the application state in ArgoCD transition back to <code>Healthy</code> and <code>Synced</code> as the new <code>v2</code> image is rolled out.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify the update on ARO:
+<code><code>bash
+oc get pods -n guestbook-app -w # Watch the pods
+</code></code>
+You will see new pods with the <code>v2</code> image being created, and the old <code>v1</code> pods being terminated.</p>
+</li>
+<li>
+<p>Refresh the Guestbook application in your browser. While the visual change might be minimal for this specific update, the underlying container image has been successfully updated via GitOps.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This hands-on activity demonstrates the power of GitOps: all changes are initiated by modifying Git, and ArgoCD ensures the cluster converges to the desired state.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_clean_up_optional"><a class="anchor" href="#_clean_up_optional"></a>Clean Up (Optional)</h3>
+<div class="paragraph">
+<p>To clean up the resources created in this lab:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Delete the ArgoCD <code>Application</code> resource:
+<code><code>bash
+oc delete application guestbook -n openshift-gitops
+</code></code></p>
+</li>
+<li>
+<p>Delete the <code>guestbook-app</code> namespace and all its contents:
+<code><code>bash
+oc delete project guestbook-app
+</code></code></p>
+</li>
+<li>
+<p>If you wish to uninstall OpenShift GitOps:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Navigate to <strong>Operators</strong> &#8594; <strong>Installed Operators</strong> in the OpenShift Web Console.</p>
+</li>
+<li>
+<p>Click on the "OpenShift GitOps" operator.</p>
+</li>
+<li>
+<p>Click <strong>Uninstall Operator</strong>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_expert_insights_and_troubleshooting"><a class="anchor" href="#_expert_insights_and_troubleshooting"></a>Expert Insights and Troubleshooting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Implementing GitOps effectively involves more than just deploying ArgoCD. Here are some expert insights and common troubleshooting scenarios.</p>
+</div>
+<div class="sect2">
+<h3 id="_common_argocd_sync_issues"><a class="anchor" href="#_common_argocd_sync_issues"></a>Common ArgoCD Sync Issues</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong><code>OutOfSync</code> State:</strong> This indicates a discrepancy between Git and the cluster.</p>
+</li>
+<li>
+<p><strong>Cause:</strong> Manual changes on the cluster, failed deployments, or changes in Git not yet applied.</p>
+</li>
+<li>
+<p><strong>Troubleshooting:</strong> Check the ArgoCD UI for details on which resources are <code>OutOfSync</code>. The UI provides diffs to show the exact differences. If <code>selfHeal</code> is enabled, ArgoCD will attempt to correct it.</p>
+</li>
+<li>
+<p><strong><code>Degraded</code> Health Status:</strong> An application is not running as expected (e.g., pods crashing, services not ready).</p>
+</li>
+<li>
+<p><strong>Cause:</strong> Incorrect application manifests, resource constraints, application bugs.</p>
+</li>
+<li>
+<p><strong>Troubleshooting:</strong> Check the Kubernetes events, pod logs (<code>oc logs &lt;pod-name&gt; -n &lt;namespace&gt;</code>), and deployment status (<code>oc describe deployment &lt;deployment-name&gt; -n &lt;namespace&gt;</code>) on the ARO cluster. ArgoCD reports the health based on Kubernetes resource status.</p>
+</li>
+<li>
+<p><strong>Authentication Errors to Git Repository:</strong> ArgoCD cannot access your private Git repository.</p>
+</li>
+<li>
+<p><strong>Cause:</strong> Incorrect SSH key, invalid personal access token, or missing credentials.</p>
+</li>
+<li>
+<p><strong>Troubleshooting:</strong> Ensure the <code>repoURL</code> is correct. If using a private repository, configure a <code>Secret</code> in the <code>openshift-gitops</code> namespace for ArgoCD to use, as described in the ArgoCD documentation.</p>
+</li>
+<li>
+<p><strong>Resource Not Found/Permission Issues:</strong> ArgoCD attempts to create resources but fails due to missing CRDs or insufficient RBAC.</p>
+</li>
+<li>
+<p><strong>Cause:</strong> Necessary Custom Resource Definitions (CRDs) are not installed, or the ArgoCD service account lacks permissions to create/manage certain resources in the target namespace.</p>
+</li>
+<li>
+<p><strong>Troubleshooting:</strong> Verify CRDs exist (<code>oc get crd</code>). Check the <code>ClusterRole</code> and <code>Role</code> bindings for the ArgoCD service account (<code>argocd-application-controller</code>) in the <code>openshift-gitops</code> namespace and potentially in the target application namespace.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_managing_multiple_environments_and_clusters"><a class="anchor" href="#_managing_multiple_environments_and_clusters"></a>Managing Multiple Environments and Clusters</h3>
+<div class="paragraph">
+<p>For complex scenarios, you&#8217;ll likely manage multiple environments (dev, stage, prod) or even multiple ARO clusters.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Directory Structure in Git:</strong> Organize your Git repository with a clear directory structure, such as <code>environments/dev</code>, <code>environments/stage</code>, <code>environments/prod</code>, each containing environment-specific configurations.</p>
+</li>
+<li>
+<p><strong>ArgoCD <code>ApplicationSet</code>:</strong> For managing multiple applications across many clusters or environments, <code>ApplicationSet</code> is invaluable. It allows you to define an application template and use generators (e.g., Git directory generator, cluster generator) to create many <code>Application</code> resources dynamically. This avoids repetitive <code>Application</code> definitions.</p>
+</li>
+<li>
+<p><strong>Red Hat Advanced Cluster Management (RHACM):</strong> For multi-cluster GitOps at scale, especially across geographically dispersed ARO clusters or a hybrid cloud environment, RHACM integrates well with ArgoCD. RHACM can deploy and manage ArgoCD instances on multiple clusters and orchestrate GitOps policies centrally.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_security_considerations"><a class="anchor" href="#_security_considerations"></a>Security Considerations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Git Repository Access:</strong> Secure your Git repository. Only authorized personnel or CI/CD systems should have write access. Enable branch protection rules.</p>
+</li>
+<li>
+<p><strong>Secrets Management:</strong> Never commit sensitive information (passwords, API keys) directly to Git, even in private repositories. Integrate with external secret management solutions like:</p>
+</li>
+<li>
+<p><strong>Azure Key Vault:</strong> Use external secrets operators (e.g., <code>External Secrets Operator</code> or <code>Azure Key Vault FlexVolume/CSI Driver</code>) to fetch secrets from Azure Key Vault and inject them as Kubernetes Secrets. ArgoCD will then use these Kubernetes Secrets.</p>
+</li>
+<li>
+<p><strong>OpenShift&#8217;s built-in Secret management:</strong> Create secrets directly in OpenShift, but manage their creation and updates through an automated process, not direct Git commit.</p>
+</li>
+<li>
+<p><strong>Least Privilege:</strong> Configure ArgoCD&#8217;s service account with the minimum necessary RBAC permissions. Avoid giving it <code>cluster-admin</code> unless absolutely required for specific cluster-wide operations. Limit the namespaces and resource types it can manage.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scaling_gitops_with_argocd_applicationsets"><a class="anchor" href="#_scaling_gitops_with_argocd_applicationsets"></a>Scaling GitOps with ArgoCD ApplicationSets</h3>
+<div class="paragraph">
+<p>As your environment grows, manually creating and managing hundreds of ArgoCD <code>Application</code> resources can become cumbersome. <code>ApplicationSet</code> resources address this by enabling you to define a single template for an application and then generate multiple <code>Application</code> instances based on various criteria.</p>
+</div>
+<div class="paragraph">
+<p>For example, you can use a Git directory generator to automatically create an <code>Application</code> for every subdirectory within a specified path in your Git repository. This is ideal for managing distinct applications or configurations for different environments, all within a single Git repository.</p>
+</div>
+<div class="paragraph">
+<p>By embracing GitOps with OpenShift GitOps and ArgoCD, you can achieve a highly automated, auditable, and reliable process for managing your Azure Red Hat OpenShift clusters and the applications deployed on them.</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="gitops-for-cluster-administration.html">GitOps for Cluster Administration</a></span>
+  <span class="next"><a href="using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

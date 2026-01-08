@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Externalize application configurations :: Advanced Administration of Azure Red Hat OpenShift</title>
+    <link rel="prev" href="scale-and-expose-applications-to-external-access.html">
+    <link rel="next" href="configure-network-policies-and-limit-ingress-traffic.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Advanced Administration of Azure Red Hat OpenShift</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="wurcbtest" data-version="1.0.0">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../LABENV/index.html">Lab Environment</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/azure-red-hat-openshift-architecture-and-overview.html">Azure Red Hat OpenShift Architecture and Overview</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/aro-platform-capabilities.html">ARO platform capabilities</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/joint-engineering-operation-and-support-model.html">Joint engineering, operation, and support model</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../azure-red-hat-openshift-architecture-and-overview/managed-control-plane-and-infrastructure.html">Managed control plane and infrastructure</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../aro-cluster-provisioning/aro-cluster-provisioning.html">ARO Cluster Provisioning</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-an-azure-red-hat-openshift-cluster.html">Creating an Azure Red Hat OpenShift cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../aro-cluster-provisioning/creating-a-private-azure-red-hat-openshift-cluster.html">Creating a private Azure Red Hat OpenShift cluster</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../core-cluster-configuration/core-cluster-configuration.html">Core Cluster Configuration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-additional-storage-classes.html">Configuring additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/creating-dedicated-machine-sets.html">Creating dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-node-autoscaling.html">Configuring node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-log-forwarding.html">Configuring log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../core-cluster-configuration/configuring-custom-dns-and-dns-forwarding.html">Configuring custom DNS and DNS forwarding</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../registry-integrations/registry-integrations.html">Registry Integrations</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-azure-container-registry-acr.html">Integrating with Azure Container Registry (ACR)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/integrating-with-quay.html">Integrating with Quay</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../registry-integrations/using-the-internal-openshift-registry.html">Using the internal OpenShift registry</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../cluster-application-data-management/cluster-application-data-management.html">Cluster Application Data Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../cluster-application-data-management/backup-and-restore-of-cluster-applications-using-velero.html">Backup and restore of cluster applications using Velero</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/openshift-and-kubernetes-interfaces.html">OpenShift and Kubernetes Interfaces</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/navigating-the-openshift-web-console.html">Navigating the OpenShift Web Console</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-kubernetes-command-line-interface-cli.html">Utilizing the Kubernetes Command-line Interface (CLI)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../openshift-and-kubernetes-interfaces/utilizing-the-openshift-command-line-interface-cli.html">Utilizing the OpenShift Command-line Interface (CLI)</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-and-application-management.html">Troubleshooting and Application Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/troubleshooting-containers-and-pods.html">Troubleshooting containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../troubleshooting-and-application-management/managing-applications-using-the-kubernetes-workload-api.html">Managing applications using the Kubernetes Workload API</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/kubernetes-networking-and-application-exposure.html">Kubernetes Networking and Application Exposure</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/understanding-kubernetes-pod-and-service-networks.html">Understanding Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/scaling-and-exposing-applications-to-external-access.html">Scaling and exposing applications to external access</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../kubernetes-networking-and-application-exposure/externalizing-application-configurations.html">Externalizing application configurations</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../network-security-policies/network-security-policies.html">Network Security Policies</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/configuring-network-policies.html">Configuring network policies</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../network-security-policies/limiting-ingress-traffic.html">Limiting ingress traffic</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../gitops-for-cluster-administration/gitops-for-cluster-administration.html">GitOps for Cluster Administration</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/implementing-openshift-gitops.html">Implementing OpenShift GitOps</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../gitops-for-cluster-administration/using-argocd-for-declarative-cluster-management.html">Using ArgoCD for declarative cluster management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../multi-cluster-management/multi-cluster-management.html">Multi-Cluster Management</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/overview-of-red-hat-advanced-cluster-management-rhacm.html">Overview of Red Hat Advanced Cluster Management (RHACM)</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../multi-cluster-management/managing-kubernetes-clusters-with-rhacm.html">Managing Kubernetes clusters with RHACM</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="../knowledge-share-and-discussions/knowledge-share-and-discussions.html">Knowledge Share and Discussions</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-ad-with-openshift-oauth.html">Integrating Azure AD with OpenShift OAuth</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/integrating-azure-key-vault-with-aro.html">Integrating Azure Key Vault with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/differentiating-availability-sets-vs-availability-zones.html">Differentiating Availability Sets vs. Availability Zones</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/understanding-azure-spot-instances.html">Understanding Azure Spot Instances</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="../knowledge-share-and-discussions/exploring-hosted-control-planes.html">Exploring Hosted Control Planes</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <a class="nav-link" href="hands-on-lab.html">Hands-on Lab</a>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-an-azure-red-hat-openshift-cluster.html">Create an Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-additional-storage-classes.html">Configure additional storage classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-dedicated-machine-sets.html">Create dedicated machine sets</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-node-autoscaling.html">Configure node autoscaling</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-log-forwarding.html">Configure log forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="create-a-private-azure-red-hat-openshift-cluster.html">Create a private Azure Red Hat OpenShift Cluster</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-custom-dns-and-dns-forwarding.html">Configure custom DNS and DNS forwarding</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-registry-integrations-with-aro.html">Implement registry integrations with ARO</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="perform-backup-and-restore-of-a-cluster-application-with-velero.html">Perform backup and restore of a cluster application with Velero</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshoot-containers-and-pods.html">Troubleshoot containers and pods</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-applications-using-the-kubernetes-workload-api.html">Manage applications using the Kubernetes Workload API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="explore-kubernetes-pod-and-service-networks.html">Explore Kubernetes Pod and Service Networks</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="externalize-application-configurations.html">Externalize application configurations</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="implement-gitops-for-cluster-administration.html">Implement GitOps for cluster administration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="manage-a-cluster-using-red-hat-advanced-cluster-management.html">Manage a cluster using Red Hat Advanced Cluster Management</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../appendix/appendix.html">Appendix</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Advanced Administration of Azure Red Hat OpenShift</span>
+    <span class="version">1.0.0</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1.0.0</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Advanced Administration of Azure Red Hat OpenShift</a></li>
+    <li><a href="hands-on-lab.html">Hands-on Lab</a></li>
+    <li><a href="externalize-application-configurations.html">Externalize application configurations</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Externalize application configurations</h1>
+<h1 id="_externalize_application_configurations" class="sect0"><a class="anchor" href="#_externalize_application_configurations"></a>Externalize Application Configurations</h1>
+<div class="paragraph">
+<p>Managing configurations is a crucial aspect of deploying and operating applications in a cloud-native environment like Azure Red Hat OpenShift (ARO). Externalizing configurations means separating configuration data from your application code. This practice enhances portability, maintainability, scalability, and security of your applications.</p>
+</div>
+<div class="paragraph">
+<p>When applications are deployed as immutable artifacts (e.g., container images), their configuration often changes across different environments (development, testing, production). Hardcoding configurations into the application makes it rigid and requires rebuilding and redeploying the application image for every configuration change. Externalizing configurations allows you to update settings without modifying the application code or rebuilding the image, aligning with the principles of Twelve-Factor App methodology.</p>
+</div>
+<div class="sect1">
+<h2 id="_why_externalize_configurations"><a class="anchor" href="#_why_externalize_configurations"></a>Why Externalize Configurations?</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Portability:</strong> Applications can be deployed across various environments (dev, staging, prod) with different configurations without code changes.</p>
+</li>
+<li>
+<p><strong>Maintainability:</strong> Configuration changes become simpler, reducing the risk of errors introduced during code modifications and rebuilds.</p>
+</li>
+<li>
+<p><strong>Scalability:</strong> Easier to manage configurations for multiple instances of an application.</p>
+</li>
+<li>
+<p><strong>Security:</strong> Sensitive information like API keys or database credentials can be managed securely using OpenShift Secrets, preventing them from being exposed in source code or container images.</p>
+</li>
+<li>
+<p><strong>Separation of Concerns:</strong> Clearly separates application logic from deployment-specific settings.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_methods_for_externalizing_configurations_in_openshift"><a class="anchor" href="#_methods_for_externalizing_configurations_in_openshift"></a>Methods for Externalizing Configurations in OpenShift</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenShift (and Kubernetes) provides several built-in mechanisms to externalize application configurations:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="#configmaps.adoc" class="xref unresolved">ConfigMaps</a></p>
+</li>
+<li>
+<p><a href="#secrets.adoc" class="xref unresolved">Secrets</a></p>
+</li>
+<li>
+<p>Environment Variables</p>
+</li>
+<li>
+<p>Volume Mounts</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="_configmaps"><a class="anchor" href="#_configmaps"></a>ConfigMaps</h3>
+<div class="paragraph">
+<p>ConfigMaps are API objects used to store non-sensitive configuration data in key-value pairs. They can be used to store fine-grained properties, configuration files, or command-line arguments. Applications can consume ConfigMaps in three main ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>As environment variables:</strong> Keys from the ConfigMap are injected directly into a container&#8217;s environment.</p>
+</li>
+<li>
+<p><strong>As files in a volume:</strong> The ConfigMap data is mounted as files within a container&#8217;s filesystem. This is particularly useful for configuration files that an application expects to find at a specific path.</p>
+</li>
+<li>
+<p><strong>As command-line arguments:</strong> Although less common, ConfigMap values can be used to construct arguments for a container&#8217;s entry point.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_how_configmaps_work"><a class="anchor" href="#_technical_explanation_how_configmaps_work"></a>Technical Explanation: How ConfigMaps Work</h4>
+<div class="paragraph">
+<p>A <code>ConfigMap</code> object consists of a <code>data</code> field, which contains the configuration data as key-value pairs. Each key is a string, and its value can be either a simple string or a multi-line string representing a file&#8217;s content.</p>
+</div>
+<div class="paragraph">
+<p>When a <code>Pod</code> consumes a <code>ConfigMap</code> as environment variables, OpenShift injects the specified key-value pairs into the container&#8217;s environment. If consumed as files, OpenShift creates a special volume type, populating it with files where each file name corresponds to a ConfigMap key and its content is the ConfigMap value.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example <code>ConfigMap</code> definition:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+data:
+  message: "Hello from ConfigMap!"
+  log_level: "INFO"
+  # You can also store entire file contents
+  server.properties: |
+    port=8080
+    debug=true</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_secrets"><a class="anchor" href="#_secrets"></a>Secrets</h3>
+<div class="paragraph">
+<p>Secrets are similar to ConfigMaps but are specifically designed to hold sensitive information, such as passwords, OAuth tokens, and SSH keys. OpenShift (Kubernetes) takes additional measures to protect Secrets, though it&#8217;s important to understand that they are <strong>encoded</strong> (base64) by default, not <strong>encrypted</strong> at rest unless specific encryption-at-rest features are enabled on the cluster. They are stored in <code>etcd</code>, which is secured.</p>
+</div>
+<div class="paragraph">
+<p>Like ConfigMaps, Secrets can be consumed as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Environment variables:</strong> Sensitive keys from the Secret are injected into a container&#8217;s environment.</p>
+</li>
+<li>
+<p><strong>Files in a volume:</strong> The Secret data is mounted as files within a container&#8217;s filesystem. This is common for database credentials or API keys.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_technical_explanation_how_secrets_work"><a class="anchor" href="#_technical_explanation_how_secrets_work"></a>Technical Explanation: How Secrets Work</h4>
+<div class="paragraph">
+<p>A <code>Secret</code> object also contains a <code>data</code> field, but its values must be base64 encoded. This encoding is a transport mechanism, not an encryption method. When a Pod consumes a Secret, OpenShift decodes the values before injecting them as environment variables or writing them to files in a mounted volume.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example <code>Secret</code> definition (values are base64 encoded):</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: my-app-secret
+type: Opaque # Or kubernetes.io/dockerconfigjson, kubernetes.io/tls, etc.
+data:
+  db_user: &lt;base64_encoded_username&gt; # e.g., echo -n 'admin' | base64
+  db_password: &lt;base64_encoded_password&gt; # e.g., echo -n 's3cr3t' | base64</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+OpenShift ensures that Secrets are only exposed to the Pods that explicitly request them and are removed from the node&#8217;s memory when the Pod is deleted. Always treat base64 encoding as an encoding scheme, not an encryption method. For true encryption at rest, ARO utilizes platform-level encryption for <code>etcd</code> or you can integrate with external key management systems like Azure Key Vault (covered in <a href="#knowledge-share.adoc#_integrating_azure_key_vault_with_aro" class="xref unresolved">Integrating Azure Key Vault with ARO</a>).
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_environment_variables"><a class="anchor" href="#_environment_variables"></a>Environment Variables</h3>
+<div class="paragraph">
+<p>Both ConfigMaps and Secrets are commonly consumed as environment variables. This is a widely adopted method for externalizing configuration in containerized applications because it&#8217;s straightforward and many applications are already designed to read configurations from the environment.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example of injecting ConfigMap values as environment variables in a Deployment:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: alpine/git # A simple image for demonstration
+        command: ["sh", "-c", "echo \"Message: $APP_MESSAGE\"; echo \"Log Level: $APP_LOG_LEVEL\"; sleep infinity"]
+        env:
+        - name: APP_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: my-app-config # Refers to the ConfigMap defined above
+              key: message
+        - name: APP_LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: my-app-config
+              key: log_level</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_volume_mounts"><a class="anchor" href="#_volume_mounts"></a>Volume Mounts</h3>
+<div class="paragraph">
+<p>For applications that expect configuration files at specific paths (e.g., <code>/etc/app/config.properties</code>), ConfigMaps and Secrets can be mounted as volumes. Each key in the ConfigMap or Secret becomes a file in the mounted volume, with the key&#8217;s value as the file&#8217;s content.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example of mounting a ConfigMap as a volume in a Deployment:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-file-config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app-file-config
+  template:
+    metadata:
+      labels:
+        app: my-app-file-config
+    spec:
+      containers:
+      - name: my-container
+        image: nginx:latest # A simple web server
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d # Mount point for Nginx custom config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-custom-config # ConfigMap containing Nginx config
+          items:
+          - key: default.conf # Key in ConfigMap
+            path: default.conf # File name in mountPath</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example <code>ConfigMap</code> for <code>nginx-custom-config</code>:</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-custom-config
+data:
+  default.conf: |
+    server {
+        listen 80;
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+        error_page 500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+        location /api {
+            return 200 "Hello from Nginx via ConfigMap!";
+        }
+    }</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hands_on_activity_externalizing_application_configuration"><a class="anchor" href="#_hands_on_activity_externalizing_application_configuration"></a>Hands-on Activity: Externalizing Application Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this lab, you will deploy a simple web application that displays a configurable message. You&#8217;ll first hardcode the message, then externalize it using a ConfigMap, and finally externalize a sensitive API key using a Secret.</p>
+</div>
+<div class="sect2">
+<h3 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>An ARO cluster with <code>oc</code> CLI configured and logged in.</p>
+</li>
+<li>
+<p>A new OpenShift project (e.g., <code>my-external-configs</code>).
+[source,bash]
+----
+oc new-project my-external-configs
+----</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_1_deploy_an_application_with_hardcoded_configuration"><a class="anchor" href="#_activity_1_deploy_an_application_with_hardcoded_configuration"></a>Activity 1: Deploy an Application with Hardcoded Configuration</h3>
+<div class="paragraph">
+<p>First, let&#8217;s deploy a simple Nginx web server that serves a basic <code>index.html</code> with a hardcoded message.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a simple <code>index.html</code> file locally:
+[source,bash]
+----
+cat &lt;&lt; EOF &gt; index.html
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Hello ARO&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to ARO!&lt;/h1&gt;
+&lt;p&gt;This message is hardcoded in the image.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF
+----</p>
+</li>
+<li>
+<p>Create a custom Nginx image that includes this <code>index.html</code>:
+[source,bash]
+----
+cat &lt;&lt; EOF &gt; Dockerfile
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html/index.html
+EOF
+----</p>
+</li>
+<li>
+<p>Build and push the image to your internal OpenShift registry. Replace <code>&lt;OPENSHIFT_REGISTRY&gt;/&lt;PROJECT_NAME&gt;</code> with your project&#8217;s internal registry path (e.g., <code>image-registry.openshift-image-registry.svc:5000/my-external-configs</code>). You can get the registry URL by running <code>oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}'</code>.
+[source,bash]
+----
+oc new-build --binary=true --name=hello-nginx --from=nginx:latest -l app=hello-nginx
+oc start-build hello-nginx --from-dir=. --follow
+oc tag hello-nginx:latest hello-nginx:v1-hardcoded
+----</p>
+</li>
+<li>
+<p>Deploy the application:
+[source,yaml]
+----
+# deployment-hardcoded.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-nginx-hardcoded
+  labels:
+    app: hello-nginx-hardcoded
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-nginx-hardcoded
+  template:
+    metadata:
+      labels:
+        app: hello-nginx-hardcoded
+    spec:
+      containers:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name: nginx
+image: image-registry.openshift-image-registry.svc:5000/my-external-configs/hello-nginx:v1-hardcoded
+ports:</p>
+</li>
+<li>
+<p>containerPort: 80
+----
+[source,bash]
+----
+oc apply -f deployment-hardcoded.yaml
+----</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Expose the application with a Route:
+[source,yaml]
+----
+# route-hardcoded.yaml
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: hello-nginx-hardcoded-route
+spec:
+  to:
+    kind: Service
+    name: hello-nginx-hardcoded # OpenShift will auto-create a service for the Deployment
+  port:
+    targetPort: 80
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+----
+[source,bash]
+----
+oc expose deployment hello-nginx-hardcoded --port=80
+oc apply -f route-hardcoded.yaml
+----</p>
+</li>
+<li>
+<p>Verify the deployment:
+[source,bash]
+----
+oc get pods -l app=hello-nginx-hardcoded
+oc get route hello-nginx-hardcoded-route -o jsonpath='{"http://"}{.spec.host}{"\n"}'
+----
+Open the URL in your browser. You should see the hardcoded message.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_2_externalize_configuration_using_a_configmap"><a class="anchor" href="#_activity_2_externalize_configuration_using_a_configmap"></a>Activity 2: Externalize Configuration using a ConfigMap</h3>
+<div class="paragraph">
+<p>Now, let&#8217;s modify the application to read the welcome message from a ConfigMap. We&#8217;ll use a new <code>index.html</code> that reads an environment variable.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a new <code>index.html</code> that uses an environment variable. We&#8217;ll simulate this by replacing a placeholder in <code>nginx.conf</code>.
+[source,bash]
+----
+cat &lt;&lt; EOF &gt; nginx-template.conf
+server {
+    listen 80;
+    location / {
+        return 200 "&lt;h1&gt;Welcome to ARO!&lt;/h1&gt;&lt;p&gt;Message from ConfigMap: ${WELCOME_MESSAGE}&lt;/p&gt;";
+        add_header Content-Type text/html;
+    }
+}
+EOF
+----
+This Nginx configuration will serve a response directly, embedding the <code>WELCOME_MESSAGE</code> environment variable.</p>
+</li>
+<li>
+<p>Create a ConfigMap for your welcome message:
+[source,yaml]
+----
+# configmap-message.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: welcome-message-config
+data:
+  welcome_message: "Hello ARO Admin! This message is from a ConfigMap."
+  nginx_config_template: |
+    server {
+        listen 80;
+        location / {
+            return 200 "&lt;h1&gt;Welcome to ARO!&lt;/h1&gt;&lt;p&gt;Message from ConfigMap: ${WELCOME_MESSAGE}&lt;/p&gt;";
+            add_header Content-Type text/html;
+        }
+    }
+----
+[source,bash]
+----
+oc apply -f configmap-message.yaml
+----</p>
+</li>
+<li>
+<p>Create a new Deployment that uses this ConfigMap. This time, we&#8217;ll mount the Nginx config directly from the ConfigMap and also inject <code>WELCOME_MESSAGE</code> as an environment variable (for clarity, though Nginx reads its config from file). For a real application, you might use an init container to process a template.
+[source,yaml]
+----
+# deployment-configmap.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-nginx-configmap
+  labels:
+    app: hello-nginx-configmap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-nginx-configmap
+  template:
+    metadata:
+      labels:
+        app: hello-nginx-configmap
+    spec:
+      containers:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name: nginx
+image: nginx:latest # Using a standard Nginx image
+ports:</p>
+</li>
+<li>
+<p>containerPort: 80
+env:</p>
+</li>
+<li>
+<p>name: WELCOME_MESSAGE
+  valueFrom:
+    configMapKeyRef:
+      name: welcome-message-config
+      key: welcome_message # Injecting ConfigMap value as env var
+volumeMounts:</p>
+</li>
+<li>
+<p>name: nginx-config-volume
+    mountPath: /etc/nginx/conf.d # Mount point for Nginx custom config
+volumes:</p>
+</li>
+<li>
+<p>name: nginx-config-volume
+configMap:
+  name: welcome-message-config
+  items:</p>
+</li>
+<li>
+<p>key: nginx_config_template # Key in ConfigMap
+            path: default.conf # File name in mountPath
+----
+[source,bash]
+----
+oc apply -f deployment-configmap.yaml
+----</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Expose the ConfigMap-driven application:
+[source,bash]
+----
+oc expose deployment hello-nginx-configmap --port=80
+oc expose service hello-nginx-configmap --name=hello-nginx-configmap-route --port=80
+----</p>
+</li>
+<li>
+<p>Verify the deployment:
+[source,bash]
+----
+oc get pods -l app=hello-nginx-configmap
+oc get route hello-nginx-configmap-route -o jsonpath='{"http://"}{.spec.host}{"\n"}'
+----
+Open the URL. You should now see the message from the <code>welcome-message-config</code> ConfigMap.</p>
+<div class="literalblock">
+<div class="content">
+<pre>To demonstrate changing the config without redeploying the app:
+[source,bash]
+----
+oc patch configmap welcome-message-config --patch '{"data":{"welcome_message":"Updated message from ConfigMap v2!"}}'
+oc delete pod -l app=hello-nginx-configmap # Force recreation to pick up new config
+----
+After the pod restarts, refresh your browser. You should see the updated message. (Note: ConfigMap changes don't automatically trigger Pod restarts; you need a controller like GitOps or manual restart for changes to apply if used as environment variables or volume mounts that aren't watched by the app).</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_activity_3_externalize_sensitive_data_using_a_secret"><a class="anchor" href="#_activity_3_externalize_sensitive_data_using_a_secret"></a>Activity 3: Externalize Sensitive Data using a Secret</h3>
+<div class="paragraph">
+<p>Now, let&#8217;s imagine our application needs an API key. We&#8217;ll store it in a Secret and inject it as an environment variable.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a Secret for an imaginary API key. Remember to base64 encode the value.
+[source,bash]
+----
+export API_KEY_VALUE="mySuperSecureAPIkey123"
+oc create secret generic app-api-key --from-literal=api_key="${API_KEY_VALUE}"
+----
+You can inspect the Secret (its data will be base64 encoded):
+[source,bash]
+----
+oc get secret app-api-key -o yaml
+----</p>
+</li>
+<li>
+<p>Create a new Deployment that injects this Secret as an environment variable. We&#8217;ll modify our Nginx config again to display this.
+[source,yaml]
+----
+# configmap-secret-integration.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secret-integrated-config
+data:
+  nginx_secret_config: |
+    server {
+        listen 80;
+        location / {
+            return 200 "&lt;h1&gt;Welcome to ARO!&lt;/h1&gt;&lt;p&gt;Message: ${WELCOME_MESSAGE}&lt;/p&gt;&lt;p&gt;API Key (from Secret): ${APP_API_KEY}&lt;/p&gt;";
+            add_header Content-Type text/html;
+        }
+    }
+----
+[source,bash]
+----
+oc apply -f configmap-secret-integration.yaml
+----</p>
+</li>
+<li>
+<p>Create a new Deployment leveraging both ConfigMap and Secret:
+[source,yaml]
+----
+# deployment-secret.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-nginx-secret
+  labels:
+    app: hello-nginx-secret
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-nginx-secret
+  template:
+    metadata:
+      labels:
+        app: hello-nginx-secret
+    spec:
+      containers:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>name: nginx
+image: nginx:latest
+ports:</p>
+</li>
+<li>
+<p>containerPort: 80
+env:</p>
+</li>
+<li>
+<p>name: WELCOME_MESSAGE
+valueFrom:
+  configMapKeyRef:
+    name: welcome-message-config
+    key: welcome_message</p>
+</li>
+<li>
+<p>name: APP_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: app-api-key # Reference the Secret created above
+      key: api_key     # Reference the key within the Secret
+volumeMounts:</p>
+</li>
+<li>
+<p>name: nginx-secret-config-volume
+    mountPath: /etc/nginx/conf.d
+volumes:</p>
+</li>
+<li>
+<p>name: nginx-secret-config-volume
+configMap:
+  name: secret-integrated-config
+  items:</p>
+</li>
+<li>
+<p>key: nginx_secret_config
+            path: default.conf
+----
+[source,bash]
+----
+oc apply -f deployment-secret.yaml
+----</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Expose the Secret-integrated application:
+[source,bash]
+----
+oc expose deployment hello-nginx-secret --port=80
+oc expose service hello-nginx-secret --name=hello-nginx-secret-route --port=80
+----</p>
+</li>
+<li>
+<p>Verify the deployment:
+[source,bash]
+----
+oc get pods -l app=hello-nginx-secret
+oc get route hello-nginx-secret-route -o jsonpath='{"http://"}{.spec.host}{"\n"}'
+----
+Open the URL. You should now see both the message from the ConfigMap and the API key from the Secret displayed on the page.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cleanup_optional"><a class="anchor" href="#_cleanup_optional"></a>Cleanup (Optional)</h3>
+<div class="paragraph">
+<p>To remove the resources created in this lab:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete all -l app=hello-nginx-hardcoded
+oc delete all -l app=hello-nginx-configmap
+oc delete all -l app=hello-nginx-secret
+oc delete configmap welcome-message-config secret-integrated-config
+oc delete secret app-api-key
+oc delete imagestream hello-nginx</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="scale-and-expose-applications-to-external-access.html">Scale and expose applications to external access</a></span>
+  <span class="next"><a href="configure-network-policies-and-limit-ingress-traffic.html">Configure network policies and limit ingress traffic</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
